@@ -1,0 +1,11 @@
+"fileheader.Author": "****",
+"fileheader.tpl": "
+/*\r\n 
+* @Author: {author}\r\n 
+* @Copyright (C) 2015-2017 Counect\r\n 
+* @Date: {createTime} \r\n 
+* @Last Modified by: {lastModifiedBy}\r\n 
+* @Last Modified time: {updateTime}\r\n 
+* @Describe: \r\n 
+*/\r\n",
+ "fileheader.LastModifiedBy": "****",
