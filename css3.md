@@ -1,6 +1,6 @@
 #CSS3
 
-**CSS练习：https://fuqunying.github.io/**
+**CSS练习：https://fuqunying.github.io/** 今天的从第七节开始
 
 ## 1.概述
   CSS3是CSS2的升级版本，3只是版本号，它在CSS2.1的基础上增加了很多强大的新功能。 目前主流浏览器chrome、safari、firefox、opera、甚至360都已经支持了CSS3大部分功能了，IE10以后也开始全面支持CSS3了。
@@ -209,6 +209,84 @@ background-color : color;
 background-color 只能设置一个。*/
 ```
 ### 7.CSS3的选择器
+#### 7.1 属性选择器
+  即允许使用元素所附带的属性及其值，来匹配页面元素
+  这么多的属性：
+```html
+  <a id="" class="" title="" target="_blank"></a>
+```
+  语法：**核心：[ ]**
+  1.[attr],attr表示任意的属性名称，匹配附带attr属性的元素
+```txt
+  ex：[id]：匹配有id属性的元素
+  [title]：匹配有title属性的元素
+```
+  2.elem[attr]
+```txt
+  elem：表示页面中任意元素
+  ex：1.匹配页面中，附带class属性的p元素：p[class]
+  	2.匹配页面中，附带class属性和id属性的div元素：div[class][id]
+  	3. .container[title]：附带title属性的class为container的元素
+```
+  3.[attr=value],value：可以表示任意的属性
+    1.div[id=container]<==>#container
+    2匹配页面中所有的文本框
+    input[type=text]{border:1px solid #000}
+  4.[class~=value]-------非重点
+    <p class="c1 c2 c3 c4"></p>
+    作用：匹配class的属性值是一个值列表，并且value是该列表中的一个独立选择器的元素
+    ex：1.匹配class是列表中包含c3选择器的p元素
+    p[class~=c3]
+  5.[attr^=value]：匹配attr属性值是以value字符作为开始的元素
+    <div class="col-md-1"></div>
+    <div class="col-d-1"></div>
+    <div class="col-m-1"></div>
+    <div class="col-s-1"></div>
+    <div class="col-md-2"></div>
+    <div class="col-d-2"></div>
+    <div class="col-m-2"></div>
+    <div class="col-s-2"></div>
+    ex:1.匹配所有class属性值是以col作为开始的元素：[class^=col]
+  6.[attr $= value]：匹配attr属性值是以value字符作为结尾的元素
+    ex：1.匹配所有class属性值以-1作为结尾的属性值：[class $= "-1"];//数字或标点符号都要使用“”引起来
+  7.[attr *= value]：匹配attr属性值中包含value字符的元素
+    ex：匹配class属性值中包含md字符的元素：[class &= md]
+#### 7.2 伪类选择器
+1.:root选择器
+    :root选择器，从字面上我们就可以很清楚的理解是根选择器，他的意思就是匹配元素E所在文档的根元素。在HTML文档中，根元素始终是<html>。
+    “:root”选择器等同于<html>元素，简单点说：
+    :root{background:orange}
+    html {background:orange;}
+    两个效果是一样的。
+    建议使用:root方法，直接写HTML不太好。
+2.否定伪类
+	作用：将指定选择器匹配上的元素排除出去
+	语法：:not(selector)
+		eg:td:not(:first-child ){...}
+3.:empty
+	匹配没有子元素的元素（没有子元素，没有文本，没有回车或空格）,反正不能有任何的东西。
+4.目标选择器
+	:target选择器称为目标选择器，用来匹配文档(页面)的url的某个标志符的目标元素
+  比如想要点击链接显示隐藏的段落
+```html
+<h2><a href="#brand">Brand</a></h2>
+<div class="menuSection" id="brand">
+    content for Brand
+</div>
+```
+```css
+.menuSection{
+  display: none;
+}
+:target{/*这里的:target就是指id="brand"的div对象*/
+  display:block;
+}
+```
+```txt
+	ps:具体来说，触发元素的URL中的标志符通常会包含一个#号，后面带有一个标志符名称，上面代码中是：#brand，：target就是用来匹配id为“brand”的元素（id="brand"的元素）,上面代码中是那个div元素。
+	如果是多个url（多个target）：
+	就像上面的例子，#brand与后面的id="brand"是对应的，当同一个页面上有很多的url的时候你可以取不同的名字，只要#号后对的名称与id=""中的名称对应就可以了。
+```
 
 
 
@@ -221,3 +299,6 @@ background-color 只能设置一个。*/
 
 
 
+
+
+```
