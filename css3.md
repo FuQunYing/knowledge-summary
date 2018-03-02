@@ -1,6 +1,6 @@
 #CSS3
 
-**CSS练习：https://fuqunying.github.io/** 今天的从第七节开始
+**CSS练习：https://fuqunying.github.io/** 今天的从第7.2开始
 
 ## 1.概述
   CSS3是CSS2的升级版本，3只是版本号，它在CSS2.1的基础上增加了很多强大的新功能。 目前主流浏览器chrome、safari、firefox、opera、甚至360都已经支持了CSS3大部分功能了，IE10以后也开始全面支持CSS3了。
@@ -285,8 +285,44 @@ background-color 只能设置一个。*/
 ```txt
 	ps:具体来说，触发元素的URL中的标志符通常会包含一个#号，后面带有一个标志符名称，上面代码中是：#brand，：target就是用来匹配id为“brand”的元素（id="brand"的元素）,上面代码中是那个div元素。
 	如果是多个url（多个target）：
-	就像上面的例子，#brand与后面的id="brand"是对应的，当同一个页面上有很多的url的时候你可以取不同的名字，只要#号后对的名称与id=""中的名称对应就可以了。
+	就像上面的例子，#brand与后面的id="brand"是对应的，当同一个页面上有很多的url的时候可以取不同的名字，只要#号后对的名称与id=""中的名称对应就可以了。
 ```
+5.:first-child
+  为了说明后面的每个child，先来一段html
+```html
+<div id="d1">
+    <div class="c1"></div>
+    <div class="c2"></div>
+    <div class="c3"></div>
+</div>
+<div id="d2">
+    <div class="c1"></div>
+    <div class="c2"></div>
+    <div class="c3"></div>
+</div>
+```
+  :first-child：匹配属于其父元素中的首个子元素
+  比如，div:first-child{匹配到“d1”，两个“c1”}
+6.:last-child：匹配属于其父元素中的最后一个子元素
+  比如，div:last-child{匹配到“d2”，两个“c3”}
+7.:nth-child：匹配其属于父元素中的第n个子元素
+  比如，:nth-child(2)，就是匹配第二个元素
+  div:nth-child(1)<==>:first-child  
+  参数n的起始值始终是1，而不是0。也就是说，参数n的值为0时，选择器将选择不到任何匹配的元素。关键词odd表示奇数，even表示偶数。
+8.:nth-last-child(n) 选择器和前面的“:nth-child(n)”选择器非常的相似，只是这里多了一个“last”，所起的作用和“:nth-child(n)”选择器有所区别，从某父元素的最后一个子元素开始计算，来选择特定的元素。就是倒数，用法相同。
+9.first-of-type选择器
+  “:first-of-type”选择器类似于“:first-child”选择器，不同之处就是指定了元素的类型,其主要用来定位一个父元素下的某个类型的第一个子元素。
+  div:first-of-type{父元素下第一个div元素}
+10.last-of-type选择器
+  “:last-of-type”选择器类似于“:last-child”选择器，只不过是指定了元素类型
+11.nth-of-type选择器，同理，不多赘述
+12.:only-child：匹配属于其父元素的唯一子元素
+13.:only-of-type选择器用来选择一个元素是它的父元素的唯一一个相同类型的子元素。这样说或许不太好理解，换一种说法。“:only-of-type”是表示一个元素他有很多个子元素，而其中只有一种类型的子元素是唯一的，使用“:only-of-type”选择器就可以选中这个元素中的唯一一个类型子元素。
+#### 7.3 其它选择器
+1.:enabled选择器
+  在Web的表单中，有些表单元素有可用（“:enabled”）和不可用（“:disabled”）状态，比如输入框，密码框，复选框等。在默认情况之下，这些表单元素都处在可用状态。那么就可以通过伪选择器“:enabled”对这些表单元素设置样式。
+  选择器:enabled{...}
+2.
 
 
 
@@ -300,5 +336,9 @@ background-color 只能设置一个。*/
 
 
 
+
+
+
+```
 
 ```
