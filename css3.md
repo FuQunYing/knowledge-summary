@@ -1,6 +1,6 @@
 #CSS3
 
-**CSS练习：https://fuqunying.github.io/** 今天的从第7.2开始
+**CSS练习：https://fuqunying.github.io/** ，今日练习特效导航栏特效，今天的知识从第9节开始
 
 ## 1.概述
   CSS3是CSS2的升级版本，3只是版本号，它在CSS2.1的基础上增加了很多强大的新功能。 目前主流浏览器chrome、safari、firefox、opera、甚至360都已经支持了CSS3大部分功能了，IE10以后也开始全面支持CSS3了。
@@ -322,7 +322,280 @@ background-color 只能设置一个。*/
 1.:enabled选择器
   在Web的表单中，有些表单元素有可用（“:enabled”）和不可用（“:disabled”）状态，比如输入框，密码框，复选框等。在默认情况之下，这些表单元素都处在可用状态。那么就可以通过伪选择器“:enabled”对这些表单元素设置样式。
   选择器:enabled{...}
-2.
+2.:disabled选择器
+  “:disabled”选择器刚好与“:enabled”选择器相反，用来选择不可用表单元素。要正常使用“:disabled”选择器，需要在表单元素的HTML中设置“disabled”属性。
+```html
+<input type="submit" value="禁止点下一步" disabled />
+```
+```css
+input[type="submit"]:disabled  {
+  background: #eee;
+  border-color: #eee;
+  color: #ccc;
+}
+```
+  通过这个给不可用的表单元素设置明显一些的样式。
+3.:checked选择器
+  在表单元素中，单选按钮和复选按钮都具有选中和未选中状态。（复写这两个按钮默认样式比较困难）。在CSS3中，可以通过状态选择器“:checked”配合其他标签实现自定义样式。而“:checked”表示的是选中状态。
+```html
+<input type="radio" checked="checked"/>
+```
+```css
+input[type="radio"] + span {
+  opacity: 0;
+
+}
+input[type="radio"]:checked + span {
+  opacity: 1;
+}
+```
+  选中的时候，圆圈中间就会有白色的点了。
+4.::selection选择器
+  ::selection就是匹配被用户选取的内容的样式
+```html
+<p>浏览器默认选中是白字蓝底，现在改成红字黄底</p>
+```
+```css
+::selection{
+	background-color:yellow;
+	color:red;
+}
+::-moz-selection{...}
+```
+  火狐浏览器有兼容问题，需要加前缀，而且这个选择器必须是两个冒号。
+5.:read-only选择器
+  “:read-only”选择器用来指定处于只读状态元素的样式。简单点说就是，元素中设置了“readonly=’readonly’”才行。
+```html
+<input type="text" name="address" id="address" placeholder="中国上海" readonly="readonly" />
+```
+```css
+textarea:-moz-read-only{
+  border: 1px solid #ccc;
+  height: 50px;
+  resize: none;
+  background: #eee;
+}
+textarea:read-only {
+  border: 1px solid #ccc;
+  height: 50px;
+  resize: none;
+  background: #eee;
+}
+```
+  给只读的元素设置醒目的样式，火狐有兼容性，需要加前缀。
+6.:read-write选择器
+  read-write选择器刚好与:read-only选择器相反，主要用来指定当元素处于非只读状态时的样式。
+```html
+<input type="text" name="name" id="name" placeholder="大漠" />
+```
+```css
+input[type="text"]:-moz-read-write{
+  border:2px solid red;
+}
+input[type="text"]:read-write{
+  border:2px solid red;
+}
+```
+  非只读下的元素就会有红色边框啦。
+7.::before和::after
+  ::before和::after这两个主要用来给元素的前面或后面插入内容，这两个常和"content"配合使用，使用的场景最多的就是清除浮动。
+```css
+.clearfix::before, .clearfix::after {
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+.clearfix:after {clear: both;}
+.clearfix {zoom: 1;}
+```
+  或者通过内容生成，给元素添加特效：
+```css
+.demo::before, .demo::after{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    -webkit-box-shadow:0 0 20px rgba(0,0,0,0.8);
+    -moz-box-shadow:0 0 20px rgba(0,0,0,0.8);
+    box-shadow:0 0 20px rgba(0,0,0,0.8);
+    top:50%;
+    bottom:0;
+    left:10px;
+    right:10px;
+    -moz-border-radius:100px / 10px;
+    border-radius:100px / 10px;
+}
+```
+  上面代码作用在class名叫.demo上的div的前（before）后(after)都添加一个空元素，然后为这两个空元素添加阴影特效。
+### 8.CSS3变形
+#### 8.1 旋转rotate（）
+  旋转rotate()函数通过指定的角度参数使元素相对原点进行旋转。它主要在二维空间内进行操作，设置一个角度值，用来指定旋转的幅度。如果这个值为正值，元素相对原点中心顺时针旋转；如果这个值为负值，元素相对原点中心逆时针旋转。
+  语法长这样：
+```css
+transform:rotate(XXdeg)
+```
+```txt
+3D转换
+  属性：perspective，模拟人的眼睛，到3D转换物体的距离，取值越大，表示离物体越远，取值越小，表示离物体越近
+    取值：以px为单位的数值
+    注意：该属性要加在3D转换元素的父元素上
+  3D旋转，transform
+    取值：rotateX(xdeg)，以X轴为中心轴，旋转元素
+    rotateY(ydeg)，以Y轴为中心轴，旋转元素
+    rotateZ(zdeg)，以Z轴为中心轴，旋转元素
+    rotate3D(x,y,z,ndeg)，x,y,z取值大于0的话，则该轴参与旋转，x,y,z取值为0的话，则该轴不参与旋转
+    	rotate3D(1,0,045deg)==>rotateX(45deg)
+```
+#### 8.2 扭曲skew（）
+  扭曲skew()函数能够让元素倾斜显示。它可以将一个对象以其中心位置围绕着X轴和Y轴按照一定的角度倾斜。这与rotate()函数的旋转不同，rotate()函数只是旋转，而不会改变元素的形状。skew()函数不会旋转，而只会改变元素的形状。
+  skew有三种情况
+  - skew(x,y)使元素在水平和垂直方向同时扭曲（X轴和Y轴同时按一定的角度值进行扭曲变形）；第一个参数对应X轴，第二个参数对应Y轴。如果第二个参数未提供，则值为0，也就是Y轴方向上无斜切。
+  - skewX(x)仅使元素在水平方向扭曲变形（X轴扭曲变形）；
+  - skewY(y)仅使元素在垂直方向扭曲变形（Y轴扭曲变形）
+    语法长这样：
+```css
+transform:skew(XXdeg);
+/*正负的使用和上面那个一样，写一个数字，默认x，y同时扭曲这些角度*/
+```
+#### 8.3 缩放scale（）
+  缩放 scale()函数 让元素根据中心原点对对象进行缩放。
+  也有三种情况：
+  - scale(X,Y)使元素水平方向和垂直方向同时缩放（也就是X轴和Y轴同时缩放）
+  - scaleX(x)元素仅水平方向缩放（X轴缩放）
+  - scaleY(y)元素仅垂直方向缩放（Y轴缩放）
+    语法长这样：
+```css
+transform:scale(数字)
+/*如果只有一个数字，默认x，y同时放大或缩小这个数字， scale()的取值默认的值为1，当值设置为0.01到0.99之间的任何值，作用使一个元素缩小；而任何大于或等于1.01的值，作用是让元素放大。*/
+```
+#### 8.4 位移translate（）
+  translate()函数可以将元素向指定的方向移动，类似于position中的relative。或以简单的理解为，使用translate()函数，可以把元素从原来的位置移动，而不影响在X、Y轴上的任何Web组件。
+  三种情况：
+  - translate(x,y)水平方向和垂直方向同时移动（也就是X轴和Y轴同时移动）
+  - translateX(x)仅水平方向移动（X轴移动）
+  - translateY(Y)仅垂直方向移动（Y轴移动）
+    语法长这样：
+```css
+transform: translate(XX , XX);
+/*可以试一下百分比，-50%，可以实现水平垂直 居中*/
+```
+#### 8.5 矩阵matrix（）
+  matrix() 是一个含六个值的(a,b,c,d,e,f)变换矩阵，用来指定一个2D变换，相当于直接应用一个[a b c d e f]变换矩阵。就是基于水平方向（X轴）和垂直方向（Y轴）重新定位元素,此属性值使用涉及到数学中的矩阵，需要深入了解，就需要对数学矩阵有一定的知识。
+  - a为元素的水平伸缩量，1为原始大小；
+  - b为纵向扭曲，0为不变；
+  - c为横向扭曲，0不变；
+  - d为垂直伸缩量，1为原始大小；
+  - e为水平偏移量，0是初始位置；
+  - f为垂直偏移量，0是初始位置
+    最后就相当于：matrix(scaleX(),skewX(),skewY(),scaleY(),translateX(),translateY());
+    比如通过matrix()函数来模拟transform中translate()位移的效果
+```css
+transform: matrix(1,0,0,1,50,50);
+```
+#### 8.6 原点 transform-origin
+  任何一个元素都有一个中心点，默认情况之下，其中心点是居于元素X轴和Y轴的50%处。在没有重置transform-origin改变元素原点位置的情况下，CSS变形进行的旋转、位移、缩放，扭曲等操作都是以元素自己中心位置进行变形。但很多时候，可以通过transform-origin来对元素进行原点位置改变，使元素原点不在元素的中心位置，以达到需要的原点位置。
+  transform-origin取值和元素设置背景中的background-position取值类似，如下：
+  关键词 | 百分比
+  -- | --
+  top = top center =center top | 50% 0
+  right = right center = center right | 100% 或者（100% 50%）
+  bottom = bottom center = center bottom | 50% 100%
+  left = left center = center left | 0 或者（0 50%）
+  center = center center | 50% 或者 （50% 50%）
+  top left = left top | 0 0
+  right top = top right | 100% 0
+  bottom right = right bottom | 100% 100%
+  bottom left = left bottom | 0 100%
+  语法长这样：
+```css
+transform-origin: left top/关键词或者百分比;
+```
+#### 8.7 过渡属性 transition-property
+  过渡属性就是通过鼠标的单击、获得焦点，被点击或对元素任何改变中触发，并平滑地以动画效果改变CSS的属性值。在CSS中创建简单的过渡效果可以从以下几个步骤来实现：
+  第一，在默认样式中声明元素的初始状态样式；
+  第二，声明过渡元素最终状态样式，比如悬浮状态；
+  第三，在默认样式中通过添加过渡函数，添加一些不同的样式。
+**过渡的四要素**
+1.指定过渡属性：指定哪个CSS属性值，在变化时需要使用过渡的效果，当指定的属性值发生变化时，过渡就会被触发
+  语法：属性：transition-property
+  取值：
+	   1.具体的属性名称
+	   2.none，默认值
+	   3.all
+  允许设置过渡的属性：
+      1.颜色属性
+      2.取值为数字的属性
+      3.转换属性-transform
+      4.渐变属性
+      5.visibility
+      6.阴影属性
+  2.指定过渡时长，过渡的效果要在多长时间内完成
+      属性：transition-duration
+      取值：以s/ms为单位的数值
+  3.指定过渡的速度时间曲线函数
+      属性：transition-timing-function
+      取值：ease，默认值，慢速开始，快速变快，慢速结束
+           linear，匀速
+           ease-in，慢速开始，加速结束
+           ease-out，快速开始，减速效果
+           ease-in-out，慢速开始和结束，中间先加后减
+  4.过渡延迟，当用户激发操作后等待多长时间后再显示效果
+      属性：transition-delay
+      取值：以s/ms为单位的数值
+  5.过渡的简写属性 transition：property duration timing-function delay
+### 9.动画
+#### 9.1 动画
+  动画指使元素从一种样式逐渐变化为另一种样式的过程，动画是复杂版的过渡效果
+  本质：是使用关键帧，来定义动画的每一步
+  关键帧：包含运行的时间点以及动作(样式)
+####9.2 动画的使用步骤
+  1.声明动画 ，指定动画名称以及涉及到的关键帧们
+  2.为元素调用动画，指定元素使用哪个动画效果
+  3.声明动画的步骤
+```txt
+样式表中，通过 @keyframes规则来声明动画
+@keyframes 动画名称{
+    0%{动画开始时，元素的样式，属性：值；属性：值}
+    50%{动画执行到一般时，元素的样式}
+    100%{动画结束时元素的样式}
+}
+```
+**动画声明的浏览器兼容性**
+```txt
+Firefox：-moz-
+Chrome & Safari ：-webkit-
+Opera：-o-
+@-moz-keyframes 动画名
+@-webkit-keyframes
+@-o-keyframes
+```
+#### 9.3 调用动画
+```txt
+1.animation-name：要调用的动画名称
+2.animation-duration：动画完成一个周期需要的时长，取值为s/ms为单位的数值
+3.animation -timing-function：指定动画的速度时间曲线函数
+	取值：ease/linear/ease-in/ease-out/ease-in-out
+4.animation-delay：指定动画的播放延迟，取值为s/ms为单位的数值
+5.animation-iteration-count：指定动画的播放次数
+	取值：默认值为1，表示只播放1次/自定义数值/infinite，表示无限次播放
+6.animation-direction：指定动画的播放方向
+	取值：normal，正向播放，从0%-100% 
+		 reverse，逆向播放，从100%-0% 
+		 alternate，轮流播放，奇数次数正向播放，偶数次数逆向播放
+7.animation：以上六个属性的简写模式
+	取值：name duration timing-function delay iteration-count direction；
+8.animation-fill-mode：动画的填充模式，指动画在播放之前或播放之后的显示效果
+	取值：none，默认值，无任何效果
+         forwards，当动画播放完成后，元素将保持在最后一帧的状态上
+         backwards，动画播放前，延迟时间内，动画将保持在第一帧的状态上
+         both，动画播放前后，分别应用在第一帧和最后一帧的状态上
+9.animation-play-state：指定动画是处于播放状态还是暂停状态
+	取值：paused，动画暂停
+		 running，动画播放
+ps：第8和第9不能写到简写模式里面。
+```
+### 10.布局样式相关
+
 
 
 
