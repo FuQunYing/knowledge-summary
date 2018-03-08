@@ -1,6 +1,6 @@
 #CSS3
 
-**CSS练习：https://fuqunying.github.io/** ，今日练习特效导航栏特效，今天的知识从第9节开始
+**CSS练习：https://fuqunying.github.io/** ，今日练习加载特效，今天的知识从第10节开始
 
 ## 1.概述
   CSS3是CSS2的升级版本，3只是版本号，它在CSS2.1的基础上增加了很多强大的新功能。 目前主流浏览器chrome、safari、firefox、opera、甚至360都已经支持了CSS3大部分功能了，IE10以后也开始全面支持CSS3了。
@@ -595,23 +595,182 @@ Opera：-o-
 ps：第8和第9不能写到简写模式里面。
 ```
 ### 10.布局样式相关
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#### 10.1 多列布局-columns
+  就是能在Web页面中方便实现类似报纸、杂志那种多列排版的布局，语法长这样：
+```css
+columns:column-width column-count;
 ```
-
+  column-width用来定义多列中每列的宽度，column-count用来定义多列中的列数。
+  column-width的使用和CSS中的width属性一样，不过不同的是，column-width属性在定义元素列宽的时候，既可以单独使用，也可以和多列属性中其他属性配合使用。语法长这样：
+```css
+column-width:auto / length;
+/*
+	auto:如果column-width设置值为auto或者没有显式的设置值时，元素多列的列宽将由其他属性来决定，比如前面的示例就是由列数column-count来决定。
+	length:使用固定值来设置元素列的宽度，其主要是由数值和长度单位组成，不过其值只能是正值，不能为负值。
+*/
 ```
+  column-count属性主要用来给元素指定想要的列数和允许的最大列数。语法长这样：
+```css
+column-count:auto / integer;
+/*
+	auto:此值为column-count的默认值，表示元素只有一列，其主要依靠浏览器计算自动设置。
+	integer:此值为正整数值，主要用来定义元素的列数，取值为大于0的整数，负值无效。
+*/
+```
+#### 10.2 列间距column-gap
+  column-gap主要用来设置列与列之间的间距，语法长这样：
+```css
+column-gap:normal / length;
+/*
+	normal:	默认值，默值为1em（如果你的字号是px，其默认值为你的font-size值）。
+	length:此值用来设置列与列之间的距离，其可以使用px,em单位的任何整数值，但不能是负值。
+*/
+```
+#### 10.3 列表边框column-rule
+  column-rule主要是用来定义列与列之间的边框宽度、边框样式和边框颜色。简单点说，就有点类似于常用的border属性。但column-rule是不占用任何空间位置的，在列与列之间改变其宽度不会改变任何列的位置。
+  语法长这样：
+```css
+column-rule:column-rule-width column-rule-style column-rule-color;
+/*
+	column-rule-width:类似于border-width属性，主要用来定义列边框的宽度，其默认值为“medium”，column-rule-width属性接受任意浮点数，但不接收负值。但也像border-width属性一样，可以使用关键词：medium、thick和thin。
+	column-rule-style:类似于border-style属性，主要用来定义列边框样式，其默认值为“none”。column-rule-style属性值与border-style属值相同，包括none、hidden、dotted、dashed、solid、double、groove、ridge、inset、outset。
+	column-rule-color:类似于border-color属性，主要用来定义列边框颜色，其默认值为前景色color的值，使用时相当于border-color。column-rule-color接受所有的颜色。如果不希望显示颜色，也可以将其设置为transparent
+*/
+```
+#### 10.4 跨列设置column-span
+  column-span主要用来定义一个分列元素中的子元素能跨列多少。column-width、column-count等属性能让一元素分成多列，不管里面元素如何排放顺序，他们都是从左向右的放置内容，但有时我们需要基中一段内容或一个标题不进行分列，也就是横跨所有列，语法长这样：
+```css
+column-span:none / all
+/*
+	none:此值为column-span的默认值，表示不跨越任何列。
+	all:这个值跟none值刚好相反，表示的是元素跨越所有列，并定位在列的Ｚ轴之上。
+*/
+```
+#### 10.5 盒子模型
+  CSS中有一种基础设计模式叫盒模型，盒模型定义了Web页面中的元素中如何来解析。CSS中每一个元素都是一个盒模型，包括html和body标签元素。在盒模型中主要包括width、height、border、background、padding和margin这些属性，而且他们之间的层次关系可以相互影响，来看一张盒模型的3D展示图：
+![图片](http://img.mukewang.com/5365d7b10001e8d506350529.jpg)
+  从图中可以看出padding属性和content属性层叠background-image属性，层叠background-color属性，这个是存在的，它们四者之间构成了Ｚ轴（垂直屏幕的坐标）多重层叠关系。但是border属性与margin属性、padding属性三者之间应该是平面上的并级关系，并不能构成Ｚ轴的层叠关系。
+  **box-sizing**
+  在CSS中盒模型被分为两种，第一种是w3c的标准模型，另一种是IE的传统模型，它们相同之处都是对元素计算尺寸的模型，具体说不是对元素的width、height、padding和border以及元素实际尺寸的计算关系，它们不同之处是两者的计算方法不一致，原则上来说盒模型是分得很细的，这里所看到的主要是外盒模型和内盒模型，如下面计算公式所示：
+  1.W3C标准盒模型
+```txt
+外盒尺寸计算（元素空间尺寸）
+    element空间高度＝内容高度＋内距＋边框＋外距
+    element空间宽度＝内容宽度＋内距＋边框＋外距
+内盒尺寸计算（元素大小）
+    element高度＝内容高度＋内距＋边框（height为内容高度）
+    element宽度＝内容宽度＋内距＋边框（width为内容宽度）
+```
+  2.IE传统下盒模型（IE6以下，不包含IE6版本，QuirkesMode下IE5.5+）
+```txt
+外盒尺寸计算（元素空间尺寸）
+    element空间高度＝内容高度＋外距（height包含了元素内容宽度、边框、内距）
+    element宽间宽度＝内容宽度＋外距（width包含了元素内容宽度、边框、内距）
+内盒尺寸计算（元素大小）
+    element高度＝内容高度（height包含了元素内容宽度、边框、内距）
+    element宽度＝内容宽度（width包含了元素内容宽度、边框、内距）
+```
+  box-sizing的语法长这样：
+```css
+box-sizing:content-box / border-box / inherit
+/*
+	content-box:默认值，其让元素维持W3C的标准盒模型，也就是说元素的宽度和高度（width/height）等于元素边框宽度（border）加上元素内距（padding）加上元素内容宽度或高度（content width/ height），也就是element width/height = border + padding + content width / height
+	border-box:	重新定义CSS2.1中盒模型组成的模式，让元素维持IE传统的盒模型（IE6以下版本和IE6-7怪异模式），也就是说元素的宽度或高度等于元素内容的宽度或高度。从上面盒模型介绍可知，这里的内容宽度或高度包含了元素的border、padding、内容的宽度或高度（此处的内容宽度或高度＝盒子的宽度或高度—边框—内距）。
+	inherit:使元素继承父元素的盒模型。
+*/
+```
+  最为关键的是，box-sizing中content-box和border-box的区别，看图说话
+  ![图片](http://img.mukewang.com/5365d98000018fa606460416.jpg)
+### 11.弹性布局
+  弹性布局就是设置某元素内的子元素的布局方式。
+  弹性布局容器：简称"容器"，一般指的是父元素
+  弹性布局项目：简称"项目"，想实现布局效果的元素
+  主轴 ：元素排列方向的一根轴，默认是横轴(x轴)
+  交叉轴 ：与主轴对应的轴，如果主轴为横轴的话，那么交叉轴就是纵轴；如果主轴为纵轴的话，那么交叉轴就是横轴
+  **使用方法**
+  为容器元素增加属性display,设置完成后，子元素自动会变为弹性布局的项目
+  属性：display
+  取值：
+    1、flex：将 块级元素 变为弹性布局的容器
+    2、inline-flex：将 行内元素 变为弹性布局的容器
+    注意：
+    	1、容器中的项目们，自动会变为 块级元素，允许修改尺寸
+    	2、项目们的 float,clear,vertical-align 全部失效
+    	3、容器的 text-align 属性 也会失效
+  **容器的属性**
+```txt
+1.flex-direction
+    作用：决定主轴，以及在主轴的排列方向
+    取值：
+        1、row：默认值，主轴为 横轴，起点在左端(项目从左向右排列)
+        2、row-reverse：主轴为 横轴，起点在右端(项目从右向左排列)
+        3、column：主轴为 纵轴，起点在顶端(项目从上到下排列)
+        4、column-reverse：主轴为 纵轴，起点在底端(项目从下到上排列)
+2.flex-wrap：在一根轴上排列不下所有项目时，如何换行
+    取值：nowrap，默认值，不换行，但是项目会缩小
+    	 wrap，换行
+    	 wrap-reverse，换行，第一行在下方
+3.flex-flow：是flex-direction和flex-wrap的简写属性
+	取值：row nowrap，默认值
+		 direction wrap
+4.justify-content：指定项目在主轴上的对齐方式
+    取值：flex-start，在轴的起点对齐
+         flex-end，在轴的终点对齐
+         center ，居中对齐
+         space-between，两端对齐，项目之间的间隔都是相等的
+         space-around，每个项目两边的空白间距是相等的
+5.align-items：定义项目在交叉轴上的对齐方式
+    取值：flex-start，在交叉轴的起点对齐
+    	 flex-end，在交叉轴的终点对齐
+    	 center，交叉轴的中间对齐
+    	 baseline，基线对齐
+    	 stretch，默认值，如果项目未设置高度时，那么项目将占满整个容器的高度
+6.align-content：当项目有多根主轴的时候，指定项目们在交叉轴上的对齐方式以及项目们的边距
+取值：flex-start，在交叉轴的起点对齐
+     flex-end，在交叉轴的终点对齐
+     center，交叉轴的中间对齐
+     space-between，在交叉轴的两端对齐
+     space-around，每根轴线两侧的间隔都是相等的
+```
+  **项目属性**
+```txt
+1.order，定义项目的排列顺序，值越小越靠前，默认值为0
+	取值：整数数字
+2.flex-grow，定义项目的放大比例，主轴有剩余空间时有效，默认为0即不放大
+	取值：整数数字
+3.flex-shrink，定义项目的缩小比例，默认为1。当主轴空间不足时，项目们如何缩小
+	取值：整数数字，取值为0，则不缩小
+4.flex-basis，定义项目在主轴上的空间大小
+	取值：auto（默认值）
+		 length，自定义大小，等同于width或height
+5.flex，grow、shrink、basis的简写版本
+	取值：auto：即1 1 auto
+		 none：即0 0 auto
+         grow，	shrink，		  basis
+         1			0			auto
+         0			1			auto
+6.align-self，定义当前项目与其他项目不一样的交叉轴对齐方式
+    取值：flex-start
+         flex-end
+         center
+         baseline
+         stretch
+         auto，默认值，即采用容器的align-item的值
+```
+### 12.媒体查询
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
