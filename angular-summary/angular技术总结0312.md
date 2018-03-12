@@ -305,7 +305,138 @@ this.personForm = this.fb.group({
   现在这个时候，浏览器显示的值就是Form value:{"name":""},Form status:{"INVALID"},这证明Validators.required生效了，但是状态还是INVALID，因为输入框中还没有值，在输入框输入值的话，就能看到INVALID变成VALID的了。当然了现在这样写是调试程序的时候用的，这压根儿也不是给人看的信息，在正式的应用中可以修改成对用户更友好的信息。
 #### 9.2 更多的表单控件
   每个人物可以有多个名字，还有一个住址，一个能力和一个cp。住址中有个省的属性，用户将会从select中选择一个省，用option元素渲染各个州，先从data-modal中导入省列表，然后声明states属性并往personForm中添加一些表示住址的FormControl，代码长这样：
-
+```typescript
+export class HeroDetailComponent4 {
+  personForm: FormGroup;
+  states = states;
+  constructor(private fb: FormBuilder) {
+    this.createForm();
+  }
+  createForm() {
+    this.personForm = this.fb.group({
+      name: ['', Validators.required ],
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+      power: '',
+      cp: ''
+    });
+  }
+}
+```
+  然后在模板文件中把对应的脚本添加到form元素中。
+```html
+<h2>人物详情</h2>
+<h3><i>多个FormGroup</i></h3>
+<form [formGroup]="personForm" novalidate>
+  <div class="form-group">
+    <label class="center-block">姓名:
+      <input class="form-control" formControlName="name">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">Street:
+      <input class="form-control" formControlName="street">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">City:
+      <input class="form-control" formControlName="city">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">State:
+      <select class="form-control" formControlName="state">
+          <option *ngFor="let state of states" [value]="state">{{state}}</option>
+      </select>
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">Zip Code:
+      <input class="form-control" formControlName="zip">
+    </label>
+  </div>
+  <div class="form-group radio">
+    <h4>power</h4>
+    <label class="center-block"><input type="radio" formControlName="power" value="handsome">帅</label>
+    <label class="center-block"><input type="radio" formControlName="power" value="handsome tall">又高又帅</label>
+    <label class="center-block"><input type="radio" formControlName="power" value="music">音乐</label>
+  </div>
+  <div class="checkbox">
+    <label class="center-block">
+      <input type="checkbox" formControlName="sidekick">猜猜我的cp是谁
+    </label>
+  </div>
+</form>
+<p>Form value: {{ personForm.value | json }}</p>
+<!--不用管这些脚本中提到的form-group、form-control、center-block和checkbox等。 它们是来自Bootstrap的CSS类，Angular本身不会管它们。 注意formGroupName和formControlName属性。 他们是Angular指令，用于把相应的HTML控件绑定到组件中的FormGroup和FormControl类型的属性上。-->
+```
+  修改过的模板包含更多文本输入框，一个state选择框，power的单选按钮和一个cp检查框。
+  我要用[value]="state"来绑定选项的value属性。 如果不绑定这个值，这个选择框就会显示来自数据模型中的第一个选项。
+  组件类定义了控件属性而不用管它们在模板中的表现形式。 那可以像定义name控件一样定义state、power和cp控件，并用formControlName指令来指定FormControl的名字。
+#### 9.3 多级FormGroup
+  这个表单变得越来越大、越来越笨重。可以把一些相关的FormControl组织到多级FormGroup中。 street、city、state和zip属性就可以作为一个名叫address的FormGroup。 用这种方式，多级表单组和控件可以让我们轻松地映射多层结构的数据模型，以便帮助跟踪这组相关控件的有效性和状态。用FormBuilder在这个名叫personForm的组件中创建一个FormGroup，并把它用作父FormGroup。 再次使用FormBuilder创建一个子级FormGroup，其中包括这些住址控件。把结果赋值给父FormGroup中新的address属性。
+  然后代码中间的一段变这样：
+```typescript
+createForm() {
+    this.personForm = this.fb.group({ // 父FormGroup
+      name: ['', Validators.required ],
+      address: this.fb.group({ // 子FormGroup，里面都是地址相关
+        street: '',
+        city: '',
+        state: '',
+        zip: ''
+      }),
+      power: '',
+      cp: ''
+    });
+  }
+```
+  现在已经修改了组件类中表单控件的结构，还必须对组件模板进行相应的调整。
+  在person-detail.component.html中，把与住址有关的FormControl包裹进一个div中。 往这个div上添加一个formGroupName指令，并且把它绑定到"address"上。 这个address属性是一个FormGroup，它的父FormGroup就是personForm。
+  然后HTML代码改成这样：
+```html
+<div formGroupName="address" class="well well-lg">
+	<div class="form-group">
+		<label class="center-block">Street:
+			<input class="form-control" formControlName="street">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">City:
+			<input class="form-control" formControlName="city">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">State:
+			<input class="form-control" formControlName="state">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">Zip code:
+			<input class="form-control" formControlName="zip">
+		</label>
+	</div>
+</div>
+```
+  现在浏览器再输出就是这样的json了：personForm value:{"name":"","address":{"street":""..}}
+### 10.查看FormControl的属性
+  此时我是把整个表单模型展示在了页面里，但是有时候值想看某个特定FormControl的状态。那就可以使用.get()方法来提取表单中一个单独的FormControl的状态，可以在组件类中这样做，或者往模板中添加以下代码来把它显示在页面中，就添加在{{form.value  | json}}插值表达式的后面：
+```html
+<p>Name value:{{personForm.get('name').value}}
+```
+  要取得FormGroup中的FormGroup的状态，也是使用 . 来指定到控件的路径：
+```html
+<p>Street value: {{ personForm.get('address.street').value}}</p>
+```
+  用 . 可以显示FormGroup的任意属性，代码如下：
+属性 | 说明
+-- | --
+myControl.value | FormControl的值
+myControl.status | FormControl的有效性，可能的值有VALID、INVALID、PENDING或DISABLED
+myControl.pristine | 如果用户尚未改变过这个控件的值，则为true，它总是与myControl.dirty相反
+myControl.untouched |如果用户尚未进入这个HTML控件，也没有触发过它的blur（失去焦点）事件，则为true。 它是myControl.touched的反义词。
 
 
 
