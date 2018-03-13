@@ -1,6 +1,6 @@
 #angularCLI
   功能：创建新的angular项目，运行开发服务器，给目前的angular的项目添加新的功能，运行单元测试，运行e2e，构建应用程序。
-![图片](../angularCLI.png)
+![图片](angularCLI.png)
 
 ##一、新建
 
