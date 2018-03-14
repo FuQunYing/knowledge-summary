@@ -375,7 +375,7 @@ const subscription = fromEvent(nameInput, 'keydown')
     }
   });
 ```
-### 4.Multicasting(多播？！)
+### 4.Multicasting(多播)
   一个典型的observable为每个订阅的观察者创建一个新的独立执行。当一个观察者订阅时，可观察的电线连接一个事件处理程序并将值传递给该观察者。当第二个观察者订阅时，观察者然后连接一个新的事件处理程序，并在单独的执行中向第二个观察者传递值。有时候，我不希望每个订阅者都开始独立执行，而是希望每个订阅都获得相同的值 - 即使值已经开始发布。可能出现类似于文档对象点击的情况。
   Multicasting是在一次执行中向多个用户列表广播的做法。使用Multicasting可观察性，就不用在文档上注册多个侦听器，而是重新使用第一个侦听器并将值发送给每个订阅者。当创建一个observable时，就应该确定我希望如何使用observable以及你是否想多点传送它的值。
   看一个从1到3的例子，每个数字发射后有一秒的延迟：
@@ -459,11 +459,68 @@ function multicastSequenceSubcriber(){
             timeoutId = doSequence({
                 next(val){
                     //遍历观察者并通知所有订阅
+                    observers.forEach(obs => obs.next(val))；
+                },
+                complete(){
+                    //通知所有的complete回调
+                    observers.forEach(obs => obs.complete());
                 }
-            })
+            },seq,0)
         }
-    }
+        return {
+            unsubscribe(){
+            //从观察员数组中清除，不再通知
+                observers.splice(observers.indexOf(observer), 1);
+                //没有监听就清除
+                if(observers.length === 0){
+                    clearTimeout(timeoutId);
+                }
+            }
+        }；
+    }；
 }
+//运行一组数字，每秒发出一个值，直到达到数组的末尾。
+function doSequence(observer, arr, idx) {
+  return setTimeout(() => {
+    observer.next(arr[idx]);
+    if (idx === arr.length - 1) {
+      observer.complete();
+    } else {
+      doSequence(observer, arr, idx++);
+    }
+  }, 1000);
+}
+//创建一个将提供上述顺序的新Observable
+const multicastSequence = new Observable(multicastSequenceSubscriber);
+//订阅开始，1s后开始发送值
+multicastSequence.subscribe({
+  next(num) { console.log('1st subscribe: ' + num); },
+  complete() { console.log('1st sequence finished.'); }
+});
+// 1.5s后，再次订阅
+setTimeout(() => {
+  multicastSequence.subscribe({
+    next(num) { console.log('2nd subscribe: ' + num); },
+    complete() { console.log('2nd sequence finished.'); }
+  });
+}, 1500);
+/*输出：
+(at 1 second): 1st subscribe: 1
+(at 2 seconds): 1st subscribe: 2
+(at 2 seconds): 2nd subscribe: 2
+(at 3 seconds): 1st subscribe: 3
+(at 3 seconds): 1st sequence finished
+(at 3 seconds): 2nd subscribe: 3
+(at 3 seconds): 2nd sequence finished
+*/
+```
+### 6.错误处理
+  因为observables异步生成值，所以try / catch不会有效捕获错误。相反，如果我通过error在观察者上指定回调来处理错误。生成一个错误也会导致观察者清理订阅并停止生成值。一个observable可以产生值（调用next回调），或者它可以完成，调用complete或error回调。
+```typescript
+myObservable.subscribe({
+  next(num) { console.log('下一个数字: ' + num)},
+  error(err) { console.log('收到一个错误: ' + err)}
+});
 ```
 
 
