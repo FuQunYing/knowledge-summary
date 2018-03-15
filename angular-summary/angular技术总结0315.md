@@ -164,8 +164,114 @@ export class StopWatchComponent{
   - HTTP模块使用observables来处理AJAX请求和响应
   - 路由器和表单模块使用observables来监听和响应用户输入事件
 ### 1.事件发射器
-  Angular
-
+  Angular提供了一个EventEmitter在通过装饰器发布组件值时使用的类，扩展，添加一个方法，以便它可以发送任意值。当发生回调时，它将发送的值传递给任何订阅观察者的方法。
+  @Output()EventEmitterObservableemit()emit()next()
+**EventEmitter**
+```typescript
+@Component({
+    selector:'app-zippy',
+    template:`
+      <div>
+        <div (click)="toggle()">Toggle</div>
+    	 <div [hidden]="!visible">
+      	 <ng-content></ng-content>
+        </div>
+      </div>
+    `
+})
+export class ZippyComponent{
+    visible = true;
+    @Output() open = new EventEmitter<any>();
+    @Output() close = new EventEmitter<any>();
+    toggle(){
+        this.visible = !this.visible;
+        if(this.visible){
+            this.open.emit(null)
+        }else{
+            this.close.emit(null)
+        }
+    }
+}
+```
+### 2.HTTP
+  Angular的HttpClient返回可以从HTTP方法调用中观察到。例如，http.get(‘/api’)返回一个可观察的。与基于承诺的HTTP API相比，这提供了几个优点：
+  - 可观察对象不会改变服务器响应（如通过.then()承诺上的链接调用可能发生的那样）。相反，也可以根据需要使用一系列运算符来转换值。
+  - 通过该unsubscribe()方法可以取消HTTP请求。
+  - 可以将请求配置为获取进度事件的更新。
+  - 失败的请求可以很容易就重试
+### 3.异步管道
+  该异步管道订阅可观察或者promise，并返回它发出的最新值，当发射一个新值时，管道标记要检查更改的组件，下面的demo就是将timeobservable 绑定到组件视图。观察对象不断用当前时间更新视图。
+**使用异步管道**
+```typescript
+@Component({
+    selector:'app-async-observable-pipe',
+    template:`<div><code>observable | async</code>
+    			Time:{{time | async}}</div>`
+})
+export class AsyncObservablePipeComponent{
+    time = new Observable(observer => 
+    	setInterval((=> observer.next(new Date().toString()),1000))
+    )
+}
+```
+### 4.路由器
+  Router.events将事件提供为可观察的事件，可以使用filter()RxJS中的操作员查找感兴趣的事件，并订阅他们，以便根据导航过程中的事件顺序进行决策，比如下面：
+**路由器事件**
+```typescript
+import {Router,NavigationStart} from '@angular/router';
+import {filter} from 'rxjs/operators';
+@Component({
+    selector:'app-routable',
+    templateUrl:'./routable.component.html',
+    styleUrls:['./routable.component.css']
+})
+export class Routable1Component implements OnInit{
+    navStart:Observable<NavigationStart>;
+    constructor(private router:Router){
+        // 创建一个新的Observable，仅发布NavigationStart事件
+        this.navStart = router.events.pipe(
+          filter(evt => evt instanceof NavigationStart)
+        ) as Observable<NavigationStart>;
+    }
+    ngOnInit(){
+        this.navStart.subscribe(evt => console.log('Navigation Started'))
+    }
+}
+```
+  该ActivatedRoute是注入路由器服务，它利用观测的，以获取有关路由路径和参数的信息。例如，ActivateRoute.url包含报告路径路径的observable。想下面这样：
+```typescript
+import {ActivetedRoute} from '@angular/core';
+@Component({
+  selector: 'app-routable',
+  templateUrl: './routable.component.html',
+  styleUrls: ['./routable.component.css']
+})
+export class Routable2Component implements OnInit{
+    constructor(private activetedRoute:ActivetedRoute){
+    }
+    ngOnInit(){
+        this.activetedRoute.url
+        	.subscribe(url => console.log('地址变成了：'+url))
+    }
+}
+```
+### 5.响应式表单
+  反应形式具有使用observables监视表单控制值的属性。在FormControl性能valueChanges和statusChanges包含提高改变事件的观测。订阅可观察的表单控件属性是在组件类中触发应用程序逻辑的一种方式，比如这样：
+```typescript
+export class XXComponent implements OnInit{
+    nameChangeLog:string[]=[];
+    personForm:FormGroup;
+    ngOnInit(){
+        this.logNameChange();
+    }
+    logNameChange(){
+        const nameControl = this.personForm.get('name');
+        nameControl.valueChanges.forEach(
+          (value:string) => this.nameChangeLog.push(value)
+        )
+    }
+}
+```
 
 
 
