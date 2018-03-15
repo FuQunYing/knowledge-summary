@@ -272,6 +272,141 @@ export class XXComponent implements OnInit{
     }
 }
 ```
+##四、实际用法
+###1.提前输入建议 
+  Observable可以简化提前输入提示的实现。通常，提前输入必须执行一系列单独的任务：
+  - 从输入中收听数据
+  - 修剪该值并确保它是最小长度
+  - 去抖动以便不发送每个击键的API请求，而是等待击键的中断
+  - 如果值保持不变，就不要发送请求
+  - 如果其结果将被更新后的结果无效，就取消正在进行的AJAX请求
+    如果用JS写上面的程序代码会涉及很多，有了observables，就可以使用简单的RxJS操作符：
+```typescript
+import {fromEvent} from 'rxjs/observable/fromEvent';
+import {ajax} from 'rxjs/observable/dom/ajax';
+import {map, filter, debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+const searchBox = document.getElementById('search-box');
+const typeahead = fromEvent(searchBox, 'input').pipe(
+  map((e: KeyboardEvent) => e.target.value),
+  filter(text => text.length > 2),
+  debounceTime(10),
+  distinctUntilChanged(),
+  switchMap(() => ajax('/api/endpoint'))
+);
+
+typeahead.subscribe(data => {
+ // 在这儿处理数据
+});
+```
+###2.指数退避
+  指数退避是一种在失败后重试API的技术，在每次连续失败之后，重试之间的时间会更长，并且最大重试次数会超过该次数，然后请求被视为失败，使用承诺和其他跟踪AJAX调用来的方法来实现这个可能相当复杂，但是用Observable就比较容易了：
+```typescript
+import {ajax} deom 'rxjs/observerble/dom/ajax';
+import {range} from 'rxjs/observerble/range';
+import {timer} from 'rxjs/observerble/timer';
+import {pipe} from 'rxjs/utile/pipe';
+import {retryWhen,zip,map,mergeMap} from 'rxjs/operators';
+function backoff(maxTries,ms){
+    return pipe(
+      retryWhen(attempts => range(1,naxTries))
+      	.pipe(
+      	  zip(attempts,i => i),
+      	  map(i => i*i),
+      	  mergeMap(i => timer(i*ms))
+      	)
+    );
+}
+ajax('/api/endpoint')
+	.pipe(backof(3,250))
+	.subscribe(data => handleData(data))
+function handleData(data){
+    //数据处理
+}
+```
+## 五、Observables与其它技术相比
+### 1.Observables相比promise
+  - observables是陈述性的，计算直到订阅开始，承诺在创建时立即执行，这使得observables可用于定义在需要结果时运行的方法
+  - Observable提供了许多值，promise只提供一个，这使得observables对于对于随着时间的推移获取多个值很有用。
+  - observables区分链接和订阅，promise只有.then()条款，这使得observables可用于创建复杂的转化配方供系统的其他部分使用，而不会导致工作被执行。
+  - observables的subscribe()负责处理错误，promise将错误推向了child的promise，这使得observables可用于集中和可预测的错误处理
+#### 1.1 创建和订阅
+  observables在用户订阅之前不会被执行。在subscribe()执行一次定义的行为，它可以再次被调用。每个订阅都有自己的计算。重新订阅会导致重新计算值。
+```typescript
+// 创建一个发布操作
+new Observable((observer) => { subscriber_fn });
+// 开始执行
+observable.subscribe(() => {
+      // 观察员处理通知
+    });
+```
+  promise立即执行，只是一次。结果的计算在创建承诺时开始。没有办法重新开始工作。所有then子句（订阅）共享相同的计算。
+```typescript
+// 开始执行
+new Promise((resolve, reject) => { executer_fn });
+// 处理返回值
+promise.then((value) => {
+      // 处理操作放在这
+    });
+```
+#### 1.2 链接
+  observables区分诸如map和订阅之类的转换功能。只有订阅才会激活订阅者功能以开始计算值。
+```typescript
+observable.map((v) => 2*v);
+```
+  不区分最后.then条款（相当于订阅）和中间.then条款（相当于map）。
+```typescript
+promise.then((v) => 2*v);
+```
+#### 1.3 取消
+  observables订阅是可取消的。取消订阅将删除监听器接收更多值，并通知订阅者功能取消工作。
+```typescript
+const sub = obs.subscribe(...);
+sub.unsubscribe();
+```
+  promise不可取消
+#### 1.4 错误处理
+  observables的执行错误被传递给订户的错误处理程序，并且订户自动退出可观察项。
+```typescript
+obs.subscribe(() => {
+  throw Error('错误');
+});
+```
+  promise将错误推向子级的promise
+```typescript
+promise.then(() => {
+      throw Error('错误');
+});
+```
+#### 1.5 对比表格
+操作 | observables | promise
+-- | -- | --
+创建 | new Observable((observer) => { observer.next(123);}); | new Promise((resolve, reject) =>{resolve(123);});
+转换 | obs.map((value) => value * 2 ); | promise.then((value) => value * 2);
+订阅 | sub = obs.subscribe((value) => console.log(value)}); | promise.then((value) => {console.log(value);});
+取消订阅 | sub.unsubscribe(); | 不能取消订阅
+### 2.Observables和事件API
+  Observables与使用事件API的事件处理程序非常相似。这两种技术都定义了通知处理程序，并使用它们来处理随时间推移而传递的多个值 订阅observable相当于添加事件侦听器。一个显着的区别是可以配置一个observable来在将事件传递给处理程序之前转换事件。使用observables来处理事件和异步操作可以在HTTP请求等上下文中具有更高的一致性。
+**对比表格**
+操作 | observables | 事件API
+-- | -- | --
+创建和取消 | // 设置<br /> let clicks=fromEvent(button, ‘click’);<br /> // 开始监听<br />let subscription = clicks$.subscribe(e => console.log(‘Clicked’, e))<br /> // 停止监听<br /> subscription.unsubscribe(); | function handler(e) {console.log(‘Clicked’, e);}<br />// 设置并开始监听 <br />button.addEventListener(‘click’, handler);<br /> // 停止监听<br />button.removeEventListener(‘click’, handler); 
+订阅 | observable.subscribe（（）=> { //通知处理程序在这里}）; |element.addEventListener（eventName，（event）=> { //通知处理程序}）;
+配置 | //监 听按键，但提供一个代表输入值的流。<br />fromEvent（inputEl，'keydown'）。pipe（map（e => e.target.value））; |element.addEventListener（eventName，（event）=> { // 在到达处理程序之前，不能将传递的事件更改为另一个值）;}
+### 3.Observable与数组相比
+  Observable随着时间的推移而产生值。一个数组被创建为一组静态值。从某种意义上说，在数组同步的情况下，可观察数是异步的。在下面的表格里，➞意味着异步值传递。
+操作 | Observable | Array
+-- | -- | --
+given | obs: ➞1➞2➞3➞5➞7<br/>obsB: ➞'a'➞'b'➞'c' | arr: [1, 2, 3, 5, 7]<br/>arrB: ['a', 'b', 'c']
+concat() | obs.concat(obsB)<br/>➞1➞2➞3➞5➞7➞'a'➞'b'➞'c' | arr.concat(arrB)<br/>[1,2,3,5,7,'a','b','c']
+filter() | obs.filter((v) => v>3)<br/>➞5➞7 | arr.filter((v) => v>3)<br/>[5, 7]
+find() | obs.find((v) => v>3)<br/>➞5 | arr.find((v) => v>10) <br/>5
+findIndex() | obs.findIndex((v) => v>3)<br/>➞3| arr.findIndex((v) => v>3) <br/>3
+forEach() | obs.forEach((v) => {console.log(v);// 1,2,3...}) | arr.forEach((v) => {console.log(v); //1,2,3...})
+map() | obs.map((v) => -v) <br/>➞-1➞-2➞-3➞-5➞-7 | arr.map((v) => -v)<br/>[-1, -2, -3, -5, -7]
+reduce() | obs.scan((s,v)=> s+v, 0)<br/>➞1➞3➞6➞11➞18 | arr.reduce((s,v) => s+v, 0) <br/>18
+
+  
+
 
 
 
