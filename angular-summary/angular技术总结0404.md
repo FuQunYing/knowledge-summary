@@ -75,7 +75,7 @@ constructor （@Optional() @SkipSelf() parentModule: CoreModule） {
 ### 29.什么是Angular编译器？
 	Angular编译器会把我所编写的应用代码转换成高性能的JavaScript代码，在编译过程中，@NgModule的元数据就扮演了很重要的角色。自己写的代码是无法直接执行的。比如组件，组件有一个模板，其中包含了自定义元素、属性型指令、Angular绑定声明和一些不属于原生HTML的语法啥的。
 	Angular编译器读取模板的HTML，把它和相应的组件类代码组合在一起，并产出组件工厂。组件工厂为创建纯粹的、100%JavaScript的表示形式，它包含了@Component元数据中的描述的一切：HTML、绑定指令、附属的样式等。由于指令和管道都出现在组件模板中，Angular编译器也同样会把它们组合到编译成的组件代码中，@NgModule元数据告诉Angular编译器要为当前模块编译那些组件，以及如何把当前模块和其它模块连接起来。
-### 30.凑合整数....
+### 30.凑个整数....
 
 
 
