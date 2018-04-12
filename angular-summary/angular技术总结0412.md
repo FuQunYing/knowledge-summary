@@ -142,7 +142,66 @@ export class PersonListComponent{
   }
 }
 ```
-
+  PersonListComponent并不知道PersonService来自哪里，当然我自己知道它来自父组件PersonComponent，但是如果我改在AppModule中提供PersonService，PersonListComponent不用做任何修改，它唯一需要关心的事情就是PersonService是由某个父注入器提供的。
+### 5.单例服务
+  服务在每个注入器的范围内是单例的，在任何一个注入器中，最多只会有同一个服务的一个实例。这里只有一个根注入器，而UserService就是在该注入器中注册的，所以在整个应用中只能有一个UserService实例，每个要求注入UserService的类都会得到这个服务实例。不过AngularDI是一个多级注入系统（下一节就是这个了），这意味着各级注入器都可以创建它们自己的服务实例，Angular总会创建多级注入器。
+### 6.组件的子注入器
+  例如，当Angular创建一个带有@Component的provides的组件实例时，也会同时为这个实例创建一个新的子注入器。组件注入器是彼此独立的，每一个都会为这些组件提供的服务创建单独的实例。
+  在注入器继承机制的帮助下，我仍然可以把全应用级的服务注入到这些组件中，组件的注入器也是其父组件的注入器的子注入器，这同样适用于其父组件的注入器，以此类推最终会回到应用的根注入器，Angular可以注入由这个注入器谱系提供的任何一个注入器。比如，Angular可以把PersonComponent提供的PersonService和AppModule提供的UserService注入到PersonService中。
+### 7.当服务需要别的服务时
+  目前PersonService非常简单，它本身不需要任何依赖，但是如果它也需要依赖，也同样可以用构造函数注入模式，对比一下PersonService有无注入别的服务的两个版本
+  **没有注入：**
+```typescript
+import {Injectable} from '@angular/core';
+import {PERSON} from './mock-persons';
+@Injectable()
+export class PersonService{
+  getPerson() {return PERSON}
+}
+```
+  **注入了别的服务：**
+```typescript
+import {Inejctable} from '@angualr/core';
+import {PERSON} from './mock-person';
+import {Logger} from '../logger.service';
+@Injectable()
+export class PersonService{
+  constructor(provate logger: Logger}{}
+  getPersons() {
+    this.logger.log('来拿数据了')
+    return PERSON;
+  }
+}
+```
+  这个构造函数要求注入一个龙个人实例，并把它存到名为logger的私有字段中，当发起请求的时候，getPersons这个方法就会打印出来那个消息。
+  **上面用的的logger服务长这样：**
+```typescript
+import {Injectable} from '@angular/core';
+@Injectable()
+export class Logger {
+  logs: string[] = [];
+  log(message: string) {
+    this.logs.push(message);
+    console.log(message);
+  }
+}
+//要是没有这个服务，当Angular试图把Logger注入到PersonService中时，就会报错（ERROR Error：No provider for Logger）
+```
+  因为Logger服务的单例应该随处可用，所以要在根模块AppModule中提供它：
+```typescriptt
+prroviders:[
+  Logger,
+  UserService,
+  {Provide: APP_CONFIG, useValue:PERSON_DI_CONFIG}
+]
+```
+###8.@Injectable()
+  @Injectable()装饰器表示可能需要往这个服务类中注入其它依赖。PersonService必须带有@Injectable()装饰器，因为它需要把Logger注入进来。（切记带着括号）
+  当Angular要创建一个构造函数中带有参数的类时，会先查找这些参数的类型，以便根据这些参数的元数据注入正确的服务。如果不能找到该参数的信息，Angular就会报错。Angular只能在带有某种装饰器的类上查找参数信息，任何装饰器都可以，而@Injectable()装饰器是各种服务类的标准装饰器。
+```txt
+  之所以必须要有装饰器是因为typescript强制要求的，当把typescript转译成JavaScript时，通常会丢弃参数类型信息，但当该类带有装饰器并且当tsconfig.json配置文件中的emitDecoratorMetadata 编译选项为true时，他就会保留这些信息。CLI生成的tsconfig.json已经有了emitDecoratorMetadata ：true选项了，所以我只要把@Injectable()加到我的服务类上就行了。
+```
+  Logger服务也带有@Injectable()装饰器，不过它没有构造器，也没有依赖，该应用中的每个Angular服务类不管有没有构造器和依赖，都带有@Injectable()装饰器，@Injectable()是风格指南中对服务类的要求。
 
 
 
