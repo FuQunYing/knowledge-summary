@@ -104,35 +104,78 @@ providers:[UserService,{provide: APP_CONFIG, useValue: PERSON_DI_CONFIG}]
   严格来说，Angular模块中的服务提供商会注册到根注入器上，但是惰性加载的模块是例外，，在这个例子中，所有模块都是在应用启动时立即加载的，因此模块上的所有服务提供商都注册到了应用的根注入器上。
   组件的提供商会注册到每个组件实例自己的注入器上，因此Angular只能在该组件及其各级子组件的实例上注入这个服务实例，而不能在其它地方注入这个服务实例。注意，由组件提供的服务，也同样具有有限的生命周期，组件的每个实例都会有自己的服务实例，并且，当组件实例被销毁的时候，服务的实例也同样会被销毁。在这个例子的应用中，PersonComponent会在应用启动时创建，并且它从未被销毁，因此，由PersonComponent创建的PersonService也同样会活在应用的整个生命周期中。如果我要把PersonService的访问权限限定在PersonComponent及其嵌套的PersonListComponent中，那么在PersonComponent中提供这个PersonService就行。
 ### 4.注入某个服务
-  
+  PersonListComponent应该从PersonService中获取这些人物数据。该组件不应该使用new来创建PersonService，它应该要求注入PersonService。那我可以通过在构造函数中添加一个带有该依赖的类型的参数要求Angular把这个依赖注入到组件的构造函数中。下面是PersonListComponent的构造函数，它要求注入PersonService：
+```typescript
+constructor (personService: PersonService)
+```
+  PersonListComponent还应该使用注入的这个PersonService做点什么，下面输出修改过的组件，改用注入的服务，与之前的版本对比一下：
+  **之前的person-list.component**
+```typescript
+import {Component} from '@angular/core';
+import {PERSONS} from './mock-persons';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@Component({
+  selector: 'app-person-list',
+  template: `
+    <div *ngFor="let person of persons">
+      {{person.id}} - {{person.name}}
+    </div>
+  `
+})
+export class PersonListComponent {
+  persons = PERSON;
+}
+```
+  **带有DI的person-list.component**
+```typescript
+import {Component} from '@angualr/core';
+import {Person} from './person';
+import {PersonService} from './person.service';
+@Component({
+  selector:'app-person-list',
+  template:`<div *ngFor = 'let peron of perons> {{person.id}}- {{person.name}}</div>`
+})
+export class PersonListComponent{
+  persons:Person[];
+  contructor(personService: PersonService) {
+    this.persons = personService.getPersons();
+  }
+}
 ```
 
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
