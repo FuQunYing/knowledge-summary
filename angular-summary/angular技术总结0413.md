@@ -202,6 +202,15 @@ prroviders:[
   之所以必须要有装饰器是因为typescript强制要求的，当把typescript转译成JavaScript时，通常会丢弃参数类型信息，但当该类带有装饰器并且当tsconfig.json配置文件中的emitDecoratorMetadata 编译选项为true时，他就会保留这些信息。CLI生成的tsconfig.json已经有了emitDecoratorMetadata ：true选项了，所以我只要把@Injectable()加到我的服务类上就行了。
 ```
   Logger服务也带有@Injectable()装饰器，不过它没有构造器，也没有依赖，该应用中的每个Angular服务类不管有没有构造器和依赖，都带有@Injectable()装饰器，@Injectable()是风格指南中对服务类的要求。
+### 9.服务提供商们
+
+
+```txt
+前八个月利息：240 * 8 = 1920
+后12个月：每个月应还 19800 / 12 + 240 = 1890
+
+最后还 ： 19800 + ((240 * 12) * 0.25 )*0.3 = ....
+```
 
 
 
