@@ -1,10 +1,9 @@
-## Day03
 
-####  七、指令（接02/08）
-```txt
+## 七、指令（接02/08）
   angular的模板是动态的，动态的东西就要有指令来操控，angular渲染模板的时候，就是根据指令的操作对DOM进行转换。
   组件就是一个指令，@Component的装饰器实际上也是@Directive的装饰器，就是扩展了面向模板的特性。因为在angular中组件处于中心地位，所以在架构里面，把组件从指令里面独立了出来。
   angular所支持的常见的指令：
+```txt
  	1. *ngFor，循环指令，生成N个标签
 		eg : <any *ngFor="let tmp of COLL;let i=index"></any>
 	2. *ngIf，选择指令，根据表达式的值的真假决定是否将元素挂载到DOM树
@@ -36,10 +35,10 @@
 			    是否改变的监听技术，可以实现批量处理完数据之后，再去统一更新视图。
 ```
 #### 八、服务
-```txt
-	  服务可以包括很多东西，比如值、函数、或者应用里面所需要的特性。总而言之就是对应用中逻辑的封装。组件类本身要保持精简，它不直接往控制台输出日志，不从服务器获得数据，也不进行验证和输入，把这些事情全部委托给服务。
-	  组件的任务就是提供用户体验，介于由模板渲染的视图和应用逻辑之间，一个良好的组件就只为数据绑定提供属性和方法，别的都委托给服务...好像没有完全遵循这个原则，大部分的时候都是只把网络请求封装了，别的东西依然写在了组件里。
-	  比如封装一个打印服务：
+  服务可以包括很多东西，比如值、函数、或者应用里面所需要的特性。总而言之就是对应用中逻辑的封装。组件类本身要保持精简，它不直接往控制台输出日志，不从服务器获得数据，也不进行验证和输入，把这些事情全部委托给服务。
+  组件的任务就是提供用户体验，介于由模板渲染的视图和应用逻辑之间，一个良好的组件就只为数据绑定提供属性和方法，别的都委托给服务...好像没有完全遵循这个原则，大部分的时候都是只把网络请求封装了，别的东西依然写在了组件里。
+```typescript
+	  //比如封装一个打印服务：
 	  	eg ：log.service.ts
 	  		import {Injectable} from "@angular/core";
 	  		@Injectable()
@@ -52,7 +51,7 @@
 				}
 			}
 			
-		使用该服务：
+		//使用该服务：
 			import {LogService}from './log.service';
 			@Component({
   				providers: [LogService]
@@ -63,8 +62,8 @@
   				this.log.print(XXXX);//随便在该组件需要的地方调用就好啦
 			}
 			
-	  更多的时候，在一个应用里面，是把所需要的网络请求封装在服务里面
-	  	eg ： http.service.ts
+	  //更多的时候，在一个应用里面，是把所需要的网络请求封装在服务里面
+	  	//eg ： http.service.ts
 	  		import { Injectable } from '@angular/core';
 			import { Http, Response } from '@angular/http';
 			@Injectable()
@@ -75,23 +74,23 @@
         				.map((response: Response) => response.json());
     			}
 			}
-			
-		使用该服务：
-			步骤还是一样的：引入-->实例化-->调用
-			调用方法：
-				getData(){
-        			this.httpService.sendRequest("./test.json")
-        				.subscribe((data:any)=>{
-            				console.log(data);
-        				})
-    			}
-    		重点就是这个subscribe了，目前异步的的请求方式有：
-    			AJAX、事件绑定、promise、
-    			rxjs（observable/subscribe，消息订阅机制？？）
 ```
-#### 九、依赖注入
+  使用该服务：
+  步骤还是一样的：引入-->实例化-->调用
+  调用方法:
+```typescript
+getData(){
+  this.httpService.sendRequest("./test.json")
+    .subscribe((data:any)=>{
+    console.log(data);
+  })
+}
+/*重点就是这个subscribe了，目前异步的的请求方式有：
+AJAX、事件绑定、promise、
+rxjs（observable/subscribe，消息订阅机制？？）*/
+```
+## 九、依赖注入
 ```txt
-	
 	”依赖注入“是提供类的新实例的一种方式，还负责处理好类所需的全部依赖，大多数依赖都是服务，Angular使用依赖注入来提供新组件以及组件所需的服务。
 	Angular通过查看构造函数的参数类型得知组件需要哪些服务，
 		eg ： constructor (private http : HttpService){}
@@ -105,7 +104,6 @@
 	如果服务注入到了一个组件中，那么这个组件由有其它的子组件构成，那么在子组件中如果引入服务类（不会通过providers去指定），那么所实例化的服务类对象是同一个实例对象。
 	如果服务是注入到了一个模块中，那么该模块任何一个组件所import和实例化得到的服务都是同一个实例
 	如果想在全局使用这个服务，就在根模块的providers里面注入就好啦
-	
 	注意：
 		· 依赖注入是渗透在整个Angular框架中的，被导出使用。
 		· 注入器（Injector）是这个机制的核心（注入器要负责维护一个存放它创建过的容器，能使用提供商创建一个新的服务实例）

@@ -1,7 +1,7 @@
 #Day01
 ##一、整体架构
 
-![overview2.png](file:///C:\Users\Edianzu\AppData\Local\Temp\msohtmlclip1\01\clip_image002.gif)
+![图片](overview2.png)
 
 **图一 - angular全景图-非常非常重要的图**
 
