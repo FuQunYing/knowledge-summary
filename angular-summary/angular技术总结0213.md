@@ -1,12 +1,12 @@
 #Day07
 ## 二、模板语法（接02/12）
-### 9.内置指令 - 内置属性指令
+### 10.内置指令 - 内置属性指令
   属性型指令会监听和修改其它HTML元素或组件的行为、元素属性（Attribute）、DOM属性（Property）。 它们通常会作为HTML属性的名称而应用在元素上。
   常用的属性型指令
   - NgClass - 添加或移除一组CSS类
   - NgStyle - 添加或移除一组CSS样式
   - NgModel - 双向绑定到HTML表单元素
-#### 9.1 NgClass 指令
+#### 10.1 NgClass 指令
   在Angular里面经常用动态添加或删除 CSS 类的方式来控制元素如何显示。 通过绑定到NgClass，可以同时添加或移除多个类。
   CSS类用来添加或者删除单个类好用：
 ```html
@@ -31,7 +31,7 @@ setCurrentClasses() {
 <div [ngClass]="currentClasses">This div is initially saveable, unchanged, and special</div>
 ```
   setCurrentClassess()既可以在初始化时调用，也可以在所依赖的的属性变化时调用。
-#### 9.2 NgStyle指令
+#### 10.2 NgStyle指令
   根据组件的状态动态设置内联样式。 NgStyle绑定可以同时设置多个内联样式。
   样式绑定是设置单一样式值的简单方式。比如：
 ```html
@@ -60,7 +60,7 @@ setCurrentStyles() {
 </div>
 ```
   setCurrentStyles()也是，既可以在初始化时调用，也可以在所依赖的的属性变化时调用。
-#### 9.3 NgModel - 使用[(ngModel)]双向绑定到表单元素
+#### 10.3 NgModel - 使用[(ngModel)]双向绑定到表单元素
   当开发数据输入表单时，通常都要既显示数据属性又根据用户的更改去修改那个属性。
   使用NgModel指令进行双向数据绑定可以简化这种工作。比如：
 ```html
@@ -109,8 +109,8 @@ export class AppModule { }
 <input [ngModel]="currentPerson.name" (ngModelChange)="setUppercaseName($event)">
 ```
   失去焦点之后，输入框的内容就会转成全大写。
-### 10.内置指令 - 内置结构型指令
-#### 10.1 NgIf指令
+### 11.内置指令 - 内置结构型指令
+#### 11.1 NgIf指令
   通过把NgIf指令应用到元素上（称为宿主元素），可以往DOM中添加或从DOM中移除这个元素，比如：
 ```html
 <app-person-detail *ngIf="isActive"></app-person-detail>
@@ -139,7 +139,7 @@ export class AppModule { }
 ```
   ngIf指令通常会用来防范空指针错误。 而显示/隐藏的方式是无法防范的，当一个表达式尝试访问空值的属性时，Angular就会抛出一个异常。
   在上面的demo中，用NgIf来保护了两个<div>防范空指针错误。 currentPerson的名字只有当存在currentPerson时才会显示出来。 而nullPerson永远不会显示。
-#### 10.2 NgFor指令
+#### 11.2 NgFor指令
   这是循环指令，展示一个由多个条目组成的列表。首先定义了一个 HTML 块，它规定了单个条目应该如何显示。 再告诉 Angular 把这个块当做模板，渲染列表中的每个条目。
   常用方式：
 ```html
@@ -151,7 +151,7 @@ export class AppModule { }
   取出lists数组中的每个英雄，把它存入局部变量hero中，并在每次迭代时对模板 HTML 可用
   Angular 把这个指令翻译成了一个<ng-template>包裹的宿主元素，然后使用这个模板重复创建出一组新元素，并且绑定到列表中的每一个person。
 ```
-#### 10.3 模板输入变量
+#### 11.3 模板输入变量
   tmp前的let关键字创建了一个名叫tmp的模板输入变量。 ngFor指令在由父组件的lists属性返回的lists数组上迭代，每次迭代都从数组中把当前元素赋值给tmp变量。
   我们可以在ngFor的宿主元素（及其子元素）中引用模板输入变量tmp，从而访问该英雄的属性。 这里它首先在一个插值表达式中被引用到，然后通过一个绑定把它传给了<person-detail>组件的tmp属性。
 ```html
@@ -180,7 +180,7 @@ html:
   页面有一个"Reset persons"按钮的话，它会创建一个具有相同person.id的新人物。 "Change ids"则会创建一个具有新person.id的新人物。
   - 如果没有trackBy，这些按钮都会触发完全的DOM元素替换。
   - 有了trackBy，则只有修改了id的按钮才会触发元素替换。
-#### 10.4 NgSwitch
+#### 11.4 NgSwitch
   NgSwitch指令类似于JavaScript的switch语句。 它可以从多个可能的元素中根据switch条件来显示某一个。 Angular只会把选中的元素放进DOM中。
   NgSwitch实际上包括三个相互协作的指令：NgSwitch、NgSwitchCase 和 NgSwitchDefault，就像这样
 ```html

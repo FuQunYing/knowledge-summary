@@ -1,6 +1,6 @@
 # Day08
 ## 二、模板语法（接02/13）
-### 11.模板引用变量（#var）
+### 12.模板引用变量（#var）
   模板引用变量通常用来引用模板中的某个DOM元素，也可以引用angular组件或者指令或者Web Component。使用#来声明引用变量，比如：
 ```html
 	<input #phone placeholder="请输入电话号码">
@@ -38,7 +38,7 @@
     <input ref-fax placeholder="fax number">
     <button (click)="callFax(fax.value)">Fax</button>
 ```
-### 12.输入输出属性（@Input和@Output）
+### 13.输入输出属性（@Input和@Output）
   到目前为止，主要关注的点在于绑定声明的右侧，在模板表达式和模板语句中绑定到组件成员。 当成员出现在这个位置上，则称之为数据绑定的源。
   专注于绑定到的目标，它位于绑定声明中的左侧。 这些指令的属性必须被声明成输入或输出。
   **记住：所有组件皆为指令。**
@@ -61,7 +61,7 @@
 ```
   PersonDetailComponent.person和PersonDetailComponent.deleteRequest都在绑定声明的左侧。
   PersonDetailComponent.person在方括号中，它是属性绑定的目标PersonDetailComponent.deleteRequest在圆括号中，它是事件绑定的目标。
-####12.1  声明输入和输出属性
+####13.1  声明输入和输出属性
   目标属性必须被显式的标记为输入或输出。
   在PersonDetailComponent内部，这些属性被装饰器标记成了输入和输出属性。
 ```typescript
@@ -87,7 +87,7 @@
   从PersonDetailComponent角度来看，PersonDetailComponent.person是个输入属性， 因为数据流从模板绑定表达式流入那个属性。
   从PersonDetailComponent角度来看，PersonDetailComponent.deleteRequest是个输出属性， 因为事件从那个属性流出，流向模板绑定语句中的处理器。
 ```
-####12.2 给输入/输出属性起别名
+####13.2 给输入/输出属性起别名
   有时需要让输入/输出属性的公开名字不同于内部名字。
   这是使用 attribute 指令时的常见情况。 指令的使用者期望绑定到指令名。例如，在<div>上用myClick选择器应用指令时， 希望绑定的事件属性也叫myClick。
   ```html
@@ -95,9 +95,9 @@
   ```
   然而，在指令类中，直接用指令名作为自己的属性名通常都不是好的选择。 指令名很少能描述这个属性是干嘛的。 myClick这个指令名对于用来发出 click 消息的属性就算不上一个好名字。
   幸运的是，可以使用约定俗成的公开名字，同时在内部使用不同的名字。 在上面例子中，实际上是把myClick这个别名指向了指令自己的clicks属性。
-### 13.模板表达式操作符
+### 14.模板表达式操作符
   模板表达式语言使用了 JavaScript 语法的子集，并补充了几个用于特定场景的特殊操作符
-#### 13.1 管道操作符（|）
+#### 14.1 管道操作符（|）
   在绑定之前，表达式的结果可能需要一些转换。例如，可能希望把数字显示成金额、强制文本变成大写，或者过滤列表以及进行排序。
   Angular 管道对像这样的小型转换来说是个明智的选择。 管道是一个简单的函数，它接受一个输入值，并返回转换结果。 它们很容易用于模板表达式中，只要使用管道操作符 (|) 就行了。
 ```html
@@ -113,7 +113,7 @@
 </div>
 ```
   其它的还有date转换日期的，json、number等，具体的以后细说。
-#### 13.2 安全导航操作符 ( ?. ) 和空属性路径
+#### 14.2 安全导航操作符 ( ?. ) 和空属性路径
   Angular 的安全导航操作符 (?.) 是一种流畅而便利的方式，用来保护出现在属性路径中 null 和 undefined 值。 下面的代码里，当currentPerson为空时，保护视图渲染器，让它免于失败。
 ```txt
 The current person's name is {{currentPerson?.name}}
@@ -142,7 +142,7 @@ TypeError: Cannot read property 'name' of null in [null].
 The null person's name is {{nullPerson && nullPerson.name}}
 ```
   这些方法都有价值，但是会显得笨重，特别是当这个属性路径非常长的时候。 想象一下在一个很长的属性路径（如a.b.c.d）中对空值提供保护。Angular 安全导航操作符 (?.) 是在属性路径中保护空值的更加流畅、便利的方式。 表达式会在它遇到第一个空值的时候跳出。 显示是空的，但应用正常工作，而没有发生错误。
-#### 13.3 非空断言操作符（！）
+#### 14.3 非空断言操作符（！）
   在 TypeScript 2.0 中，可以使用--strictNullChecks标志强制开启严格空值检查。TypeScript就会确保不存在意料之外的null或undefined。在这种模式下，有类型的变量默认是不允许null或undefined值的，如果有未赋值的变量，或者试图把null或undefined赋值给不允许为空的变量，类型检查器就会抛出一个错误。如果类型检查器在运行期间无法确定一个变量是null或undefined，那么它也会抛出一个错误。 我们自己可能知道它不会为空，但类型检查器不知道。 所以我们要告诉类型检查器，它不会为空，这时就要用到非空断言操作符。
   Angular 模板中的**非空断言操作符（!）也是同样的用途。
   比如在ngIf来检查过person是否是已定义的之后，就可以断言person属性是一定是已定义的。

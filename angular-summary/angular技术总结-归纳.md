@@ -803,3 +803,371 @@ export class SizerComponent {
   $event变量包含了SizerComponent.sizeChange事件的荷载。 当用户点击按钮时，Angular 将$event赋值给AppComponent.fontSizePx。比起单独绑定属性和事件，双向数据绑定语法显得非常方便。
   在像<input>和<select>这样的 HTML 元素上不能使用这样的双向数据绑定。 因为原生 HTML 元素不遵循x值和xChange事件的模式。
   但是，最后还是只用[(ngModel)]啊，表单元素上就能双向数据绑定啦。
+### 10.内置指令 - 内置属性指令
+  属性型指令会监听和修改其它HTML元素或组件的行为、元素属性（Attribute）、DOM属性（Property）。 它们通常会作为HTML属性的名称而应用在元素上。
+  常用的属性型指令
+  - NgClass - 添加或移除一组CSS类
+  - NgStyle - 添加或移除一组CSS样式
+  - NgModel - 双向绑定到HTML表单元素
+#### 10.1 NgClass 指令
+  在Angular里面经常用动态添加或删除 CSS 类的方式来控制元素如何显示。 通过绑定到NgClass，可以同时添加或移除多个类。
+  CSS类用来添加或者删除单个类好用：
+```html
+<!-- 切换"special" 这个类 -->
+<div [class.special]="isSpecial">The class binding is special</div>
+```
+  上面用来切换一个还行，如果是多个class，就需要用ngClass，把ngClass绑定到一个 key:value 形式的控制对象。这个对象中的每个 key 都是一个 CSS 类名，如果它的 value 是true，这个类就会被加上，否则就会被移除。
+  组件方法setCurrentClasses可以把组件的属性currentClasses设置为一个对象，它将会根据三个其它组件的状态为true或false而添加或移除三个类。
+```typescript
+currentClasses: {};
+setCurrentClasses() {
+  // CSS classes: 添加或者删除组件属性的每一个当前状态
+  this.currentClasses =  {
+    'saveable': this.canSave,
+    'modified': !this.isUnchanged,
+    'special':  this.isSpecial
+  };
+}
+```
+  然后把NgClass属性绑定到currentClasses，根据它来设置此元素的CSS类：
+```html
+<div [ngClass]="currentClasses">This div is initially saveable, unchanged, and special</div>
+```
+  setCurrentClassess()既可以在初始化时调用，也可以在所依赖的的属性变化时调用。
+#### 10.2 NgStyle指令
+  根据组件的状态动态设置内联样式。 NgStyle绑定可以同时设置多个内联样式。
+  样式绑定是设置单一样式值的简单方式。比如：
+```html
+<div [style.font-size]="isSpecial ? 'x-large' : 'smaller'" >
+  This div is x-large or smaller.
+</div>
+```
+  如果需要设置多个内联样式，就用ngStyle。
+  NgStyle需要绑定到一个 key:value 控制对象。 对象的每个 key 是样式名，它的 value 是能用于这个样式的任何值。
+  看组件的setCurrentStyles方法，它会根据另外三个属性的状态把组件的currentStyles属性设置为一个定义了三个样式的对象：
+```typescript
+currentStyles: {};
+setCurrentStyles() {
+  // CSS styles: set per current state of component properties
+  this.currentStyles = {
+    'font-style':  this.canSave      ? 'italic' : 'normal',
+    'font-weight': !this.isUnchanged ? 'bold'   : 'normal',
+    'font-size':   this.isSpecial    ? '24px'   : '12px'
+  };
+}
+```
+  把NgStyle属性绑定到currentStyles，以据此设置此元素的样式：
+```html
+<div [ngStyle]="currentStyles">
+  This div is initially italic, normal weight, and extra large (24px).
+</div>
+```
+  setCurrentStyles()也是，既可以在初始化时调用，也可以在所依赖的的属性变化时调用。
+#### 10.3 NgModel - 使用[(ngModel)]双向绑定到表单元素
+  当开发数据输入表单时，通常都要既显示数据属性又根据用户的更改去修改那个属性。
+  使用NgModel指令进行双向数据绑定可以简化这种工作。比如：
+```html
+  <input [(ngModel)]="currentPerson.name">
+```
+  使用 ngModel 时需要 FormsModule。在使用ngModel指令进行双向数据绑定之前，必须导入FormsModule并把它添加到Angular模块的imports列表中。
+  eg：
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule }  from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms'; 
+// 从表单中引入FormsModule
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule  // <--- 引入 NgModule
+  ],
+})
+export class AppModule { }
+```
+  先看之前的name绑定，是通过分别绑定到<input>元素的value属性和input事件来达到同样的效果：
+```html
+<input [value]="currentHero.name" (input)="currentHero.name=$event.target.value" >
+```
+  这样显得很笨重，谁会记得该设置哪个元素属性以及当用户修改时触发哪个事件？ 我该如何提取输入框中的文本并且更新数据属性？谁会希望每次都去查资料来确定这些？
+  ngModel指令通过自己的输入属性ngModel和输出属性ngModelChange隐藏了那些细节。
+```html
+<input  [ngModel]="currentHero.name"  (ngModelChange)="currentHero.name=$event">
+```
+```txt
+  ps：
+  ngModel输入属性会设置该元素的值，并通过ngModelChange的输出属性来监听元素值的变化。
+  各种元素都有很多特有的处理细节，因此NgModel指令只支持实现了ControlValueAccessor的元素， 它们能让元素适配本协议。 <input>输入框正是其中之一。 Angular为所有的基础HTML表单都提供了值访问器（Value accessor），表单一章展示了如何绑定它们。
+  不能把[(ngModel)]用到非表单类的原生元素或第三方自定义组件上，除非写一个合适的值访问器，这种技巧超出了本章的范围。
+  自己写的Angular组件不需要值访问器，因为我们可以让值和事件的属性名适应Angular基本的双向绑定语法，而不使用NgModel。 前面看过的sizer就是使用这种技巧的例子。
+```
+  使用独立的ngModel绑定优于绑定到该元素的原生属性，那样做的就更好了。
+  而且不用被迫两次引用这个数据属性，Angular可以捕获该元素的数据属性，并且通过一个简单的声明来设置它，这样它就可以使用[(ngModel)]语法了。
+```html
+  <input [(ngModel)]="currentPerson.name">
+```
+  [(ngModel)]语法只能设置数据绑定属性。 如果要做更多或者做点不一样的事，就用它的展开形式。
+  比如：
+```html
+<input [ngModel]="currentPerson.name" (ngModelChange)="setUppercaseName($event)">
+```
+  失去焦点之后，输入框的内容就会转成全大写。
+### 11.内置指令 - 内置结构型指令
+#### 11.1 NgIf指令
+  通过把NgIf指令应用到元素上（称为宿主元素），可以往DOM中添加或从DOM中移除这个元素，比如：
+```html
+<app-person-detail *ngIf="isActive"></app-person-detail>
+```
+  当isActive为真时，就把当前组件挂载到DOM树上，为假时，就移除该组件。
+  这和显示隐藏不一样，比如：
+```html
+<!-- isSpecial is true -->
+<div [class.hidden]="!isSpecial">Show with class</div>
+<div [class.hidden]="isSpecial">Hide with class</div>
+
+<!-- HeroDetail is in the DOM but hidden -->
+<app-hero-detail [class.hidden]="isSpecial"></app-hero-detail>
+
+<div [style.display]="isSpecial ? 'block' : 'none'">Show with style</div>
+<div [style.display]="isSpecial ? 'none'  : 'block'">Hide with style<
+/div>
+```
+  当隐藏子树时，它仍然留在 DOM 中。 子树中的组件及其状态仍然保留着。 即使对于不可见属性，Angular 也会继续检查变更。 子树可能占用相当可观的内存和运算资源。
+  当NgIf为false时，Angular 从 DOM 中物理地移除了这个元素子树。 它销毁了子树中的组件及其状态，也潜在释放了可观的资源，最终让用户体验到更好的性能。
+  显示/隐藏的技术对于只有少量子元素的元素是很好用的，但要当心别试图隐藏大型组件树。相比之下，NgIf则是个更安全的选择。
+  eg：
+```html
+<div *ngIf="currentPerson">Hello, {{currentPerson.name}}</div>
+<div *ngIf="nullPerson">Hello, {{nullPerson.name}}</div>
+```
+  ngIf指令通常会用来防范空指针错误。 而显示/隐藏的方式是无法防范的，当一个表达式尝试访问空值的属性时，Angular就会抛出一个异常。
+  在上面的demo中，用NgIf来保护了两个<div>防范空指针错误。 currentPerson的名字只有当存在currentPerson时才会显示出来。 而nullPerson永远不会显示。
+#### 11.2 NgFor指令
+  这是循环指令，展示一个由多个条目组成的列表。首先定义了一个 HTML 块，它规定了单个条目应该如何显示。 再告诉 Angular 把这个块当做模板，渲染列表中的每个条目。
+  常用方式：
+```html
+<div *ngFor="let tmp of lists">{{tmp.name}}</div>
+```
+  NgFor的微语法：
+```txt
+  赋值给*ngFor的字符串不是模板表达式。 它是一个微语法 —— 由 Angular 自己解释的小型语言。在这个例子中，字符串"let tmp of lists"的含义是：
+  取出lists数组中的每个英雄，把它存入局部变量hero中，并在每次迭代时对模板 HTML 可用
+  Angular 把这个指令翻译成了一个<ng-template>包裹的宿主元素，然后使用这个模板重复创建出一组新元素，并且绑定到列表中的每一个person。
+```
+#### 11.3 模板输入变量
+  tmp前的let关键字创建了一个名叫tmp的模板输入变量。 ngFor指令在由父组件的lists属性返回的lists数组上迭代，每次迭代都从数组中把当前元素赋值给tmp变量。
+  我们可以在ngFor的宿主元素（及其子元素）中引用模板输入变量tmp，从而访问该英雄的属性。 这里它首先在一个插值表达式中被引用到，然后通过一个绑定把它传给了<person-detail>组件的tmp属性。
+```html
+<div *ngFor="let tmp of lists">{{tmp.name}}</div>
+<app-person-detail *ngFor="let tmp of lists" [list]="List"></app-person-detail>
+```
+  ngFor 也可以带索引,NgFor指令上下文中的index属性返回一个从零开始的索引，表示当前条目在迭代中的顺序。 可以通过模板输入变量捕获这个index值，并把它用在模板中：
+```html
+<div *ngFor="let hero of heroes; let i=index">{{i + 1}} - {{hero.name}}</div>
+```
+  带trackBy的 *ngFor
+  ngFor指令有时候会性能较差，特别是在大型列表中。 对一个条目的一丁点改动、移除或添加，都会导致级联的 DOM 操作。
+  例如，可以通过重新从服务器查询来刷新英雄列表。 刷新后的列表可能包含很多（如果不是全部的话）以前显示过的英雄。
+  他们中的绝大多数（如果不是所有的话）都是以前显示过的英雄。知道这一点，是因为每个英雄的id没有变化。 但在 Angular 看来，它只是一个由新的对象引用构成的新列表， 它没有选择，只能清理旧列表、舍弃那些 DOM 元素，并且用新的 DOM 元素来重建一个新列表。
+  如果给它指定一个trackBy，Angular 就可以避免这种折腾。 我往组件中添加一个方法，它会返回NgFor应该追踪的值。 在这里，这个值就是人物的id。
+```typescript
+ts:
+trackByPersons(index: number, person: Person): number { return person.id; }
+```
+```html
+html:
+<div *ngFor="let tmp of lists; trackBy: trackByPerson">
+  ({{person.id}}) {{person.name}}
+</div>
+```
+  页面有一个"Reset persons"按钮的话，它会创建一个具有相同person.id的新人物。 "Change ids"则会创建一个具有新person.id的新人物。
+  - 如果没有trackBy，这些按钮都会触发完全的DOM元素替换。
+  - 有了trackBy，则只有修改了id的按钮才会触发元素替换。
+#### 11.4 NgSwitch
+  NgSwitch指令类似于JavaScript的switch语句。 它可以从多个可能的元素中根据switch条件来显示某一个。 Angular只会把选中的元素放进DOM中。
+  NgSwitch实际上包括三个相互协作的指令：NgSwitch、NgSwitchCase 和 NgSwitchDefault，就像这样
+```html
+<div [ngSwitch]="currentPerson.emotion">
+  <app-happy-person    *ngSwitchCase="'happy'"    [hero]="currentPerson"></app-happy-person>
+  <app-sad-person      *ngSwitchCase="'sad'"      [hero]="currentPerson"></app-sad-person>
+  <app-confused-person *ngSwitchCase="'confused'" [hero]="currentPerson"></app-confused-person>
+  <app-unknown-person  *ngSwitchDefault           [hero]="currentPerson"></app-unknown-person>
+</div>
+```
+  NgSwitch是主控指令，要把它绑定到一个返回候选值的表达式。 本例子中的emotion是个字符串，但实际上这个候选值可以是任意类型。绑定到[ngSwitch]。如果试图用*ngSwitch的形式使用它就会报错，这是因为NgSwitch是一个属性型指令，而不是结构型指令。 它要修改的是所在元素的行为，而不会直接接触DOM结构。
+  绑定到*ngSwitchCase和*ngSwitchDefault NgSwitchCase 和 NgSwitchDefault 指令都是结构型指令，因为它们会从DOM中添加或移除元素。
+  NgSwitchCase会在它绑定到的值等于候选值时，把它所在的元素加入到DOM中。NgSwitchDefault会在没有任何一个NgSwitchCase被选中时把它所在的元素加入DOM中。
+  这组指令在要添加或移除组件元素时会非常有用。 这个例子会在person-switch.components.ts中定义的四个“最厉害的人”组件之间选择。 每个组件都有一个输入属性person，它绑定到父组件的currentPerson上。
+  这组指令在原生元素和Web Component上都能用， 比如，可以把<confused-person>分支改成这样：
+```html
+<div *ngSwitchCase="'confused'">Are you as confused as {{currentPerson.name}}?</div>
+```
+### 12.模板引用变量（#var）
+  模板引用变量通常用来引用模板中的某个DOM元素，也可以引用angular组件或者指令或者Web Component。使用#来声明引用变量，比如：
+```html
+	<input #phone placeholder="请输入电话号码">
+```
+  在模板的任何地方都可以引用模板引用变量，比如：
+```html
+    <input #phone placeholder="请输入电话号码">
+    <!-- 其它元素，什么都行 -->
+    <button (click)="callPhone(phone.value)">Call</button>
+```
+  模板引用变量是怎么得到它的值的？
+```txt
+  大多数情况下，Angular会把模板引用变量的值设置为声明它的那个元素。 在上一个例子中，phone引用的是表示电话号码的<input>框。 "拨号"按钮的点击事件处理器把这个input值传给了组件的callPhone方法。 不过，指令也可以修改这种行为，让这个值引用到别处，比如它自身。 NgForm指令就是这么做的。
+```
+  就像这样用也可以：
+```html
+<form (ngSubmit)="onSubmit(personForm)" #personForm="ngForm">
+  <div>
+    <label for="name">Name
+      <input name="name" required [(ngModel)]="person.name">
+    </label>
+  </div>
+  <button type="submit" [disabled]="!personForm.form.valid">Submit</button>
+</form>
+<div [hidden]="!personForm.form.valid">
+  {{submitMessage}}
+</div>
+```
+  在上面，personForm出现了3次，中间还隔着HTML，那personForm的值是什么？
+  如果之前没有导入FormsModule，Angular就不会控制这个表单，那么它就是一个HTMLFormElement实例。 这里的personForm实际上是一个Angular NgForm 指令的引用， 因此具备了跟踪表单中的每个控件的值和有效性的能力。
+  原生的<form>元素没有form属性，但NgForm指令有。这就解释了为何当personForm.form.valid是无效时我们可以禁用提交按钮， 并能把整个表单控件树传给父组件的onSubmit方法。
+  模板引用变量的作用范围是整个模板。 不要在同一个模板中多次定义同一个变量名，否则它在运行期间的值是无法确定的。
+  也可以用ref-前缀代替#。 下面的例子中就用把fax变量声明成了ref-fax而不是#fax。（也可以作为组件间通讯的一种方法）
+```html
+    <input ref-fax placeholder="fax number">
+    <button (click)="callFax(fax.value)">Fax</button>
+```
+### 13.输入输出属性（@Input和@Output）
+  到目前为止，主要关注的点在于绑定声明的右侧，在模板表达式和模板语句中绑定到组件成员。 当成员出现在这个位置上，则称之为数据绑定的源。
+  专注于绑定到的目标，它位于绑定声明中的左侧。 这些指令的属性必须被声明成输入或输出。
+  **记住：所有组件皆为指令。**
+```txt
+     我们要重点突出下绑定目标和绑定源的区别。
+     绑定的目标是在=左侧的部分， 源则是在=右侧的部分。
+     绑定的目标是绑定符：[]、()或[()]中的属性或事件名， 源则是引号 (" ") 中的部分或插值符号 ({{}}) 中的部分。
+     源指令中的每个成员都会自动在绑定中可用。 不需要特别做什么，就能在模板表达式或语句
+     访问目标指令中的成员则受到限制。 只能绑定到那些显式标记为输入或输出的属性。
+```
+  在下面的例子中，iconUrl和onSave是组件的成员，它们在=右侧引号语法中被引用了。
+```html
+     < img [src]="iconUrl"/>
+     <button (click)="onSave()">Save</button>
+```
+  它们既不是组件的输入也不是输出。它们是绑定的数据源。
+  现在，看看PersonDetailComponent中的另一个片段，等号（=）左侧的是绑定的目标。
+```html
+	<app-person-detail [person]="currentPerson(deleteRequest)="deletePerson($event)"></app-person-detail>
+```
+  PersonDetailComponent.person和PersonDetailComponent.deleteRequest都在绑定声明的左侧。
+  PersonDetailComponent.person在方括号中，它是属性绑定的目标PersonDetailComponent.deleteRequest在圆括号中，它是事件绑定的目标。
+####13.1  声明输入和输出属性
+  目标属性必须被显式的标记为输入或输出。
+  在PersonDetailComponent内部，这些属性被装饰器标记成了输入和输出属性。
+```typescript
+  @Input()  person: Person;
+   // 一个利用@Input的输入属性标识，表示可以接受数据
+  @Output() deleteRequest = new EventEmitter<Person>();
+   // 一个表示@Output的输出属性利用一个自定义事件的方法
+   // 把需要传递出去的数据传递出去。
+```
+  另外，还可以在指令元数据的inputs或outputs数组中标记出这些成员。比如：
+```typescript
+  @Component({
+  inputs: ['person'],
+  outputs: ['deleteRequest'],
+  })
+```
+**既可以通过装饰器，也可以通过元数据数组来指定输入/输出属性。但别同时用！**
+```txt
+  Q:现在是输入还是输出？
+  输入属性通常接收数据值。 输出属性暴露事件生产者，如EventEmitter对象。
+  输入和输出这两个词是从目标指令的角度来说的。
+  <app-person-detail [person]="currentPerson(deleteRequest)="deletePerson($event)"></app-person-detail>//[person]-->input,(deleteRequest)-->output
+  从PersonDetailComponent角度来看，PersonDetailComponent.person是个输入属性， 因为数据流从模板绑定表达式流入那个属性。
+  从PersonDetailComponent角度来看，PersonDetailComponent.deleteRequest是个输出属性， 因为事件从那个属性流出，流向模板绑定语句中的处理器。
+```
+####13.2 给输入/输出属性起别名
+  有时需要让输入/输出属性的公开名字不同于内部名字。
+  这是使用 attribute 指令时的常见情况。 指令的使用者期望绑定到指令名。例如，在<div>上用myClick选择器应用指令时， 希望绑定的事件属性也叫myClick。
+```html
+  <div (myClick)="clickMessage=$event" clickable>click with myClick</div>
+```
+  然而，在指令类中，直接用指令名作为自己的属性名通常都不是好的选择。 指令名很少能描述这个属性是干嘛的。 myClick这个指令名对于用来发出 click 消息的属性就算不上一个好名字。
+  幸运的是，可以使用约定俗成的公开名字，同时在内部使用不同的名字。 在上面例子中，实际上是把myClick这个别名指向了指令自己的clicks属性。
+### 14.模板表达式操作符
+  模板表达式语言使用了 JavaScript 语法的子集，并补充了几个用于特定场景的特殊操作符
+#### 14.1 管道操作符（|）
+  在绑定之前，表达式的结果可能需要一些转换。例如，可能希望把数字显示成金额、强制文本变成大写，或者过滤列表以及进行排序。
+  Angular 管道对像这样的小型转换来说是个明智的选择。 管道是一个简单的函数，它接受一个输入值，并返回转换结果。 它们很容易用于模板表达式中，只要使用管道操作符 (|) 就行了。
+```html
+	<div>Title through uppercase pipe: {{title | uppercase}}</div>
+```
+  管道操作符会把它左侧的表达式结果传给它右侧的管道函数。uppercase就是将小写的英文全部转为大写。
+  还可以通过多个管道串联表达式：
+```html
+<!--先转大写，再转小写，lowercase是转小写 -->
+<div>
+  Title through a pipe chain:
+  {{title | uppercase | lowercase}}
+</div>
+```
+  其它的还有date转换日期的，json、number等，具体的以后细说。
+#### 14.2 安全导航操作符 ( ?. ) 和空属性路径
+  Angular 的安全导航操作符 (?.) 是一种流畅而便利的方式，用来保护出现在属性路径中 null 和 undefined 值。 下面的代码里，当currentPerson为空时，保护视图渲染器，让它免于失败。
+```txt
+The current person's name is {{currentPerson?.name}}
+```
+  再比如，如果下面的title是空的话，会怎么样？
+```txt
+The title is {{title}}
+```
+  这个视图仍然被渲染出来，但是显示的值是空；只能看到 “The title is”，它后面却没有任何东西。 这是合理的行为。至少应用没有崩溃。
+  假设模板表达式涉及属性路径，在下例中，显示一个空 (null) 人物的firstName。
+```txt
+The null person's name is {{nullPerson.name}}
+```
+  JavaScript 抛出了空引用错误，Angular 也是如此：
+```javascript
+TypeError: Cannot read property 'name' of null in [null].
+```
+  这个样子的话，整个视图就都没有了，如果确信person属性永远不可能为空，可以声称这是合理的行为。 如果它必须不能为空，但它仍然是空值，实际上是制造了一个编程错误，它应该被捕获和修复。 这种情况应该抛出异常。另一方面，属性路径中的空值可能会时常发生，特别是当我们知道数据最终会出现。当等待数据的时候，视图渲染器不应该抱怨，而应该把这个空属性路径显示为空白，就像上面title属性那样。
+  但是，当currentPerson为空的时候，应用崩溃了。这个时候，可以通过ngIf来解决，当当前内容不为空的时候再挂载元素：
+```html
+<!--No hero, div not displayed, no error -->
+<div *ngIf="nullPerson">The null person's name is {{nullPerson.name}}</div>
+```
+  或者可以尝试通过&&来把属性路径的各部分串起来，让它在遇到第一个空值的时候，就返回空。
+```txt
+The null person's name is {{nullPerson && nullPerson.name}}
+```
+  这些方法都有价值，但是会显得笨重，特别是当这个属性路径非常长的时候。 想象一下在一个很长的属性路径（如a.b.c.d）中对空值提供保护。Angular 安全导航操作符 (?.) 是在属性路径中保护空值的更加流畅、便利的方式。 表达式会在它遇到第一个空值的时候跳出。 显示是空的，但应用正常工作，而没有发生错误。
+#### 14.3 非空断言操作符（！）
+  在 TypeScript 2.0 中，可以使用--strictNullChecks标志强制开启严格空值检查。TypeScript就会确保不存在意料之外的null或undefined。在这种模式下，有类型的变量默认是不允许null或undefined值的，如果有未赋值的变量，或者试图把null或undefined赋值给不允许为空的变量，类型检查器就会抛出一个错误。如果类型检查器在运行期间无法确定一个变量是null或undefined，那么它也会抛出一个错误。 我们自己可能知道它不会为空，但类型检查器不知道。 所以我们要告诉类型检查器，它不会为空，这时就要用到非空断言操作符。
+  Angular 模板中的**非空断言操作符（!）也是同样的用途。
+  比如在ngIf来检查过person是否是已定义的之后，就可以断言person属性是一定是已定义的。
+```html
+<!--如果没有人，这句话就不显示啦-->
+<div *ngIf="person">
+  The person's name is {{person!.name}}
+</div>
+```
+  在 Angular 编译器把我的模板转换成 TypeScript 代码时，这个操作符会防止 TypeScript 报告 "person.name可能为null或undefined"的错误。与安全导航操作符不同的是，非空断言操作符不会防止出现null或undefined。 它只是告诉 TypeScript 的类型检查器对特定的属性表达式，不做 "严格空值检测"。如果打开了严格控制检测，那就要用到这个模板操作符，而其它情况下则是可选的。
+### 15.类型转换函数$any($any(<表达式>))
+  有时候，绑定表达式可能会报类型错误，并且它不能或很难指定类型，要消除这种报错，可以使用$any转换函数来把表达式转化成any类型
+```html
+<!-- 访问未声明的成员 -->
+<div>
+  The person's marker is {{$any(person).marker}}
+</div>
+```
+  在这个例子中，当Angular编译器把模板转换成Typescript代码的时候，$any表达式可以防止TypeScript编译报错说marker不是Person接口的成员。$any转换函数可以和this联合使用，以便访问组件中未声明过的成员。
+```html
+<!-- 访问声明了的策划逆光源 -->
+<div>
+  Undeclared members is {{$any(this).member}}
+</div>
+```
+  $any转换函数可以在绑定表达式中任何可以进行方法调用的地方使用。
