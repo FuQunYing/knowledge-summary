@@ -94,11 +94,11 @@
   数据绑定是一种机制，用来协调用户所见和应用数据，虽然我能往 HTML 推送值或者从 HTML 拉取值（jQuery操控DOM）， 但如果把这些琐事交给数据绑定框架处理， 应用会更容易编写、阅读和维护。 只要简单地在绑定源和目标 HTML 元素之间声明绑定，框架就会完成这项工作。
   Angular 提供了各种各样的数据绑定，之后细说。 先从高层视角来看看 Angular 数据绑定及其语法。
   绑定的类型可以根据数据流的方向分成三类： 从数据源到视图、从视图到数据源以及双向的从视图到数据源再到视图。
-| 数据方向 | 语法 | 绑定类型 |
-| - | :-: | -: |
-| 单向：从数据源到视图目标 | {{expression}}[target]="expression" bind-target="expression"| 插值表达式 Property Attribute 类 样式 |
-| 单向：从视图目标到数据源 | (target)="statement" on-target="statement"| 事件 |
-| 双向 | [(target)]="expression" bindon-target="expression"| 双向 |
+| 数据方向         |                    语法                    |                          绑定类型 |
+| ------------ | :--------------------------------------: | ----------------------------: |
+| 单向：从数据源到视图目标 | {{expression}}[target]="expression" bind-target="expression" | 插值表达式 Property Attribute 类 样式 |
+| 单向：从视图目标到数据源 | (target)="statement" on-target="statement" |                            事件 |
+| 双向           | [(target)]="expression" bindon-target="expression" |                            双向 |
   除了插值表达式之外的绑定类型，在等号左边是目标名， 无论是包在括号中 ([]、()) 还是用前缀形式 (bind-、on-、bindon-) 。
   这个目标名就是Property的名字。它可能看起来像是元素属性（Attribute）的名字，但它不是。 要理解它们的不同点，必须尝试用另一种方式来审视模板中的 HTML。
 #### 5.1 新的思维模型
@@ -149,14 +149,14 @@
   在 Angular里面，attribute 唯一的作用是用来初始化元素和指令的状态。 当进行数据绑定时，只是在与元素和指令的 property 和事件打交道，而 attribute 就完全靠边站了。
 #### 5.3 绑定目标
   数据绑定的目标是 DOM 中的某些东西。 这个目标可能是（元素 | 组件 | 指令的）property、（元素 | 组件 | 指令的）事件，或(极少数情况下) attribute 名。 汇总表如下：
-| 绑定类型 | 目标 | 示例 |
-| - | :-: | :-: |
-| Property | 元素的Property，组件的Property，指令的Property | <img [src]="imgUrl"><br /><app-person-detail [person]="currentPerson"></app-person-detail><br /><div [ngClass]="{'special': isSpecial}"></div> |
-| 事件 | 元素的事件，组件的事件，指令的事件 | <button (click)="onSave()">Save</button><br /><app-person-detail (deleteRequest)="deletePerson()"></app-person-detail><br /><div (myClick)="clicked=$event" clickable>click me</div> |
-| 双向 | 事件与Property | <input [([ngModel]="name"> |
-| Attribute | attribute（例外情况） | <button [attr.aria-label]="help">help</button> |
-| CSS类 | CSS Property | <div [class.special]="isSpecial">Special</div> |
-| 样式 | style Property | <button [style.color]="isSpecial ? 'red' : 'green'"> |
+| 绑定类型      |                 目标                  |                    示例                    |
+| --------- | :---------------------------------: | :--------------------------------------: |
+| Property  | 元素的Property，组件的Property，指令的Property | <img [src]="imgUrl"><br /><app-person-detail [person]="currentPerson"></app-person-detail><br /><div [ngClass]="{'special': isSpecial}"></div> |
+| 事件        |          元素的事件，组件的事件，指令的事件          | <button (click)="onSave()">Save</button><br /><app-person-detail (deleteRequest)="deletePerson()"></app-person-detail><br /><div (myClick)="clicked=$event" clickable>click me</div> |
+| 双向        |             事件与Property             |        <input [([ngModel]="name">        |
+| Attribute |           attribute（例外情况）           | <button [attr.aria-label]="help">help</button> |
+| CSS类      |            CSS Property             | <div [class.special]="isSpecial">Special</div> |
+| 样式        |           style Property            | <button [style.color]="isSpecial ? 'red' : 'green'"> |
 
 
 

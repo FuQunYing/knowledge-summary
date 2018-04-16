@@ -1,0 +1,805 @@
+##一、整体架构
+
+![图片](overview2.png)
+
+**图一 - angular全景图-非常非常重要的图**
+
+### 1.写一个Angular 应用：
+   1）用 Angular 扩展语法编写 HTML 模板（angular指令、管道、插值表达式等），
+   2）用组件类管理这些模板（通过组件来指定模板显示），
+   3）用服务添加应用逻辑（将应用中需要经常用到的逻辑封装在服务中，方便服用），
+   4）用模块打包发布组件与服务（组件、服务需要在一个模块中去创建去声明）。
+全景图可以看到，在angular应用中，以组件为单位，在组件中管理HTML模板，二者通过元数据进行连接（@Component里面的一些如templateUrl，styleUrls，selector）。通过属性绑定，组件可以把数据动态绑定在模板视图上，通过事件绑定，可以把视图上用户输入的数据传给组件做处理。指令可以控制HTML模板，组件引入服务，来处理逻辑问题。
+   ps：DI Error 依赖注入错误，服务没有被注入
+2.angular的八大核心概念（学习顺序）
+模块、组件、模板、元数据、数据绑定、指令、服务、依赖注入。
+##二、模块
+###1.根模块和特性模块
+首先每个angular应用至少有一个根模块（AppModule），在比较小的项目中，有这一个模块就够了。但是在大项目中，页面非常多，就有很多特性模块了，特性模块就是一个内聚代码块，专注于某个应用领域、工作流或者功能让相近页面相近的功能，比如钩哒里面的LayoutModule、RoutesModule、ServiceModule，看名字就知道这个模块里面大概是干嘛的。
+###2.@NgModule
+在模块里面（不管是根模块还是特性模块）都有一个@NgModule的装饰器的类，NgModule是一个装饰器函数，它接收一个用来描述模块属性的元数据对象，最重要的属性有：
+a. declarations，所有的视图类都在这儿声明，不声明就用肯定报错没跑了，组件、指令、管道都属于视图类。
+b. exports，declarations的子集，可用于其它模块的组件模板。
+c. imports，引入本模块所需要的其它模块。
+d. providers，服务的提供商，服务不放在这里面没法用，放在根模块的providers里面就全局都能用。
+e. bootstrap，不是那个样式库的boot，它是在根模块里面指定要启动哪一个主视图，里面放的通常都是AppComponent。
+eg：一个简单的根模块：
+```typescript
+import {NgModule} from"@angular/core"
+import {BrowserModule} from"@angular/platform-browser"
+import {AppComponent} from"......"
+@NgModule({
+   imports: [BrowserModule],
+   providers:[Logger],
+   declarations:[AppComponent],
+   exports: [AppComponent],
+   // 其实根模块不需要导出任何东西，别的模块又不需要导入根模块，但是特性模块记得有需要的就要导出了，不然别的地方用不了
+   bootstrap:[AppComponent]
+
+})
+```
+ps：引导根模块来启动应用的就是main.ts，里面有一句
+```typescript
+platformBrowserDynamic().bootstarpModule(AppModule)
+```
+所以，启动开发服务器的时候，找到了main.ts，根据main找到了AppModule，根据AppModule里面bootstrap的指定，启动那个组件，就看到页面啦。
+###3.NgModules 和 JavaScript模块（接0206）
+  NgModule就是一个带有@NgModule的装饰器的类，是Angular的一个基础特性。
+  JavaScript的模块系统，就是用来管理一组JS对象，和Angular的模块系统没啥关系，JS里面每一个文件都可以看作是一个模块，文件里面定义的对象属于这个模块，最后通过export关键字，可以向外暴露这些对象，可以使别的模块去引用它（import引入就能用啦）
+  两个模块系统互补，写程序的时候都要用到。
+###4.Angular模块库
+  新建一个angular应用的时候，node-modules里面有很多的包，@angular开头的就是Angular的模块库，比如 在某个文件中 import {Component} from "@angular/core"，意思就是从@angular/core的库中，导入Component的装饰器；或者 import {BrowserModule} from "@angular/platform-browser"，就是从@angular/platform-browser库里面导入一个BrowserModule的Angular模块
+  ps：某个应用模块需要用到BrowserModule的时候，不仅要引入，也要把它加入@NgModule元数据的imports数组里面去。imports ： [BrowserModule]，这种情况下，Angular和JS的模块系统就一起使用啦。
+## 三、组件
+  组件就是一个带有特定功能的可以被反复使用的视图。
+  Angular是以模块为基本单位（Vue好像是以组件为基本单位的吧），模块是由各种各样的组件构成的。创建过的每一个组件，在使用之前，都要去对应的模块中去声明，声明之后，只允许在该模块内使用，在根模块里面声明的话，就哪儿都能用了。
+  在类里面，就是导出那个，定义组件的应用逻辑，为视图提供支持，让视图不仅能看还能用。组件通过一些属性和方法组成的API和视图进行交互（就是全景图里面的属性绑定和事件绑定啦）。
+eg:一个简单的组件实例代码
+```typescript
+	export class NameComponent implements OnInit {
+		//导出一个类
+		arrs: Arr[];
+		//其实随便定义一个什么就行，用来接受从服务哪里获取到的值
+		selectedArr: Arr;
+		//随便定义的，接受事件被调用时传入的值
+		constructor (private service: ArrService) {}
+		//在构造函数里面实例化一个服务，这个服务是在某个地方写好，引入并注入过的啦，
+		//ps：angular中的服务是单例模式，在这个应用程序中，这个对象只保留一个实例。
+		ngOninit() {
+		//生命周期函数，ngOnInit表示组件在创建后立刻就调用，别的钩子就见到的时候再说。
+			this.arrs = this.service.getArrs();
+			//service后面就是定义好的方法啦
+		}
+		selectedArrs(arr: Arr) {this.selectedArr = arr} 
+		//这是一个事件，调用时就可以拿到传入的值并赋值给selectedArr
+	}
+```
+##四、模板
+  组件建成的时候，自带了模板，在这里面定义组件的视图。模板是以HTML的形式存在，告诉angular如何渲染组件，但是也不完全是标准的HTML。
+	比如：
+```html
+<ul>
+<li *ngFor="let arr of arrs" (click)="selectedArrs(arr)" >{{arr}}</li>
+<---*ngFor 循环指令，可以生成和arrs的length一样多的li，绑定单击事件就是(click)，绑定别的事件也要加()->
+</ul>
+<app-detail *ngIf="selectedArr" [arr]="selectedArr"></app-detail>
+<--app-detail，是别的组件的名字，当做普通的HTML标签使用；*ngIf，根据等号后面的值的真假来决定当前的元素要不要挂载到DOM树上；[]是属性绑定的时候用的，加入等号后面的值是不确定的，就需要用属性绑定-->
+```
+##五、元数据
+  简单来说，元数据就是@Component里面的那些属性，单独看某个Component的时候，就只是被导出了一个类，angular并不知道，通过元数据里面的属性，告诉angular这是个组件，告诉angular去哪儿获取我给组件指定的各种构建模块，什么HTML模板啦、css啦..
+```txt
+	selector：选择器，要用当前组件的时候，把这个名字当做普通的HTML标签
+	templateUrl：模板的相对地址
+	template：直接写HTML在这里，不用引入html文件
+	styleUrls：一个数组，放css的地址，可以放多个
+	providers：服务的依赖注入提供商数组，服务要想使用，先引入，然后指定提供商，然后实例化，才能使用。
+```
+##六、数据绑定
+  在传统模式下，数据变化或者视图更改都是直接操作页面DOM元素，angular支持数据绑定，通过数据来控制页面视图。
+比如：
+```html
+	<li>{{arr.xxx}}</li>
+	//{{arr.xxx}}插值表达式 在<li>标签中显示组件的arr.xxx属性的值。
+	<app-hero-detail [arr]="selectedArr"></app-hero-detail>
+	//[arr]属性绑定 把父组件NameComponent的selectedArr的值传到子组件DetailComponent的arr属性中。
+	<li (click)="selectedArr(arr)"></li>
+	//(click) 事件绑定 在用户点击li时调用组件的selectedArr方法。
+除了上面三种，还有第四种数据绑定：
+	<input [(ngModel)]="arr.xxx">
+	//[(ngModel)]双向数据绑定 数据属性的值通过属性绑定到视图到输入框，用户修改以后通过事件绑定把新值流回组件，并更新属性的值，这个绑定可以说是非常重要了。
+```
+	ps：双向数据绑定的原理
+		TODO暂时没有搞明白脏数据检查机制，网上的解释都是angularJS的，不准，待定。
+
+## 七、指令
+  angular的模板是动态的，动态的东西就要有指令来操控，angular渲染模板的时候，就是根据指令的操作对DOM进行转换。
+  组件就是一个指令，@Component的装饰器实际上也是@Directive的装饰器，就是扩展了面向模板的特性。因为在angular中组件处于中心地位，所以在架构里面，把组件从指令里面独立了出来。
+  angular所支持的常见的指令：
+```txt
+ 	1. *ngFor，循环指令，生成N个标签
+		eg : <any *ngFor="let tmp of COLL;let i=index"></any>
+	2. *ngIf，选择指令，根据表达式的值的真假决定是否将元素挂载到DOM树
+		eg ： <any *ngIf="expression"></any>
+	3. [ngSwitch]，多重选择指令，跟if(){} else if(){} else{} 差不多
+		eg : <div [ngSwitch]="">
+				<any *ngSwitchCase=""></any>
+				<any *ngSwitchDefault></any>
+        	 </div>
+	    一个坑：同一个元素标签上不能同时放两个结构型指令（上面这三个加*的，对DOM
+	    	   修改删除的就是结构型指令），如果需要同时使用，可以在外层包裹
+	    	   <ng-container>标签，把一个指令放在这个标签上面。
+	4.事件绑定，给事件名加个小括号
+		eg ： <any (eventname)="fn()"></any>
+	5.属性绑定，动态绑定样式类或者样式
+		ngClass ：<any [ngClass]="{className: true/false}">
+		ngStyle ：<any [ngStyle]="{styleName: 放个变量在这}">
+	6.插值表达式，就是双花括号，把表达式里面的值显示在页面上
+		eg ： <any>{{表达式}}</any>
+	7.双向数据绑定，从页面获取数据就靠它了，但是不能直接用，ngModel属于表单模块，使用之前在app.module.ts中要先引入FormsModule，放到imports数组中，才能使用。
+		eg ： <input [(ngModel)]="变量">
+			  显示：<any>{{变量}}</any>
+		如果需要监听用户的操作，可以在标签上绑定(ngModelChange) = "fn()"
+		
+		ps：双向数据绑定原理
+			大佬的博客：（自己还没完全整明白）
+			http://blog.csdn.net/u011256637/article/details/71056731
+			注：脏值检测就是不关心如何以及何时改变的数据，只关心在特定的检查阶段数据
+			    是否改变的监听技术，可以实现批量处理完数据之后，再去统一更新视图。
+```
+## 八、服务
+  服务可以包括很多东西，比如值、函数、或者应用里面所需要的特性。总而言之就是对应用中逻辑的封装。组件类本身要保持精简，它不直接往控制台输出日志，不从服务器获得数据，也不进行验证和输入，把这些事情全部委托给服务。
+  组件的任务就是提供用户体验，介于由模板渲染的视图和应用逻辑之间，一个良好的组件就只为数据绑定提供属性和方法，别的都委托给服务...好像没有完全遵循这个原则，大部分的时候都是只把网络请求封装了，别的东西依然写在了组件里。
+```typescript
+	  //比如封装一个打印服务：
+	  	eg ：log.service.ts
+	  		import {Injectable} from "@angular/core";
+	  		@Injectable()
+	  		export class LogService {
+  				isDev : Boolean = false;
+  				constructor() {}
+  				print(msg : any){
+  					if(this.isDev) console.log(msg);
+  					//如果是生产环境就不打印，开发环境就打印
+				}
+			}
+			
+		//使用该服务：
+			import {LogService}from './log.service';
+			@Component({
+  				providers: [LogService]
+  				//指定提供商
+			})
+			constructor (private log: LogService){}//实例化才能用
+			fn(){
+  				this.log.print(XXXX);//随便在该组件需要的地方调用就好啦
+			}
+			
+	  //更多的时候，在一个应用里面，是把所需要的网络请求封装在服务里面
+	  	//eg ： http.service.ts
+	  		import { Injectable } from '@angular/core';
+			import { Http, Response } from '@angular/http';
+			@Injectable()
+			export class HttpService {
+    			constructor(private http: Http) { }
+    			sendRequest(myUrl:string){//发起网络请求
+        		return this.http.get(myUrl)
+        				.map((response: Response) => response.json());
+    			}
+			}
+```
+  使用该服务：
+  步骤还是一样的：引入-->实例化-->调用
+  调用方法:
+```typescript
+getData(){
+  this.httpService.sendRequest("./test.json")
+    .subscribe((data:any)=>{
+    console.log(data);
+  })
+}
+/*重点就是这个subscribe了，目前异步的的请求方式有：
+AJAX、事件绑定、promise、
+rxjs（observable/subscribe，消息订阅机制？？）*/
+```
+## 九、依赖注入
+```txt
+	”依赖注入“是提供类的新实例的一种方式，还负责处理好类所需的全部依赖，大多数依赖都是服务，Angular使用依赖注入来提供新组件以及组件所需的服务。
+	Angular通过查看构造函数的参数类型得知组件需要哪些服务，
+		eg ： constructor (private http : HttpService){}
+				//该组件的构造函数需要一个HttpService的服务
+	当Angular创建组件时，会首先为组件所需的服务请求一个injector-注入器
+	注入器维护一个服务的实例的容器，存放着以前创建的实例，如果所请求的服务实例不在容器里面，注入器就创建一个服务实例然后添加到这个容器中，再把这个服务返回给Angular。当所有的请求服务都被解析完并返回时，Angular就以这些服务为参数去调用组件的构造函数，这就是整个依赖注入的过程。
+	那么，在上面的服务调用里面，把需要用的服务放在了providers里面了，就是用注入器给HttpService注册了一个提供商，就是把HttpService给添加到注入器里面去了。
+	
+	服务可以注入到一个组件，也可以注入到一个模块中。
+	如果服务通过不同组件的providers，注入到不同的组件，那么服务是被创建了很多次，每一个都是一个单独的实例，都没有关系。
+	如果服务注入到了一个组件中，那么这个组件由有其它的子组件构成，那么在子组件中如果引入服务类（不会通过providers去指定），那么所实例化的服务类对象是同一个实例对象。
+	如果服务是注入到了一个模块中，那么该模块任何一个组件所import和实例化得到的服务都是同一个实例
+	如果想在全局使用这个服务，就在根模块的providers里面注入就好啦
+	注意：
+		· 依赖注入是渗透在整个Angular框架中的，被导出使用。
+		· 注入器（Injector）是这个机制的核心（注入器要负责维护一个存放它创建过的容器，能使用提供商创建一个新的服务实例）
+		· 提供商是用来创建服务的地方，将依赖注入到当前的对象中
+		· 提供商要注册到注入器
+```
+######——架构END
+
+# 核心知识——模板与数据绑定
+## 一、显示数据
+
+  在Angular中最典型的数据显示方式，就是把HTML模板中的控件绑定到Angular组件的属性中，以创建一个列表组件为例，我要显示一些人物的名字，根据条件决定在列表下方是否显示一条消息，最终要变成这个样子：
+```txt
+  人物列表
+  我最喜欢的是：许嵩
+  这些人是：
+  	· 许嵩
+  	· 山田凉介
+  	· 夏洛克
+  	· 夏目
+  哎呀，还有好多呢....
+```
+- 使用插值表达式显示组件属性
+  - 要显示组件的属性，就直接通过插值表达式（interpolation）来绑定属性名，直接把属性名放在双花括号里面，然后放在模板里面就好啦。
+```typescript
+  app.component.ts //演示练习这些小demo，放在app.component里面就好啦
+	import {Component} from "@angular/core" 
+	@Component({
+		//app-root作为标签使用，当通过main.ts中的AppComponent类启动时，Angular在index.html找到<app-root>的元素，然后去实例化一个AppComponent，渲染到<app-root>的标签中
+  		selector:'app-root',
+  		template:` 
+  			<p>{{title}}</p>
+  			<p>我最喜欢的是：{{favorite}}</p>
+  		`
+  		//Angular自动从组件中提取title和favorite属性的值，并且把这些值插入浏览器中，当这些属性值发生变化时，Angular就会自动刷新显示。
+	})
+	export class AppComponent {
+  		title : '人物列表',
+  		favorite : '许嵩'
+	}
+```
+- 选择内联模板或者模板文件
+  - template用来定义内联模板，直接把元素写在后面就行，或者把模板放在单独的HTML文件里面，再通过templateUrl的属性，指定这个HTML文件的位置。
+  - 上面的demo里面选择内联是因为代码很少，如果模板代码多的话，放在模板文件里面会更好有点，但是两种方法，在绑定数据上是完全一样的。
+- 构造函数和变量初始化
+  - demo里面使用变量赋值的方式初始化组件，或者，可以使用构造函数来声明和初始化属性
+```typescript
+  	export class XXXComponent{
+  		title: string;
+  		favorite: string; 
+  		constructor() {
+  			this.title = '人物列表';
+  			this.favorite = '许嵩';
+		}
+	}
+```
+- 使用ngFor显示数组属性
+  - 要显示人物的列表，可以先向组件中添加一个数组，里面放着每个人物的名字，然后把favorite改成数组的第一个名字。
+```typescript
+	export class AppComponent{//定义数据
+  		title = '人物列表';
+  		lists = ['许嵩'，'山田凉介','夏洛克','夏目'];
+  		favorite = this.lists[0];
+	}
+	//然后在模板里面
+	template:`
+		<p>{[title]}</p>
+		<p>我最喜欢的是：{{favorite}}</p>
+		<p>这些人是：</p>
+		<ul>
+			<li *ngFor="let tmp of list">{{tmp}}</li>
+		</ul>
+	`
+	ngFor循环的时候，拿出list中的每个值，放入<li>标签内，生成多个li标签。ngFor不仅能循环数组，对象也可以，在插值表达式里面用取对象值的方法也可以拿到想要的数据。
+```
+- 为数据创建一个类
+  - demo里面是直接把数据定义在了组件内部，使用到的是一个普通的字符串数组的绑定，此外还有对于一个对象数组的绑定，要将此绑定转换成使用对象，需要把人物名字的数组转换成一个List的对象数组。
+```txt
+  首先需要创建一个List的类
+  eg： List.ts
+  		export class List{
+  			constructor(
+  				public id: number,
+  				public name: string
+  			){}
+		}
+  定义并导出这个类，里面有一个构造函数和id、name两个属性
+  public id：number（这是ts的简写形式，用构造函数的参数直接定义属性） 做了哪些事？
+  	· 声明了一个构造函数参数及其类型
+  	· 声明了一个同名的公共属性
+  	· 当new一个该类的实例时，把该属性初始化为相应的参数值
+```
+- 使用一个类
+  - 导入List类之后，组件的lists属性就可以返回一个类型化过的lists数组了。
+```typescript
+	lists = [
+  		new List(1,'许嵩'),
+  		new List(2,'山田凉介'),
+  		new List(3,'夏洛克'),
+  		new List(4,'夏目')
+	]
+	favorite = this.lists[0];
+	//按照上面这样创建这个数组，现在模板里面的{{tmp}}一下子把id和name都显示出来了，如果只要显示name：
+	template: `
+  		<p>{{title}}</p>
+  		<p>我最喜欢的是: {{lists.name}}</p>
+        <p>这些人是:</p>
+        <ul>
+          <li *ngFor="let tmp of lists">
+            {{ tmp.name }}
+          </li>
+        </ul>
+`
+```
+```txt
+ps回忆（恰好想起来，和上面的没有关系）:
+	JS面向对象，当用new创建一个新的对象的时候，发生了什么？？
+	new的时候，做了四件事：
+		1.创建了一个新的对象
+		2.自动让新的子对象继承构造函数的原型对象！！important
+		3.调用构造函数，向新的空的对象中强行添加新成员
+		4.将新的变量地址返回给变量保存
+```
+- 通过ngIf进行条件显示
+  - 显示数据的最后一步，根据需求是否显示某个视图
+```txt
+比如说，如果我列表的长度大于3了，就在视图最后显示一句话
+	<li *ngIf="lists.length>3">哎呀，还有好多呢...</li>
+	*ngIf 就是根据表达式的真假来显示或者移除某个元素
+```
+- 显示数据——小结
+  - 带有双花括号的插值表达式 (interpolation) 来显示一个组件属性
+  - 用 ngFor 循环显示出数组的值或者对象数组
+  - 用一个 TypeScript 类来为我们的组件描述模型数据并显示模型的属性
+  - 用 ngIf 根据一个布尔表达式有条件地显示一段 HTML
+
+###### 最后，demo的所有代码：
+- arc/app/app.component.ts
+```typescript
+	import { Component } from '@angular/core';
+	import { List } from './list';
+ 
+    @Component({
+      selector: 'app-root',
+      template: `
+        <p>{{title}}</p>
+        <p>我最喜欢的是: {{lists.name}}</p>
+        <p>这些人是:</p>
+        <ul>
+          <li *ngFor="let tmp of lists">
+            {{ tmp.name }}
+            </li>
+        </ul>
+        <p *ngIf="lists.length > 3">哎呀，还有很多呢...</p>
+    `
+    })
+    export class AppComponent {
+      title = '人物列表';
+      heroes = [
+        new List(1, '许嵩'),
+        new List(2, '山田凉介'),
+        new List(3, '夏洛克'),
+        new List(4, '夏目')
+      ];
+      favorite = this.lists[0];
+    }
+```
+- src/app/list.ts
+```typescript
+	export class List(){
+  		constructor(
+  			public id: number,
+  			public name: string
+  		){}
+	}
+```
+- app.module.ts和main.ts什么的没有什么变化...不写了
+## 二、模板语法
+  Angular应用管理着用户的所见所为，并且通过组件和模板来和用户交互。在MVC/MVVM框架中，组件就是Control或者ViewModule的角色了，模板就是View的角色。关于Angular的模板语言，需要知道它的基本原理，并且掌握大部分的语法。
+###  1.模板中的HTML
+```txt
+  Angular的模板语言是HTML，HTML大部分的语法都是有效的模板语法，但是<script>被忽略了，还有html、body、base在模板中也没有意义，其它的元素都正常使用就好。
+  在Angular里面，还可以通过组件和指令扩展HTML标签。创建的组件通过selector指定的名字直接用就好啦。
+```
+### 2.插值表达式
+```txt
+  插值表达式在之前的demo里面已经见了很多了，它可以把计算后的字符串插入HTML元素标签，它可以把计算后的字符串插入到 HTML 元素标签内的文本或对标签的属性进行赋值。
+  <p>{{title}}
+  	<img src = "{{imgUrl}}">
+  </p>
+  花括号之间的就是组件的属性的名字，Angular会用组件中相应的属性的字符串的值，替换这个名字，在上面两行代码中，Angular会计算title和imgUrl的值，然后填在空白的地方，按顺序先显示title的内容，再显示图片。
+  一般来说，括号间的素材是一个模板表达式，Angular先对它求职，再把它转成字符串
+  比如<p>1 + 1= {{1+1}}</p>，插值表达式可以对其进行运算并显示在页面上，不管花括号里面是数字相加还是什么别的运算，也可以和组件中的属性或者方法一起调用。
+```
+### 3.模板表达式
+  模板表达式产生一个值。 Angular 执行这个表达式，并把它赋值给绑定目标的属性，这个绑定目标可能是 HTML 元素、组件或指令。
+  比如{{1+1}}中所包含的模板表达式是1 + 1。 在属性绑定中会再次看到模板表达式，它出现在等号右侧的引号中，就像这样：[property]="expression"。写的时候看上去像是js，很多js表达式也是合法的模板表达式，但是不是全部。
+  有些js的表达式就不能用，可能会引起一些错误，比如：
+```txt
+  	赋值 (=, +=, -=, ...)
+	new运算符
+	使用;或,的链式表达式
+	自增或自减操作符 (++和--)
+```
+  还有一些在语法上就不支持：
+```txt
+  	不支持位运算|和&
+	具有新的模板表达式运算符，比如|、?.和!。
+```
+#### 3.1 表达式上下文
+```txt
+	eg：{{title}}
+		<span [hidden]="isUnchanged">changed</span>
+```
+  典型的表达式上下文就是这个组件实例，它是各种绑定值的来源。 在demo中，双花括号中的title和引号中的isUnchanged所引用的都是AppComponent中的属性。
+  表达式的上下文可以包括组件之外的对象。 比如模板输入变量 (let tmp)和模板引用变量(#userInput)就是备选的上下文对象之一。
+```txt
+	<div *ngFor="let tmp of lists">{{tmp.name}}</dv>
+  	<input #userInput>{{userInput.value}}
+```
+  表达式中的上下文变量，是由模板变量，指令的上下文变量和组件的成员叠加而成的，如果我要引用的变量名存在于一个以上的命名空间中，那么模板变量是最优先的，其次是指令的上下文变量，最后是组件的成员。
+  如果说我在组件的属性里面写了一个叫tmp的属性，那么就和*ngFor里面的tmp起了冲突，在{{tmp.name}}里面，tmp引用的是模板变量，而不是组件的属性。
+  模板表达式不能引用全局命名空间中的任何东西，比如window或document。它们也不能调用console.log或Math.max。 它们只能引用表达式上下文中的成员。
+#### 3.2表达式指南
+  模板表达式能成就一个应用也能毁掉一个应用，在此列出以下指南：
+  - 没有可见的副作用
+    模板表达式除了目标属性的值以外，不应该改变应用的任何状态。
+    这条规则是 Angular “单向数据流”策略的基础。 永远不用担心读取组件值可能改变另外的显示值。 在一次单独的渲染过程中，视图应该总是稳定的。
+  - 执行迅速
+    Angular 执行模板表达式非常的频繁。 它们可能在每一次按键或鼠标移动后被调用。 表达式应该快速结束，否则用户就会感到拖沓，特别是在较慢的设备上。 当计算代价较高时，应该考虑缓存那些从其它值计算得出的值。
+  - 非常简单
+    虽然也可以写出相当复杂的模板表达式，但不要那么写。
+    常规是属性名或方法调用。偶尔的逻辑取反也还凑合。 其它情况下，应在组件中实现应用和业务逻辑，使开发和测试变得更容易。
+  - 幂等性（可以使用相同参数重复执行，并能获得相同结果的函数。这些函数不会影响系统状态，也不用担心重复执行会对系统造成改变。）
+    最好使用幂等的表达式，因为它没有副作用，并且能提升 Angular 变更检测的性能。
+    在 Angular 的术语中，幂等的表达式应该总是返回完全相同的东西，直到某个依赖值发生改变。
+    在单独的一次事件循环中，被依赖的值不应该改变。 如果幂等的表达式返回一个字符串或数字，连续调用它两次，也应该返回相同的字符串或数字。 如果幂等的表达式返回一个对象（包括Date或Array），连续调用它两次，也应该返回同一个对象的引用。
+### 4.模板语句
+  模板语句用来响应由绑定目标（如 HTML 元素、组件或指令）触发的事件。 模板语句在事件绑定的时候细说，它出现在=号右侧的引号中，就像这样：(event)="statement"。
+```txt
+  <button (click)="deletePerson()">Delete person</button>
+```
+  模板语句有副作用。 这是事件处理的关键。因为我们要根据用户的输入更新应用状态。
+  响应事件是 Angular 中“单向数据流”的另一面。 在一次事件循环中，可以随意改变任何地方的任何东西。
+  和模板表达式一样，模板语句使用的语言也像 JavaScript。 模板语句解析器和模板表达式解析器有所不同，特别之处在于它支持基本赋值 (=) 和表达式链 (;和,)。
+  ps，一些js语法不能用：
+```txt
+  · new运算符
+  · 自增和自减运算符：++和--
+  · 操作并赋值，例如+=和-=
+  · 位操作符|和&
+  · 模板表达式运算符（就是管道的 | 还有判断的？之类的）
+```
+#### 4.1语句上下文
+  和表达式中一样，语句只能引用语句上下文中 —— 通常是正在绑定事件的那个组件实例。
+  典型的语句上下文就是当前组件的实例。 (click)="deletePerson()"中的deletePerson就是这个数据绑定组件上的一个方法。
+```txt
+  <button (click)="deletePerson()">Delete person</button>
+  
+  eg：
+  <button (click)="onSave($event)">Save</button>
+  <button *ngFor="let tmp of lists" (click)="deletePerson(tmp)">  {{tmp.name}}</button>
+  <form #listForm (ngSubmit)="onSubmit(listForm)"> ... </form>
+```
+  语句上下文可以引用模板自身上下文中的属性。 在上面的demo中，就把模板的$event对象、模板输入变量 (let tmp)和模板引用变量 (#listForm)传给了组件中的一个事件处理器方法。
+  模板上下文中的变量名的优先级高于组件上下文中的变量名。在上面的deletePerson(tmp)中，tmp是一个模板输入变量，而不是组件中的tmp属性。
+  模板语句不能引用全局命名空间的任何东西。比如不能引用window 或 document，也不能调用console.log或Math.max。
+#### 4.2 语句指南
+  和表达式一样，避免写复杂的模板语句。 常规是函数调用或者属性赋值。
+### 5.绑定语法（概览）
+  数据绑定是一种机制，用来协调用户所见和应用数据，虽然我能往 HTML 推送值或者从 HTML 拉取值（jQuery操控DOM）， 但如果把这些琐事交给数据绑定框架处理， 应用会更容易编写、阅读和维护。 只要简单地在绑定源和目标 HTML 元素之间声明绑定，框架就会完成这项工作。
+  Angular 提供了各种各样的数据绑定，之后细说。 先从高层视角来看看 Angular 数据绑定及其语法。
+  绑定的类型可以根据数据流的方向分成三类： 从数据源到视图、从视图到数据源以及双向的从视图到数据源再到视图。
+| 数据方向         |                    语法                    |                          绑定类型 |
+| ------------ | :--------------------------------------: | ----------------------------: |
+| 单向：从数据源到视图目标 | {{expression}}[target]="expression" bind-target="expression" | 插值表达式 Property Attribute 类 样式 |
+| 单向：从视图目标到数据源 | (target)="statement" on-target="statement" |                            事件 |
+| 双向           | [(target)]="expression" bindon-target="expression" |                            双向 |
+  除了插值表达式之外的绑定类型，在等号左边是目标名， 无论是包在括号中 ([]、()) 还是用前缀形式 (bind-、on-、bindon-) 。
+  这个目标名就是Property的名字。它可能看起来像是元素属性（Attribute）的名字，但它不是。 要理解它们的不同点，必须尝试用另一种方式来审视模板中的 HTML。
+#### 5.1 新的思维模型
+  数据绑定的威力和允许用自定义标记扩展 HTML 词汇的能力，容易误导我们把模板 HTML 当成 HTML+。
+  它其实就是 HTML+。 但它也跟一般的的 HTML 有着显著的不同。 所以现在需要一种新的思维模型。
+  在正常的 HTML 开发过程中，使用 HTML 元素创建视觉结构， 通过把字符串常量设置到元素的 attribute 来修改那些元素。
+  比如：
+```html
+    <div class="special">Mental Model</div>
+    <img src="assets/images/xusong.png">
+    <button disabled>Save</button>
+```
+  在 Angular 模板中，仍使用同样的方式来创建结构和初始化 attribute 值。
+  然后，用封装了 HTML 的组件创建新元素，并把它们当作原生 HTML 元素在模板中使用
+  比如：
+```html
+    <!-- Normal HTML -->
+    <div class="special">Mental Model</div>
+    <!-- A new element! -->
+    <app-person-detail></app-person-detail>
+```
+  上面这个样子就是HTML+
+  现在开始学习数据绑定。我们碰到的第一种数据绑定是这样的：
+```html
+<!-- Bind button disabled state to `isUnchanged` property -->
+<button [disabled]="isUnchanged">Save</button>
+```
+  过儿再认识那个怪异的方括号记法。表面上看，我正在绑定按钮的disabled attribute。 并把它设置为组件的isUnchanged属性的当前值。
+  但是wrong！日常的 HTML 确实是这样。但是在这儿，一旦开始数据绑定，就不再跟 HTML attribute 打交道了。 这里不是设置 attribute，而是设置 DOM 元素、组件和指令的 property。
+  #### 5.2 HTML attribute 与 DOM property 的对比
+```txt
+	attribute 是由 HTML 定义的。property 是由 DOM (Document Object Model) 定义的。
+	· 少量 HTML attribute 和 property 之间有着 1:1 的映射，如id。
+	· 有些 HTML attribute 没有对应的 property，如colspan。
+	· 有些 DOM property 没有对应的 attribute，如textContent。
+	· 大量 HTML attribute看起来映射到了property…… 但却不像我们想的那样！
+	最后一类尤其让人困惑…… 除非我们能理解这个普遍原则：
+	attribute 初始化 DOM property，然后它们的任务就完成了。property 的值可以改变；attribute 的值不能改变。
+	比如，当浏览器渲染<input type="text" value="许嵩">时，它将创建相应 DOM 节点， 其value property 被初始化为 “许嵩”。
+	当用户在输入框中输入 “夏洛克” 时，DOM 元素的value property 变成了 “夏洛克”。 但是这个 HTML value attribute 保持不变。如果我们读取 input 元素的 attribute，就会发现确实没变： input.getAttribute('value') // 返回 "许嵩"。
+	HTML attribute value指定了初始值；DOM value property 是当前值。
+	disabled attribute 是另一个古怪的例子。按钮的disabled property 是false，因为默认情况下按钮是可用的。 当我们添加disabled attribute 时，只要它出现了按钮的disabled property 就初始化为true，于是按钮就被禁用了。
+	添加或删除disabled attribute会禁用或启用这个按钮。但 attribute 的值无关紧要，这就是我们为什么没法通过 <button disabled="false">仍被禁用</button>这种写法来启用按钮。
+	设置按钮的disabled property（如，通过 Angular 绑定）可以禁用或启用这个按钮。 这就是 property 的价值。
+	就算名字相同，HTML attribute 和 DOM property 也不是同一样东西。
+```
+  总而言之，模板绑定是通过 property 和事件来工作的，而不是 attribute。不然全景图里面能是property binding么
+  在 Angular里面，attribute 唯一的作用是用来初始化元素和指令的状态。 当进行数据绑定时，只是在与元素和指令的 property 和事件打交道，而 attribute 就完全靠边站了。
+#### 5.3 绑定目标
+  数据绑定的目标是 DOM 中的某些东西。 这个目标可能是（元素 | 组件 | 指令的）property、（元素 | 组件 | 指令的）事件，或(极少数情况下) attribute 名。 汇总表如下：
+| 绑定类型      |                 目标                  |                    示例                    |
+| --------- | :---------------------------------: | :--------------------------------------: |
+| Property  | 元素的Property，组件的Property，指令的Property | <img [src]="imgUrl"><br /><app-person-detail [person]="currentPerson"></app-person-detail><br /><div [ngClass]="{'special': isSpecial}"></div> |
+| 事件        |          元素的事件，组件的事件，指令的事件          | <button (click)="onSave()">Save</button><br /><app-person-detail (deleteRequest)="deletePerson()"></app-person-detail><br /><div (myClick)="clicked=$event" clickable>click me</div> |
+| 双向        |             事件与Property             |        <input [([ngModel]="name">        |
+| Attribute |           attribute（例外情况）           | <button [attr.aria-label]="help">help</button> |
+| CSS类      |            CSS Property             | <div [class.special]="isSpecial">Special</div> |
+| 样式        |           style Property            | <button [style.color]="isSpecial ? 'red' : 'green'"> |
+### 6.属性绑定（[属性名]）
+  当要把视图元素的属性 (property) 设置为模板表达式时，就要写模板的属性 (property) 绑定。
+  最常用的属性绑定是把元素属性设置为组件属性的值，比如：
+```html
+<img [src]="imgUrl"/>
+```
+  image元素的的src属性会被绑定到组件的imgUrl属性上。
+```html
+<button [disabled]="isUnchanged">Cancel is disabled</button>
+```
+  上面这个就是说当组件说它isUnchanged（未改变）时禁用按钮，还有就是设置指令的属性，比如：
+```html
+<div [ngClass]="classes">[ngClass] binding to the classes property</div>
+```
+  此外，还有父子组件通讯的时候需要设置自定义组件的模型属性：
+```html
+<app-person-detail [person]="currentPerson"></app-person-detail>
+```
+#### 6.1 单向输入
+  属性绑定通常就被描述成单向数据绑定了，因为值的流动是单向的，从组件的数据属性流动到目标元素的属性，所以不能使用属性绑定来从目标元素拉取值，也不能绑定到目标元素的属性来读取它，只能设置它。
+  此外，也不能使用属性 绑定 来调用目标元素上的方法。如果这个元素触发了事件，可以通过事件绑定来监听它们。如果必须读取目标元素上的属性或调用它的某个方法，得用另一种技术， ViewChild 和 ContentChild。
+```txt
+  ViewChild可以得到第一个元素，或者直接从DOM选择器上选择与之相匹配的，如果视图DOM发生了变化，并且新的子项和选择器相匹配，则属性将被更新。
+  ContentChild与ViewChild不同的是，当内容DOM发生变化时，属性才会被改变。
+```
+#### 6.2 绑定目标
+  eg：
+```html
+<img [src]="imgUrl">
+```
+  包裹在方括号中的元素属性名标记着目标属性。代码中的目标属性是 image 元素的src属性。
+  除此之外还有bind-，被称为规范形式：
+```html
+<img bind-src="imgUrl">
+```
+  目标的名字总是 property 的名字。即使它看起来和别的名字一样。 看到src时，可能会把它当做 attribute。但是并不是，它是 image 元素的 property 名。
+  元素属性可能是最常见的绑定目标，但 Angular 会先去看这个名字是否是某个已知指令的属性名，比如：
+```html
+<div [ngClass]="classes">[ngClass] binding to the classes property</div>
+
+ps:严格来说，Angular 正在匹配指令的输入属性的名字。 这个名字是指令的inputs数组中所列的名字，或者是带有@Input()装饰器的属性。 这些输入属性被映射为指令自己的属性。
+```
+#### 6.3 消除副作用
+  就像之前说的，模板表达式的计算不能有可见的副作用（JS的语法有一些就不要用了），表达式语言本身可以提供一部分安全保障。 不能在属性绑定表达式中对任何东西赋值，也不能使用自增、自减运算符。
+  当然，表达式可能会调用具有副作用的属性或方法。但 Angular 没法知道这一点，也没法阻止。
+  表达式中可以调用像getFoo()这样的方法。只有我知道getFoo()干了什么。 如果getFoo()改变了某个东西，恰好又绑定到个这个东西，我就掉坑里了。 Angular 可能显示也可能不显示变化后的值。Angular 还可能检测到变化，并抛出警告型错误。所以 一般情况下，只绑定数据属性和那些只返回值而不做其它事情的方法就好。
+####6.4 返回恰当的类型
+  模板表达式应该返回目标属性所需类型的值。 如果目标属性想要个字符串，就返回字符串。 如果目标属性想要个数字，就返回数字。 如果目标属性想要个对象，就返回对象。
+  PersonDetail组价的person属性想要一个Person对象，那就在属性绑定的时候精确地给他一个Person对象：
+```html
+<app-person-detail [person]="currentPerson"></app-person-detail>
+```
+#### 6.5方括号
+  方括号告诉 Angular 要计算模板表达式。 如果忘了加方括号，Angular 会把这个表达式当做字符串常量看待，并用该字符串来初始化目标属性。 它不会计算这个字符串。
+  eg：
+```html
+<!-- ERROR: PersonDetailComponent.person expects a Person object, not the string "currentPerson" -->
+  <app-person-detail person="currentPerson"></app-person-detail>
+```
+#### 6.6 一次性字符串初始化
+  当满足下列条件时，应该省略括号：
+  - 目标属性接受字符串值。
+  - 字符串是个固定值，可以直接合并到模块中。
+  - 这个初始值永不改变。
+    在标准 HTML 中经常用这种方式初始化 attribute，这种方式也可以用在初始化指令和组件的属性。 在PersonDetailComponent的prefix属性初始化为固定的字符串，而不是模板表达式。Angular 设置它，然后忘记它。
+```html
+<app-person-detail prefix="You are main" [person]="currentPerson"></app-person-detail>
+
+ps:作为对比，[person]绑定是组件的currentPerson属性的活绑定，它会一直随着更新。
+```
+#### 6.7 选择属性绑定还是插值表达式
+  代码eg：
+```html
+<p><img src="{{heroImageUrl}}"> is the <i>interpolated</i> image.</p>
+<p><img [src]="heroImageUrl"> is the <i>property bound</i> image.</p>
+
+<p><span>"{{title}}" is the <i>interpolated</i> title.</span></p>
+<p>"<span [innerHTML]="title"></span>" is the <i>property bound</i> title.</p>
+```
+  在多数情况下，插值表达式是更方便的备选项。 实际上，在渲染视图之前，Angular 把这些插值表达式翻译成相应的属性绑定。当要渲染的数据类型是字符串时，两种形式都行。 鉴于可读性，所以倾向于插值表达式。 建议建立代码风格规则，选择一种形式， 这样，既遵循了规则，又能让手头的任务做起来更自然。但数据类型不是字符串时，就必须使用属性绑定了。
+  比如假设有个恶意的内容：evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';
+  Angular 数据绑定对危险 HTML 有防备。 在显示它们之前，它对内容先进行消毒。 不管是插值表达式还是属性绑定，都不会允许带有 script 标签的 HTML 泄漏到浏览器中。
+```html
+<!--
+  Angular generates warnings for these two lines as it sanitizes them
+  WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).
+ -->
+<p><span>"{{evilTitle}}" is the <i>interpolated</i> evil title.</span></p>
+<p>"<span [innerHTML]="evilTitle"></span>" is the <i>property bound</i> evil title.</p>
+
+所以最后显示会变这样：
+ 'Template <script>alert("evil never sleeps")</script>Syntax'is the  interpolated evil title.
+  Template Syntax is the  interpolated evil title.
+```
+### 7.attribute、class 和 style 绑定
+#### 7.1 attribute 绑定
+  可以通过attribute 绑定来直接设置 attribute 的值，这是“绑定到目标属性 (property)”这条规则中唯一的例外。这是唯一的能创建和设置 attribute 的绑定形式。
+  之前一直还在说，通过属性绑定来设置元素的属性总是好于用字符串设置 attribute。那为啥 Angular 还提供了 attribute 绑定。
+  因为当元素没有属性可绑的时候，就必须使用 attribute 绑定。考虑 ARIA， SVG 和 table 中的 colspan/rowspan 等 attribute。 它们是纯粹的 attribute，没有对应的属性可供绑定。
+  比如想写下面这样的：
+```html
+<tr><td colspan="{{1 + 1}}">Three-Four</td></tr>
+
+<!--报错：
+  Template parse errors:
+Can't bind to 'colspan' since it isn't a known native property
+（模板解析错误：不能绑定到 'colspan'，因为它不是已知的原生属性）-->
+```
+  正如提示中所说，<td>元素没有colspan属性。 但是插值表达式和属性绑定只能设置属性，不能设置 attribute。我们需要 attribute 绑定来创建和绑定到这样的 attribute。attribute 绑定的语法与属性绑定类似。 但方括号中的部分不是元素的属性名，而是由attr前缀，一个点 (.) 和 attribute 的名字组成。 可以通过值为字符串的表达式来设置 attribute 的值。
+  这里把[attr.colspan]绑定到一个计算值：
+```html
+<table border=1>
+  <!--  expression calculates colspan=2 -->
+  <tr><td [attr.colspan]="1 + 1">One-Two</td></tr>
+
+  <!-- ERROR: There is no `colspan` property to set!
+    <tr><td colspan="{{1 + 1}}">Three-Four</td></tr>
+  -->
+  <tr><td>Five</td><td>Six</td></tr>
+</table>
+```
+  attribute 绑定的主要用例之一是设置 ARIA attribute（译注：ARIA指可访问性，用于给残障人士访问互联网提供便利），比如：
+```html
+<!-- create and set an aria attribute for assistive technology -->
+<button [attr.aria-label]="actionName">{{actionName}} with Aria</button>
+```
+#### 7.2 CSS类绑定
+  借助 CSS 类绑定，可以从元素的class attribute 上添加和移除 CSS 类名。CSS 类绑定绑定的语法与属性绑定类似。 但方括号中的部分不是元素的属性名，而是由class前缀，一个点 (.)和 CSS 类的名字组成， 其中后两部分是可选的。比如这样：[class.class-name]。
+```html
+<!-- standard class attribute setting  -->
+<div class="bad curly special">Bad curly special</div>
+```
+  demo里面示范了如何通过 CSS 类绑定来添加和移除应用的 "special" 类，不用绑定直接设置 attribute 。
+  或者可以把它改写为绑定到所需 CSS 类名的绑定；这是一个或者全有或者全无的替换型绑定。 （就是当 badCurly 有值时 class 这个 attribute 设置的内容会被完全覆盖）
+```html
+<!-- reset/override all class names with a binding  -->
+<div class="bad curly special" [class]="badCurly">Bad curly</div>
+```
+  最后，可以绑定到特定的类名。 当模板表达式的求值结果是真值时，Angular 会添加这个类，反之则移除它。
+```html
+<!-- toggle the "special" class on/off with a property -->
+<div [class.special]="isSpecial">The class binding is special</div>
+
+<!-- binding to `class.special` trumps the class attribute -->
+<div class="special" [class.special]="!isSpecial">This one is not so special</div>
+```
+  但是用的时候直接可以用ngClass来切换类名啊，超级方便。
+#### 7.3 样式绑定
+  通过样式绑定，可以设置内联样式。样式绑定的语法与属性绑定类似。 但方括号中的部分不是元素的属性名，而由style前缀，一个点 (.)和 CSS 样式的属性名组成。 比如这样：[style.style-property]。
+```html
+<button [style.color]="isSpecial ? 'red': 'green'">Red</button>
+<button [style.background-color]="canSave ? 'cyan': 'grey'" >Save</button>
+```
+  有些样式绑定中的样式带有单位。在这里，以根据条件用 “em” 和 “%” 来设置字体大小的单位。
+```html
+<button [style.font-size.em]="isSpecial ? 3 : 1" >Big</button>
+<button [style.font-size.%]="!isSpecial ? 150 : 50" >Small</button>
+```
+  同样的，用的时候还是直接用ngStyle啊...
+### 8.事件绑定
+  （之前的就是全景图的property binding，这次就是event binding啦）
+  前面遇到的绑定的数据流都是单向的：从组件到元素。
+  但用户不会只盯着屏幕看。他们会在输入框中输入文本。他们会从列表中选取条目。 他们会点击按钮。这类用户动作可能导致反向的数据流：从元素到组件。知道用户动作的唯一方式是监听某些事件，如按键、鼠标移动、点击和触摸屏幕。 可以通过 Angular 事件绑定来声明对哪些用户动作感兴趣。事件绑定语法由等号左侧带圆括号的目标事件和右侧引号中的模板语句组成。 下面事件绑定监听按钮的点击事件。每当点击发生时，都会调用组件的onSave()方法。
+  像这样：
+```html
+<button (click)="onSave()">Save</button>
+```
+#### 8.1 目标事件
+  圆括号中的名称 —— 比如(click) —— 标记出目标事件。在下面例子中，目标是按钮的 click 事件
+```html
+  <button (click)="onSave()">Save</button>
+```
+  这个也有规范形式，就是不怎么用：
+```html
+  <button on-click="onSave()">On Save</button>
+```
+  元素事件可能是更常见的目标，但 Angular 会先看这个名字是否能匹配上已知指令的事件属性，比如：
+```html
+  <!-- `myClick` is an event on the custom `ClickDirective` -->
+<div (myClick)="clickMessage=$event" clickable>click with myClick</div>
+```
+  我这个myClick必定是定义过的才能用，不然就报“未知错误”了。
+#### 8.2 $event和事件处理语句
+  在事件绑定中，Angular 会为目标事件设置事件处理器。当事件发生时，这个处理器会执行模板语句。 典型的模板语句通常涉及到响应事件执行动作的接收器，例如从 HTML 控件中取得值，并存入模型。绑定会通过名叫$event的事件对象传递关于此事件的信息（包括数据值）。事件对象的形态取决于目标事件。如果目标事件是原生 DOM 元素事件， $event就是 DOM事件对象，它有像target和target.value这样的属性。
+  比如：
+```html
+  <input [value]="currentPerson.name" (input)="currentPerson.name=$event.target.value">
+```
+  上面的代码在把输入框的value属性绑定到firstName属性。 要监听对值的修改，代码绑定到输入框的input事件。 当用户造成更改时，input事件被触发，并在包含了 DOM 事件对象 ($event) 的上下文中执行这条语句。要更新firstName属性，就要通过路径$event.target.value来获取更改后的值。
+#### 8.3 使用 EventEmitter 实现自定义事件
+  通常，指令使用 Angular EventEmitter 来触发自定义事件。 指令创建一个EventEmitter实例，并且把它作为属性暴露出来。 指令调用EventEmitter.emit(payload)来触发事件，可以传入任何东西作为消息载荷。 父指令通过绑定到这个属性来监听事件，并通过$event对象来访问载荷。
+  假设PersonDetailComponent用于显示人物的信息，并响应用户的动作。 虽然PersonDetailComponent包含删除按钮，但它自己并不知道该如何删除这个人物。 最好的做法是触发事件来报告“删除用户”的请求。
+```typescript
+  app.component.ts:
+  template: `
+        <div>
+          <img src="{{imgUrl}}">
+          <span [style.text-decoration]="lineThrough">
+            {{prefix}} {{person?.name}}
+          </span>
+          <button (click)="delete()">Delete</button>
+        </div>`
+  deleteRequest = new EventEmitter<Person>();
+
+  delete() {
+	this.deleteRequest.emit(this.person);
+  }
+```
+  当deleteRequest事件触发时，Angular 调用父组件的deletePerson方法， 在$event变量中传入要删除的人物（来自PersonDetail）。
+#### 8.4 模板语句的副作用
+  deletePerson方法有副作用：它删除了一个人物。 模板语句的副作用不仅没问题，反而正是所期望的。删除这个人物会更新模型，还可能触发其它修改，包括向远端服务器的查询和保存。 这些变更通过系统进行扩散，并最终显示到当前以及其它视图中。
+### 9.双向数据绑定
+  在项目中经常需要显示数据属性，并在用户作出更改时更新该属性。在元素层面上，既要设置元素属性，又要监听元素事件变化。Angular 为此提供一种特殊的双向数据绑定语法：[(x)]。 [(x)]语法结合了属性绑定的方括号[x]和事件绑定的圆括号(x)。当我更改数据的时候，视图直接跟着改变，非常方便啊。
+  当一个元素拥有可以设置的属性x和对应的事件xChange时，就能解释通[(x)]语法了。
+  下面的SizerComponent符合这个模式。它有size属性和伴随的sizeChange事件：
+```typescript
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+@Component({
+  selector: 'app-sizer',
+  template: `
+  <div>
+    <button (click)="dec()" title="smaller">-</button>
+    <button (click)="inc()" title="bigger">+</button>
+    <label [style.font-size.px]="size">FontSize: {{size}}px</label>
+  </div>`
+})
+export class SizerComponent {
+  @Input()  size: number | string;
+  @Output() sizeChange = new EventEmitter<number>();
+  dec() { this.resize(-1); }
+  inc() { this.resize(+1); }
+  resize(delta: number) {
+    this.size = Math.min(40, Math.max(8, +this.size + delta));
+    this.sizeChange.emit(this.size);
+  }
+}
+```
+  size的初始值是一个输入值，来自属性绑定。（size前面加了@Input）点击按钮，在最小/最大值范围限制内增加或者减少size。 然后用调整后的size触发sizeChange事件。
+  在下面的代码里面，AppComponent.fontSize被双向绑定到SizerComponent：
+```html
+<app-sizer [(size)]="fontSizePx"></app-sizer>
+<div [style.font-size.px]="fontSizePx">Resizable Text</div>
+```
+  SizerComponent.size初始值是AppComponent.fontSizePx。 点击按钮时，通过双向绑定更新AppComponent.fontSizePx。 被修改的AppComponent.fontSizePx通过样式绑定，改变文本的显示大小。
+  双向绑定语法实际上是属性绑定和事件绑定的语法糖。 Angular将SizerComponent的绑定分解成这样：
+```html
+  <app-sizer [size]="fontSizePx" (sizeChange)="fontSizePx=$event"></app-sizer>
+```
+  $event变量包含了SizerComponent.sizeChange事件的荷载。 当用户点击按钮时，Angular 将$event赋值给AppComponent.fontSizePx。比起单独绑定属性和事件，双向数据绑定语法显得非常方便。
+  在像<input>和<select>这样的 HTML 元素上不能使用这样的双向数据绑定。 因为原生 HTML 元素不遵循x值和xChange事件的模式。
+  但是，最后还是只用[(ngModel)]啊，表单元素上就能双向数据绑定啦。

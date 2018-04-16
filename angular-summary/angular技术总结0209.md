@@ -1,6 +1,6 @@
 # Day04
 ## 核心知识——模板与数据绑定
-### 一、显示数据
+## 一、显示数据
 
   在Angular中最典型的数据显示方式，就是把HTML模板中的控件绑定到Angular组件的属性中，以创建一个列表组件为例，我要显示一些人物的名字，根据条件决定在列表下方是否显示一条消息，最终要变成这个样子：
 ```txt
@@ -15,7 +15,7 @@
 ```
 - 使用插值表达式显示组件属性
   - 要显示组件的属性，就直接通过插值表达式（interpolation）来绑定属性名，直接把属性名放在双花括号里面，然后放在模板里面就好啦。
-```txt
+```typescript
   app.component.ts //演示练习这些小demo，放在app.component里面就好啦
 	import {Component} from "@angular/core" 
 	@Component({
@@ -37,7 +37,7 @@
   - 上面的demo里面选择内联是因为代码很少，如果模板代码多的话，放在模板文件里面会更好有点，但是两种方法，在绑定数据上是完全一样的。
 - 构造函数和变量初始化
   - demo里面使用变量赋值的方式初始化组件，或者，可以使用构造函数来声明和初始化属性
-```txt
+```typescript
   	export class XXXComponent{
   		title: string;
   		favorite: string; 
@@ -49,7 +49,7 @@
 ```
 - 使用ngFor显示数组属性
   - 要显示人物的列表，可以先向组件中添加一个数组，里面放着每个人物的名字，然后把favorite改成数组的第一个名字。
-```txt
+```typescript
 	export class AppComponent{//定义数据
   		title = '人物列表';
   		lists = ['许嵩'，'山田凉介','夏洛克','夏目'];
@@ -85,7 +85,7 @@
 ```
 - 使用一个类
   - 导入List类之后，组件的lists属性就可以返回一个类型化过的lists数组了。
-```txt
+```typescript
 	lists = [
   		new List(1,'许嵩'),
   		new List(2,'山田凉介'),
@@ -93,7 +93,7 @@
   		new List(4,'夏目')
 	]
 	favorite = this.lists[0];
-	按照上面这样创建这个数组，现在模板里面的{{tmp}}一下子把id和name都显示出来了，如果只要显示name：
+	//按照上面这样创建这个数组，现在模板里面的{{tmp}}一下子把id和name都显示出来了，如果只要显示name：
 	template: `
   		<p>{{title}}</p>
   		<p>我最喜欢的是: {{lists.name}}</p>
@@ -169,7 +169,7 @@ ps回忆（恰好想起来，和上面的没有关系）:
 ```
 - app.module.ts和main.ts什么的没有什么变化...不写了
 
-### 二、模板语法
+## 二、模板语法
   Angular应用管理着用户的所见所为，并且通过组件和模板来和用户交互。在MVC/MVVM框架中，组件就是Control或者ViewModule的角色了，模板就是View的角色。关于Angular的模板语言，需要知道它的基本原理，并且掌握大部分的语法。
 
 
