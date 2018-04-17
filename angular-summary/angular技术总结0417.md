@@ -32,9 +32,9 @@
   - 属于他自己的报税单会话
   - 可以修改一个报税单，而不会影响另一个组件中的申报单
   - 能把所做的修改保存到它的报税单中，或者放弃它们。
-  实现方式之一就是让PersonTaxReturnComponent有逻辑来管理和还原那些更改，这对于简单的报税来说是很容易的，但是现实报税情况是很复杂的，对于这些修改的管理就要狠仔细啦，所以这种管理就需要借助于服务了。
-  下面是一个报税单服务PersonTaxReturnService，它缓存了单条PersonTaxReturn，用于跟踪那个申报单的变更，并且可以保存或还原它，它还委托给了全应用级的单例服务PersonService，它是通过依赖注入机制取得的。
-**peron-tax-return.service.ts**
+      实现方式之一就是让PersonTaxReturnComponent有逻辑来管理和还原那些更改，这对于简单的报税来说是很容易的，但是现实报税情况是很复杂的，对于这些修改的管理就要狠仔细啦，所以这种管理就需要借助于服务了。
+        下面是一个报税单服务PersonTaxReturnService，它缓存了单条PersonTaxReturn，用于跟踪那个申报单的变更，并且可以保存或还原它，它还委托给了全应用级的单例服务PersonService，它是通过依赖注入机制取得的。
+      **peron-tax-return.service.ts**
 ```typescript
 import {Intectable} from '@angular/core';
 import {PersonTaxReturn} from './person';
@@ -103,7 +103,11 @@ providers:[PersonTaxReturnService]
 ```
   PersonTaxReturnComponent 有它自己的PersonTaxReturnService提供商，那每个组件的实例都有自己的注入器，在组件级提供服务可以确保组件每个实例都得到一个自己的、私有的服务实例，那报税单就不会被别的覆盖掉了。
 #### 2.3 场景：专门的提供商
-  重新提供服务的另一个原因，是在组件树的深层中把该服务替换为更特殊的实现。之前有一个Car的例子来着，车子，引擎，轮胎啥的，假如我再根注入器
+  重新提供服务的另一个原因，是在组件树的深层中把该服务替换为更特殊的实现。之前有一个Car的例子来着，车子，引擎，轮胎啥的，假如我在根注入器代号A 中配置了通用的提供商：CarService、EngineService和TiresService。
+  创建一个车辆组件A，它显示一个从另外三个通用服务构造出的车辆。然后创建一个子组件B，它为CarService和EngineService定义了自己的特殊的提供商，它们具有适用于组件B的特殊能力。组件B又是组件C 的父组件，而组件C又定义了自己的，更特殊的CarService提供商：
+![图片](car-components.png)
+  在幕后，每个组件都有自己的注入器，这个注入器带有为组件本身准备的0个、1个或者多个提供商。当在最深层组件C解析Car的实例时2，它使用注入器C解析生成了一个Car的实例，使用注入器B解析了Engine，而Tires则是由根注入器A解析的。
+![图片](injector-tree.png)
 
 
 
