@@ -2474,4 +2474,1694 @@ export class HighlightDirective {
   所以可以根据属性名在绑定中出现的位置来判定是否要加@Input。
   - 当它出现在等号右侧的模板表达式中时，它属于模板所在的组件，不需要@Input装饰器。
   - 当它出现在等号左边的方括号（[ ]）中时，该属性属于其它组件或指令，它必须带有@Input 装饰器。
-  比如 <p [appHighlight]="color">Highlight me!</p>，在这句代码里面，color属性位于右侧的绑定表达式中，它属于模板所在的组件。 该模板和组件相互信任。因此color不需要@Input装饰器。myHighlight属性位于左侧，它引用了MyHighlightDirective中一个带别名的属性，它不是模板所属组件的一部分，因此存在信任问题。 所以，该属性必须带@Input装饰器。
+      比如 <p [appHighlight]="color">Highlight me!</p>，在这句代码里面，color属性位于右侧的绑定表达式中，它属于模板所在的组件。 该模板和组件相互信任。因此color不需要@Input装饰器。myHighlight属性位于左侧，它引用了MyHighlightDirective中一个带别名的属性，它不是模板所属组件的一部分，因此存在信任问题。 所以，该属性必须带@Input装饰器。
+## 八、结构型指令
+### 1.什么是结构型指令
+  结构型指令的职责是HTML布局。 它们塑造或重塑DOM的结构，比如添加、移除或维护这些元素。像其它指令一样，你可以把结构型指令应用到一个宿主元素上。 然后它就可以对宿主元素及其子元素做点什么。
+  结构型指令非常容易识别。 比如下面的代码，星号（*）被放在指令的属性名之前。
+```html
+<div *ngIf="person" >{{person.name}}</div>
+```
+  没有方括号，没有圆括号，只是把*ngIf设置为一个字符串。
+  在这个例子中，星号(*)是个简写方法，而这个字符串是一个微语法，而不是通常的模板表达式。 Angular会解开这个语法糖，变成一个<ng-template>标记，包裹着宿主元素及其子元素。 每个结构型指令都可以用这个模板做点不同的事情。
+  三个常用的内置结构型指令 —— NgIf、NgFor和NgSwitch...。 模板语法里面已经说过了，并且在Angular文档的例子中到处都在用它。下面是模板中的例子：
+```html
+<div *ngIf="person" >{{hero.name}}</div>
+<ul>
+  <li *ngFor="let person of lists">{{hero.name}}</li>
+</ul>
+<div [ngSwitch]="person?.emotion">
+  <app-happy-hero *ngSwitchCase="'happy'" [person]="person"></app-happy-hero>
+  <app-sad-hero   *ngSwitchCase="'sad'"   [person]="person"></app-sad-hero>
+  <app-confused-hero *ngSwitchCase="'app-confused'" [person]="person"></app-confused-hero>
+  <app-unknown-hero  *ngSwitchDefault [person]="person"></app-unknown-hero>
+</div>
+```
+  使用方法之前已经说过了，现在看看工作原理，敲黑板。
+**指令的拼写形式**
+```txt
+  这一节里面，会说到指令同时具有两种拼写形式大驼峰UpperCamelCase和小驼峰lowerCamelCase，比如之前已经看过的NgIf和ngIf。 这里的原因在于，NgIf引用的是指令的类名，而ngIf引用的是指令的属性名*。
+  指令的类名拼写成大驼峰形式（NgIf），而它的属性名则拼写成小驼峰形式（ngIf）。
+  还有另外两种Angular指令，组件 和 属性型指令。
+  组件可以在原生HTML元素中管理一小片区域的HTML。从技术角度说，它就是一个带模板的指令。属性型指令会改变某个元素、组件或其它指令的外观或行为。 比如，内置的NgStyle指令可以同时修改元素的多个样式。
+  在一个宿主元素上可以应用多个属性型指令，但只能应用一个结构型指令。
+```
+#### 2.NgIf案例分析
+  先看下ngIf。它是一个很好的结构型指令案例：它接受一个布尔值，并据此让一整块DOM树出现或消失。
+```html
+<p *ngIf="true">
+  当前表达式是true，这个文字会显示
+</p>
+<p *ngIf="false">
+  当前表达式为false，这个文字不会显示
+</p>
+```
+  ngIf指令并不是使用CSS来隐藏元素的。它会把这些元素从DOM中物理删除。 使用浏览器的开发者工具就可以确认这一点。在控制台里，可以看到
+```html
+	<!--bindings={"ng-reflect-ng-if":"false"}-->
+	第一段文字出现在了DOM中，而第二段则没有，在第二段的位置上是一个关于“绑定”的注释，就是上面这句话。
+  当条件为假时，NgIf会从DOM中移除它的宿主元素，取消它监听过的那些DOM事件，从Angular变更检测中移除该组件，并销毁它。 这些组件和DOM节点可以被当做垃圾收集起来，并且释放它们占用的内存。
+```
+**为什么是移除而不是隐藏？**
+  指令也可以通过把它的display风格设置为none而隐藏不需要的段落。
+```html
+<p [style.display]="'block'">
+  当前display为block，元素可见
+</p>
+<p [style.display]="'none'">
+  当前display为none，元素不可见
+</p>
+<!--即使不可见，元素也是留在DOM中的-->
+```
+```txt
+  对于简单的段落，移除还是隐藏之间没啥大的差异，但是对于资源占用较多的组件是不一样的。当隐藏掉一个元素时，组件的行为还在继续 —— 它仍然附加在它所属的DOM元素上， 它也仍在监听事件。Angular会继续检查哪些能影响数据绑定的变更。 组件原本要做的那些事情仍在继续。
+  虽然不可见，组件及其各级子组件仍然占用着资源，而这些资源如果分配给别人可能会更有用。 在性能和内存方面的负担相当可观，响应度会降低，而用户却可能无法从中受益。当然，从积极的一面看，重新显示这个元素会非常快。 组件以前的状态被保留着，并随时可以显示。 组件不用重新初始化 —— 该操作可能会比较昂贵。 这时候隐藏和显示就成了正确的选择。
+  但是，除非有非常强烈的理由来保留它们，否则移除用户看不见的那些DOM元素是更好的，并且使用NgIf这样的结构型指令来收回用不到的资源。
+  同样的考量也适用于每一个结构型指令，无论是内置的还是自定义的。 应该时刻提醒自己以及指令的使用者，来仔细考虑添加元素、移除元素以及创建和销毁组件的后果。
+```
+### 3.星号（*）前缀
+  星号是一个用来简化更复杂语法的“语法糖”。 从内部实现来说，Angular把*ngIf 属性 翻译成一个<ng-template> 元素 并用它来包裹宿主元素，代码如下：
+```html
+<ng-template [ngIf]="person">
+  <div>{{person.name}}</div>
+</ng-template>
+```
+  *ngIf指令被移到了<ng-template>元素上。在那里它变成了一个属性绑定[ngIf]。
+  <div>上的其余部分，包括它的class属性在内，移到了内部的<ng-template>元素上。
+  第一种形态永远不会真的渲染出来。 只有最终产出的结果才会出现在DOM中。Angular会在真正渲染的时候填充<ng-template>的内容，并且把<ng-template>替换为一个供诊断用的注释。
+NgFor和NgSwitch...指令也都遵循同样的模式。
+### 4.*ngFor
+  Angular会把*ngFor用同样的方式把星号（）语法的template属性转换成<ng-template>元素*。
+  同时用了三种方法的应用，长这样：
+```html
+<div *ngFor="let person of lists; let i=index; let odd=odd; trackBy: trackById" [class.odd]="odd">
+  ({{i}}) {{person.name}}
+</div>
+<ng-template ngFor let-person [ngForOf]="lists" let-i="index" let-odd="odd" [ngForTrackBy]="trackById">
+  <div [class.odd]="odd">({{i}}) {{person.name}}</div>
+</ng-template>
+```
+  它明显比ngIf复杂得多, NgFor指令比本章展示过的NgIf具有更多的必选特性和可选特性。 至少NgFor会需要一个循环变量（let hero）和一个列表（heroes）。
+  可以通过把一个字符串赋值给ngFor来启用这些特性，这个字符串使用Angular的微语法。
+```txt
+  ngFor字符串之外的每一样东西都会留在宿主元素（<div>）上，也就是说它移到了<ng-template>内部。 在上面的例子中，[ngClass]="odd"留在了<div>上。
+```
+#### 4.1 微语法
+  Angular微语法能让我们通过简短的、友好的字符串来配置一个指令。 微语法解析器把这个字符串翻译成<ng-template>上的属性：
+  - let关键字声明一个模板输入变量，我们会在模板中引用它。本例子中，这个输入变量就是person、i和odd。 解析器会把let person、let i和let odd翻译成命名变量let-person、let-i和let-odd。
+  - 微语法解析器接收of和trackby，把它们首字母大写（of -> Of, trackBy -> TrackBy）， 并且给它们加上指令的属性名（ngFor）前缀，最终生成的名字是ngForOf和ngForTrackBy。 还有两个NgFor的输入属性，指令据此了解到列表是heroes，而track-by函数是trackById。
+  - NgFor指令在列表上循环，每个循环中都会设置和重置它自己的上下文对象上的属性。 这些属性包括index和odd以及一个特殊的属性名$implicit（隐式变量）。
+  - let-i和let-odd变量是通过let i=index和let odd=odd来定义的。 Angular把它们设置为上下文对象中的index和odd属性的当前值。
+  - 上下文中的属性let-person没有指定过，实际上它来自一个隐式变量。 Angular会把let-hero设置为上下文对象中的$implicit属性，NgFor会用当前迭代中的英雄初始化它。
+  - NgFor是由NgForOf指令来实现的。请参阅NgForOf API reference来了解NgForOf指令的更多属性及其上下文属性。
+#### 4.2 模板输入变量
+  模板输入变量是这样一种变量，你可以在单个实例的模板中引用它的值。 这个例子中有好几个模板输入变量：person、i和odd。 它们都是用let作为前导关键字。模板输入变量和模板引用变量是不同的，无论是在语义上还是语法上。
+  使用let关键字（如let person）在模板中声明一个模板输入变量。 这个变量的范围被限制在所重复模板的单一实例上。 事实上，我们可以在其它结构型指令中使用同样的变量名。
+而声明模板引用变量使用的是给变量名加#前缀的方式（#var）。 一个引用变量引用的是它所附着到的元素、组件或指令。它可以在整个模板的任意位置访问。
+  模板输入变量和引用变量具有各自独立的命名空间。let person中的person和#person中的person并不是同一个变量。
+#### 4.3 每个宿主元素上只能有一个结构型指令
+  有时候想要只有在特定条件为真时才反复渲染一个HTML块，但是angular并不允许*ngIf和*ngFor放在同一个宿主元素上。
+  原因就是，结构型指令可能会对宿主元素及其子元素做很复杂的事。当两个指令放在同一个元素上时，谁先谁后？NgIf优先还是NgFor优先？NgIf可以取消NgFor的效果吗？ 如果要这样做，Angular 应该如何把这种能力泛化，以取消其它结构型指令的效果呢？
+  解决方案：把*ngIf放在一个"容器"元素上，再包装进 *ngFor 元素。 这个元素可以使用ng-container，以免引入一个新的HTML层级。
+### 5.NgSwitch
+  Angular 的 NgSwitch 实际上是一组相互合作的指令：NgSwitch、NgSwitchCase 和 NgSwitchDefault。
+```html
+<div [ngSwitch]="person?.emotion">
+  <app-happy-person    *ngSwitchCase="'happy'"    [person]="person"></app-happy-person>
+  <app-sad-person      *ngSwitchCase="'sad'"      [person]="person"></app-sad-person>
+  <app-confused-person *ngSwitchCase="'app-confused'" [person]="person"></app-confused-person>
+  <app-unknown-person  *ngSwitchDefault   [person]="person"></app-unknown-person>
+</div>
+```
+  一个值(person.emotion)被被赋值给了NgSwitch，以决定要显示哪一个分支。
+  NgSwitch本身不是结构型指令，而是一个属性型指令，它控制其它两个switch指令的行为。 这也就是为什么要写成[ngSwitch]而不是*ngSwitch的原因。NgSwitchCase 和 NgSwitchDefault 都是结构型指令。 所以要使用星号（*）前缀来把它们附着到元素上。 NgSwitchCase会在它的值匹配上选项值的时候显示它的宿主元素。 NgSwitchDefault则会当没有兄弟NgSwitchCase匹配上时显示它的宿主元素。
+  同样的，NgSwitchCase 和 NgSwitchDefault 也可以解开语法糖，变成 <ng-template> 的形式。就像这样：
+```html
+<div [ngSwitch]="person?.emotion">
+  <ng-template [ngSwitchCase]="'happy'">
+    <app-happy-person [person]="person"></app-happy-person>
+  </ng-template>
+  <ng-template [ngSwitchCase]="'sad'">
+    <app-sad-person [person]="person"></app-sad-person>
+  </ng-template>
+  <ng-template [ngSwitchCase]="'confused'">
+    <app-confused-person [person]="person"></app-confused-person>
+  </ng-template >
+  <ng-template ngSwitchDefault>
+    <app-unknown-person [person]="person"></app-unknown-person>
+  </ng-template>
+</div>
+```
+### 6.优先使用* 语法
+  很明显，星号（*）语法比不带语法糖的形式更加清晰。 如果找不到单一的元素来应用该指令，可以使用<ng-container>作为该指令的容器。虽然很少用，但是需要知道，在幕后，Angular会创建<ng-template>。 当需要写自己的结构型指令时，就要使用<ng-template>了。
+### 7.<ng-template>指令
+  <ng-template>是一个 Angular 元素，用来渲染HTML。 它永远不会直接显示出来。 在渲染视图之前，Angular 会把<ng-template>及其内容替换为一个注释。
+  如果没有使用结构型指令，而仅仅把一些别的元素包装进<ng-template>中，那些元素就是不可见的。 在下面的这个短语"hey say jump"中，中间的这个 "say " 就是如此。
+```html
+<p>hey</p>
+<ng-template>
+  <p>say </p>
+</ng-template>
+<p>jump</p>
+```
+  Angular就会抹掉中间的“say”。
+### 8.使用<ng-container>把一些兄弟元素归为一组
+  通常都要有一个根元素作为结构型指令的数组，列表元素（<li>）就是一个典型的供NgFor使用的宿主元素，就像这样：
+```html
+<li *ngFor="let person of lists">{{person.name}}</li>
+```
+  当没有这样的一个单一宿主元素时，就可以把这些内容包裹在一个原生的HTML元素容器中，比如div，并且把结构型指令附加到这个包裹上，就像这样：
+```html
+<div *ngIf="person">{{person.name}}</div>
+```
+  但引入另一个容器元素（通常是<span>或<div>）来把一些元素归到一个单一的根元素下，通常也会带来问题。这种用于分组的元素可能会破坏模板的外观表现，因为CSS的样式既不曾期待也不会接受这种新的元素布局。 比如，假设有下列分段布局：
+```html
+<p>
+  我在大街上
+  <span *ngIf="person">
+    看到了 {{person.name}}
+  </span>
+  然后走了
+</p>
+```
+  而CSS的样式规则是应用于<p>元素下的<span>的。
+```css
+p span { color: red; font-size: 70%; }
+```
+  这样渲染出来的样式就非常奇怪了，中间的“看到了”变小变红，本来是为其他地方准备的样式，但是被用到了这里。
+  有些HTML元素需要所有的直属下级都具有特定的类型。 比如，<select>元素要求直属下级必须为<option>，那么我们就没办法把这些选项包装进<div>或<span>中。如果这样做：
+```html
+<div>
+  选择我的最爱
+  (<label><input type="checkbox" checked (change)="showSad = !showSad">show sad</label>)
+</div>
+<select [(ngModel)]="person">
+  <span *ngFor="let perosn of lists">
+    <span *ngIf="showSad || h.emotion !== 'sad'">
+      <option [ngValue]="person">{{person.name}} ({{person.emotion}})</option>
+    </span>
+  </span>
+</select>
+```
+  下拉列表绝对是空的啊，浏览器不会显示<span>里面的<option>啊。所以就要用到<ng-container>
+  Angular的<ng-container>是一个分组元素，但它不会污染样式或元素布局，因为 Angular 压根不会把它放进 DOM 中。下面是重新实现的条件化段落，这次使用<ng-container>。
+```html
+<p>
+  我在大街上
+  <ng-container *ngIf="person">
+    看到了 {{person.name}}
+  </ng-container>
+  然后走了
+</p>
+```
+  这次的渲染就会是对的，p下面span的样式不会被用进来。
+  再用<ng-container>来根据条件排除选择框中的某个<option>。
+```html
+<div>
+  选择我的最爱
+  (<label><input type="checkbox" checked (change)="showSad = !showSad">show sad</label>)
+</div>
+<select [(ngModel)]="person">
+  <ng-container *ngFor="let perosn of lists">
+    <ng-container *ngIf="showSad || h.emotion !== 'sad'">
+      <option [ngValue]="person">{{person.name}} ({{person.emotion}})</option>
+    </ng-container>
+  </ng-container>
+</select>
+```
+  这样的话，下拉框就正常工作了。
+  <ng-container>是一个由 Angular 解析器负责识别处理的语法元素。 它不是一个指令、组件、类或接口，更像是 JavaScript 中 if 块中的花括号。判断为真就执行，不为真就不执行。
+### 9.写一个结构型指令
+  比如写一个名叫UnlessDirective的结构型指令，它是NgIf的反义词。 NgIf在条件为true的时候显示模板内容，而UnlessDirective则会在条件为false时显示模板内容。最后像这样:
+```html
+<p *appUnless="condition">条件属实就不显示这句话</p>
+```
+  创建指令很像创建组件：
+  - 导入Directive装饰器（不再是Component）。
+  - 导入符号Input、TemplateRef 和 ViewContainerRef，在任何结构型指令中都会需要它们。
+  - 给指令类添加装饰器。
+  - 设置 CSS 属性选择器 ，以便在模板中标识出这个指令该应用于哪个元素。
+      首先就像这样：
+```typescript
+import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+
+@Directive({ selector: '[appUnless]'})
+export class UnlessDirective {
+}
+```
+  指令的选择器通常是把指令的属性名括在方括号中，如[myUnless]。 这个方括号定义出了一个 CSS 属性选择器。该指令的属性名应该拼写成小驼峰形式，并且带有一个前缀。 但是，这个前缀不能用ng，因为ng只属于 Angular 本身。 要选择一些简短的，适合自己或公司的或项目的前缀。 在这个例子中，前缀是my。而指令的类名用Directive结尾。
+#### 9.1 TemplateRef 和 ViewContainerRef
+  像这个例子一样的简单结构型指令会从 Angular 生成的<ng-template>元素中创建一个内嵌的视图，并把这个视图插入到一个视图容器中，紧挨着本指令原来的宿主元素<p>（不是子节点，而是兄弟节点）。可以使用TemplateRef取得<ng-template>的内容，并通过ViewContainerRef来访问这个视图容器。可以把它们都注入到指令的构造函数中，作为该类的私有属性。
+```typescript
+constructor(
+  private templateRef: TemplateRef<any>,
+  private viewContainer: ViewContainerRef) { }
+```
+#### 9.2 myUnless属性
+  该指令的使用者会把一个true/false条件绑定到[myUnless]属性上。 也就是说，该指令需要一个带有@Input的myUnless属性。
+```typescript
+@Input() set appUnless(condition: boolean) {
+  if (!condition && !this.hasView) {
+    this.viewContainer.createEmbeddedView(this.templateRef);
+    this.hasView = true;
+  } else if (condition && this.hasView) {
+    this.viewContainer.clear();
+    this.hasView = false;
+  }
+}
+```
+  一旦该值的条件发生了变化，Angular 就会去设置 myUnless 属性，这时候，就需要为它定义一个设置器（setter）。如果条件为假，并且以前尚未创建过该视图，就告诉视图容器（ViewContainer）根据模板创建一个内嵌视图。如果条件为真，并且视图已经显示出来了，就会清除该容器，并销毁该视图。
+  没有人会读取myUnless属性，因此它不需要定义设置器（getter）。
+  最后完整的指令代码长这样：
+```typescript
+import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+@Directive({ selector: '[appUnless]'})
+export class UnlessDirective {
+  private hasView = false;
+  constructor(
+    private templateRef: TemplateRef<any>,
+    private viewContainer: ViewContainerRef) { }
+  @Input() set appUnless(condition: boolean) {
+    if (!condition && !this.hasView) {
+      this.viewContainer.createEmbeddedView(this.templateRef);
+      this.hasView = true;
+    } else if (condition && this.hasView) {
+      this.viewContainer.clear();
+      this.hasView = false;
+    }
+  }
+}
+```
+  最后这样用一下：
+```html
+<p *appUnless="condition" class="unless a">
+  (A) condition为false，所以显示
+</p>
+
+<p *appUnless="!condition" class="unless b">
+  (B) 尽管condition是false，但是被设置成了true，所以不显示	
+</p>
+```
+  当condition为false时，顶部的段落就会显示出来，而底部的段落消失了。 当condition为true时，顶部的段落被移除了，而底部的段落显示了出来。
+##九、管道
+  每个应用开始的时候差不多都是一些简单任务：获取数据、转换它们，然后把它们显示给用户。 获取数据可能简单到创建一个局部变量就行，也可能复杂到从WebSocket中获取数据流。取到数据之后，可以把它们原始值的toString结果直接推入视图中。 但这种做法很少能具备良好的用户体验。 比如，几乎每个人都更喜欢简单的日期格式，例如1988-04-15，而不是服务端传过来的原始字符串格式 ，就像这样： Fri Apr 15 1988 00:00:00 GMT-0700 (Pacific Daylight Time)。
+  显然，有些值最好显示成用户友好的格式。在很多不同的应用中，都在重复做出某些相同的变换。 在HTML模板中应用它们就更方便一些。
+  通过引入Angular管道，可以把这种简单的“显示-值”转换器声明在HTML中。
+### 1.使用管道
+  管道把数据作为输入，然后转换它，给出期望的输出。 比如把组件的birthday属性转换成人看的的日期格式：
+```typescript
+import { Component } from '@angular/core';
+@Component({
+  selector: 'app-person-birthday',
+  template: `<p>这个人的生日是{{ birthday | date }}</p>`
+})
+export class HeroBirthdayComponent {
+  birthday = new Date(1986, 5, 14);
+}
+```
+  重点是 <p>这个人的生日是{{ birthday | date }}</p>，在这个插值表达式中，组件的birthday值通过管道操作符( | )流动到 右侧的Date管道函数中，然后就会变成正常一点的人看的日期。所有管道都会用这种方式工作。
+### 2.内置管道
+  Angular内置了一些管道。
+  - date 转成日期。
+  - json 转成json字符串
+  - uppercase 转成大写
+  - lowercase 转成小写
+  - number 转成数字 后面加冒号可以跟参数 [整数部分保留最小位数：小数部分保留最小位数]
+  - currency 加货币符号  后面加冒号跟  要显示的货币符号：是否显示简写符号：小数点控制
+  - percent 转百分数
+  - slice 截取某一部分
+    这些全部都可以直接用在模板中。
+### 3.管道参数化
+  管道可能接受任何数量的可选参数来对它的输出进行微调。 在管道名后面添加一个冒号( : )再跟一个参数值，来为管道添加参数(比如currency:'EUR')。 如果我们的管道可以接受多个参数，那么就用冒号来分隔这些参数值(比如slice:1:5)。
+  通过修改生日模板来给这个日期管道提供一个格式化参数。 当格式化完该人物的5月14日生日之后，它应该被渲染成05/14/86。
+```html
+<p>这个人物的生日是{{birthday | date :'MM/dd/yy'}}</p>
+```
+  参数值可以是任何有效的模板表达式，比如字符串字面量或组件的属性。 换句话说，借助属性绑定，就可以像用绑定来控制生日的值一样，控制生日的显示格式。
+  比如写个新的组件，它把管道的格式参数绑定到该组件的format属性。新组件模板长这样：
+```html
+template: `
+  <p>这个人的生日是 {{ birthday | date:format }}</p>
+  <button (click)="toggleFormat()">Toggle Format</button>
+`
+```
+  在模板中添加一个按钮，并把它的点击事件绑定到组件的toggleFormat()方法。 这个方法会在短日期格式('shortDate')和长日期格式('fullDate')之间切换组件的format属性。
+```typescript
+export class PersonBirthday2Component {
+  birthday = new Date(1986, 5, 9);
+  toggle = true; // 开始的时候等于 true == shortDate
+
+  get format()   { return this.toggle ? 'shortDate' : 'fullDate'; }
+  toggleFormat() { this.toggle = !this.toggle; }
+}
+```
+  点击按钮的时候，显示的日志会在“04/15/1988”和“Friday, April 15, 1988”之间切换。
+### 4.链式管道
+  就是把管道链在一起，以组合出一些潜在的有用功能。 比如下满，把birthday链到DatePipe管道，然后又链到UpperCasePipe，这样就可以把生日显示成大写形式了。 比如下面的代码就会把生日显示成MAY 14, 1986：
+```html
+<p>链式操作生日 {{birthday | date:'fullDate' | uppercase}}</p>
+```
+### 5.自定义管道
+  除了让内置管道，还可以写自定义管道。比如我要写一个把数字转成英文的数字的管道：
+```typescript
+import { Pipe, PipeTransform } from '@angular/core';
+@Pipe({
+    name: 'toEn'
+})
+export class ToEn implements PipeTransform {
+    transform(value: any, ...args: any[]): any {
+        // 必须有返回值
+        if(value ==1){return "one"}
+        else if(value==2) {return "two"}
+    }
+}
+```
+```html
+<p>{{1 | toEn}}</p>
+<!--使用方法和内置管道完全一样，一定要记得在declarations数组中声明-->
+```
+  使用的时候就和内置管道一样用就好了，1就会被渲染成one。
+  在这个管道的定义中，有几个关键的点：
+  - 管道是一个带有“管道元数据(pipe metadata)”装饰器的类。
+  - 这个管道类实现了PipeTransform接口的transform方法，该方法接受一个输入值和一些可选参数，并返回转换后的值。
+  - 当每个输入值被传给transform方法时，还会带上另一个参数，比如我们这个管道中的value。
+  - 通过@Pipe装饰器告诉Angular：这是一个管道。该装饰器是从Angular的core库中引入的。
+  - 这个@Pipe装饰器允许我们定义管道的名字，这个名字会被用在模板表达式中。它必须是一个有效的JavaScript标识符。 比如，这个管道的名字是toEn。
+      **PipeTransform接口**
+        transform方法是管道的基本要素。 PipeTransform接口中定义了它，并用它指导各种工具和编译器。 理论上说，它是可选的。Angular不会管它，而是直接查找并执行transform方法。
+### 6.管道与变更检测
+  Angular通过变更检测过程来查找绑定值的更改，并在每一次JavaScript事件之后运行：每次按键、鼠标移动、定时器以及服务器的响应。 这可能会让变更检测显得很昂贵，但是Angular会尽可能降低变更检测的成本。
+**无管道**
+  比如下一个例子中的组件使用默认的、激进的变更检测策略来检测和更新lists数组中的每个人物。模板长这样：
+```html
+New person:
+  <input type="text" #box
+          (keyup.enter)="addPerson(box.value); box.value=''"
+          placeholder="person name">
+  <button (click)="reset()">Reset</button>
+  <div *ngFor="let peron of lists">
+    {{person.name}}
+  </div>
+```
+  和模板相伴的组件类可以提供人物数组，能把新的英雄添加到人物中，还能重置人物数组。
+```typescript
+export class SingPersonComponent {
+  lists: any[] = [];
+  canSing = true;
+  constructor() { this.reset(); }
+  addPerson(name: string) {
+    name = name.trim();
+    if (!name) { return; }
+    let person = {name, canSing: this.canSing};
+    this.lists.push(person);
+  }
+  reset() { this.lists = LISTS.slice(); }
+}
+```
+  添加新的英雄，加完之后，Angular就会更新显示。 reset按钮会把lists替换成一个由原来人物组成的新数组，重置完之后，Angular就会更新显示。 如果我们提供了删除或修改人物的能力，Angular也会检测到那些更改，并更新显示。
+**会唱歌的人  管道**
+  比如往ngFor重复器中添加一个SingPersonPipe管道，这个管道能过滤出所有会唱歌的人。首先使用时的模板长这样：
+```html
+<div *ngFor="let person of (lists | singPerson)">
+  {{person.name}}
+</div>
+```
+  然后是SingPersonPipe的实现，它遵循写自定义管道的模式。
+```typescript
+import { Pipe, PipeTransform } from '@angular/core';
+import { Singer } from './lists';
+@Pipe({ name: 'singPerson' })
+export class SingPersonPipe implements PipeTransform {
+  transform(allPersons: Singer[]) {
+    return allPersons.filter(person => person.canSing);
+  }
+}
+```
+  但是如果运行的话，添加的每个人都会唱歌，但是又没有被显示出来。没有得到期望的行为，但是Angular也没有报错，这里是用了另一种变更检测算法 —— 它会忽略对列表及其子项所做的任何更改。添加新的人物的时候，是这样写的：
+```javascript
+this.lists.push(person);
+```
+  当往lists数组中添加一个新的人物时，这个数组的引用并没有改变，它还是那个数组，而引用才是Angular所关心的，从Angular的角度来看，这是同一个数组，并没有变化，也就不需要更新显示。
+  可以选择去修复它，创建一个新数组，把这个人追加进去，然后赋值给lists，那Angular就能检测到数组的变化了，它执行了这个管道，并使用这个新数组更新显示，这次它就包括新的会唱歌的人了。如果修改了这个数组，没有被管道执行，也没有显示更新，如果替换了这个数组，管道就会被执行，显示也更新了。
+  直接替换这个数组是通知Angular更新显示的一种高效方式，那么究竟应该什么时候替换这个数组呢，当然是数据变化的时候啦。但是，大部分时候，我并不知道数据什么时候发生了改变，尤其是在那些有很多种途径改动数据的程序中 —— 可能在程序中很远的地方。 组件就是一个通常无法知道那些改动的例子。此外，它会扭曲我的组件设计来适应管道。 所以要尽可能保持组件类独立于HTML。组件不应该关心管道的存在。
+  所以为了过滤唱歌的人，需要使用非纯管道。
+### 7.纯管道与非纯管道
+  有两类管道：纯的与非纯的。 默认情况下，管道都是纯的。以前见到的每个管道都是纯的。 通过把它的pure标志设置为false，就可以制作一个非纯管道。所以可以像这样让SingPersonPipe变成非纯的：
+```typescript
+@Pipe({
+  name: 'singPersonImpure',
+  pure: false
+})
+```
+#### 7.1 纯管道
+  Angular只有在它检测到输入值发生了纯变更时才会执行纯管道。 纯变更是指对原始类型值(String、Number、Boolean、Symbol)的更改， 或者对对象引用(Date、Array、Function、Object)的更改。
+  Angular会忽略(复合)对象内部的更改。 如果我更改了输入日期(Date)中的月份、往一个输入数组(Array)中添加新值或者更新了一个输入对象(Object)的属性，Angular都不会调用纯管道。
+  这可能看起来是一种限制，但它保证了速度。 对象引用的检查是非常快的(比递归的深检查要快得多)，所以Angular可以快速的决定是否应该跳过管道执行和视图更新。
+  因此，如果我要和变更检测策略打交道，就会更偏向用纯管道。 如果不能，就可以转回到非纯管道。
+#### 7.2 非纯管道
+  Angular会在每个组件的变更检测周期中执行非纯管道。 非纯管道可能会被调用很多次，和每个按键或每次鼠标移动一样频繁。
+  实现非纯管道就要很小心啦，昂贵且迟钝的管道可以直接催婚用户体验。
+  把SingPersonPipe换成了SingPersonImpurePipe，就像上面那样，把pure写为false，就改好了。当重新输入新的人物，或者修改数组，这个唱歌的人，就跟着更新了。
+#### 7.3  非纯 AsyncPipe
+  Angular的AsyncPipe是一个非纯管道的例子。AsyncPipe接受一个Promise或Observable作为输入，并且自动订阅这个输入，最终返回它们给出的值。AsyncPipe管道是有状态的。 该管道维护着一个所输入的Observable的订阅，并且持续从那个Observable中发出新到的值。
+  比如下面的代码，我用该async管道把一个消息字符串(message$)的Observable绑定到视图中。
+```typescript
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/interval';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/take';
+@Component({
+  selector: 'app-person-message',
+  template: `
+    <h2>异步</h2>
+    <p>Message: {{ message$ | async }}</p>
+    <button (click)="resend()">Resend</button>`,
+})
+export class PersonAsyncMessageComponent {
+  message$: Observable<string>;
+  private messages = [
+    '许嵩呢？',
+    '超爱许嵩！',
+    '也超爱山田！'
+  ];
+  constructor() { this.resend(); }
+  resend() {
+    this.message$ = Observable.interval(500)
+      .map(i => this.messages[i])
+      .take(this.messages.length);
+  }
+}
+```
+  这个Async管道节省了组件的样板代码。 组件不用订阅这个异步数据源，而且不用在被销毁时取消订阅(如果订阅了而忘了反订阅容易导致隐晦的内存泄露)。
+#### 7.4 一个非纯而且带缓存的管道
+  比如要写一个服务器发起HTTP请求的管道。
+  切记，非纯管道可能每隔几微秒就会被调用一次。 如果不小心点，这个管道就会发起一大堆请求“攻击”服务器。这个管道只有当所请求的URL发生变化时才会向服务器发起请求。它会缓存服务器的响应。 代码如下，它使用Angular http客户端来接收数据：
+```typescript
+import { Pipe, PipeTransform } from '@angular/core';
+import { Http }                from '@angular/http';
+import 'rxjs/add/operator/map';
+@Pipe({
+  name: 'fetch',
+  pure: false
+})
+export class FetchJsonPipe  implements PipeTransform {
+  private cachedData: any = null;
+  private cachedUrl = '';
+  constructor(private http: Http) { }
+  transform(url: string): any {
+    if (url !== this.cachedUrl) {
+      this.cachedData = null;
+      this.cachedUrl = url;
+      this.http.get(url)
+        .map( result => result.json() )
+        .subscribe( result => this.cachedData = result );
+    }
+    return this.cachedData;
+  }
+}
+```
+  接下来我用一个测试台组件试一下，该组件的模板中定义了两个使用到此管道的绑定，他们都从persons.json文件中取得英雄数据。
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-hero-list',
+  template: `
+    <h2>来自文件的列表</h2>
+    <div *ngFor="let person of ('assets/persons.json' | fetch) ">
+      {{person.name}}
+    </div>
+    <p>Json格式的数据:
+      {{'assets/persons.json' | fetch | json}}
+    </p>`
+})
+export class PersonListComponent { }
+```
+  在上面，请求数据的时候可以发现：
+  - 每个绑定都有自己的管道实例
+  - 每个管道实例都缓存了他自己的URL和数据
+  - 每个管道实例都只调用一次服务器
+```txt
+JsonPipe
+  第二个绑定除了用到FetchPipe之外还链接了更多管道。 把获取数据的结果同时显示在第一个绑定和第二个绑定中。第二个绑定中，通过链接到一个内置管道JsonPipe把它转成了JSON格式。
+  JsonPipe为诊断数据绑定的某些神秘错误或为做进一步绑定而探查数据时，提供了一个简单途径。
+```
+#### 7.5 纯管道与纯函数
+  纯管道使用纯函数。 纯函数是指在处理输入并返回结果时，不会产生任何副作用的函数。 给定相同的输入，它们总是返回相同的输出。
+  在前面见过的管道都是用纯函数实现的。 内置的DatePipe就是一个用纯函数实现的纯管道。 toEn是这样， SingPersonComponent也是这样。 还有SingPersonImpurePipe，是一个用纯函数实现的非纯管道。
+  但是一个纯管道必须总是用纯函数实现。忽略这个警告将导致失败并带来一大堆这样的控制台错误：表达式在被检查后被变更。
+### 8.没有FilterPipe或者OrderByPipe
+  Angular没有随身发布过滤或列表排序的管道。 因为  它们性能堪忧，以及 它们会阻止比较激进的代码最小化。 无论是filter还是orderBy都需要它的参数引用对象型属性。 前面说到，这样的管道必然是非纯管道，并且Angular会在几乎每一次变更检测周期中调用非纯管道。
+  过滤、 特别是排序是这样耗费内存的操作。 当Angular每秒调用很多次这类管道函数时，即使是中等规模的列表都可能严重降低用户体验。
+  Angular建议，把过滤和排序逻辑挪进组件本身。 组件可以对外暴露一个filteredPersons或sortedPersons属性，这样它就获得控制权，以决定要用什么频度去执行其它辅助逻辑。 我原本准备实现为管道，并在整个应用中共享的那些功能，都能被改写为一个过滤/排序的服务，并注入到组件中。
+## 十、动画
+### 1.概述
+  Angular的动画系统赋予了制作各种动画效果的能力，以构建出与原生css动画性能相同的动画。那我就有了额外的让动画逻辑与其它应用代码紧紧集成在一起的能力，这让动画可以被更容易的触发与控制。
+### 2.起步
+  在添加动画到应用程序之前，需要引入一些模块：
+```typescript
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+@NgModule({
+  imports: [ BrowserModule, BrowserAnimationsModule ],
+  // ... more stuff ...
+})
+export class AppModule { }
+```
+  在这个例子里面，用动画激活人物列表，一个Person类，有name属性，状态属性，根据状态来切换激活状态：
+```typescript
+export class Person {
+  constructor(public name: string, public state = 'inactive') { }
+  toggleState() {
+    this.state = this.state === 'active' ? 'inactive' : 'active';
+  }
+}
+//点击按钮的时候就会切换这两个状态了。
+```
+### 3.在两个状态之间转换
+  比如先来构建一个简单的动画，它会让一个元素用模型驱动的方式在两个状态之间转场。
+  动画会被定义在@Component元数据中。
+```typescript
+import {Component, Input} from '@angular/core';
+import { trigger,state,style,animate,transition} from '@angular/animations';
+```
+  通过这些，可以在组件元数据中定义一个名叫personState的动画触发器。它在两个状态active和inactive之间进行转场。 当人物处于激活状态时，它会把该元素显示得稍微大一点、亮一点。
+```typescript
+animations: [
+  trigger('personState', [
+    state('inactive', style({
+      backgroundColor: '#eee',
+      transform: 'scale(1)'
+    })),
+    state('active',   style({
+      backgroundColor: '#cfd8dc',
+      transform: 'scale(1.1)'
+    })),
+    transition('inactive => active', animate('100ms ease-in')),
+    transition('active => inactive', animate('100ms ease-out'))
+  ])
+]
+```
+  自定义动画了，接下来就要使用啦：
+```html
+template: `
+  <ul>
+    <li *ngFor="let person of lists"
+        [@heroState]="person.state"
+        (click)="person.toggleState()">
+      {{hero.name}}
+    </li>
+  </ul>
+`
+```
+  这里，我把该动画触发器添加到了由ngFor重复出来的每一个元素上。每个重复出来的元素都有独立的动画效果。 然后把@triggerName属性(Attribute)的值设置成表达式hero.state。这个值应该或者是inactive或者是active，因为我们刚刚为它们俩定义过动画状态。通过这些设置，一旦英雄对象的状态发生了变化，就会触发一个转场动画。
+### 4.状态与转场
+  Angular动画是由状态和状态之间的转场效果所定义的。
+  动画状态是一个由程序代码中定义的字符串值。在上面的例子中，基于人物对象的逻辑状态,我使用'active'和'inactive'这两种状态。 状态的来源可以是像本例中这样简单的对象属性，也可以是由方法计算出来的值。重点是，得能从组件模板中读取它。
+  像这样为每个动画状态定义一个样式：
+```typescript
+state('inactive', style({
+  backgroundColor: '#eee',
+  transform: 'scale(1)'
+})),
+state('active',   style({
+  backgroundColor: '#cfd8dc',
+  transform: 'scale(1.1)'
+})),
+```
+  这些state具体定义了每个状态的最终样式。一旦元素转场到那个状态，该样式就会被应用到此元素上，当它留在此状态时，这些样式也会一直保持着。 从这个意义上讲，这里其实并不只是在定义动画，而是在定义该元素在不同状态时应该具有的样式。
+  定义完状态，就能定义在状态之间的各种转场了。每个转场都会控制一条在一组样式和下一组样式之间切换的时间线：
+```typescript
+transition('inactive => active', animate('100ms ease-in')),
+transition('active => inactive', animate('100ms ease-out'))
+```
+  如果多个转场都有同样的时间线配置，就可以把它们合并进同一个transition定义中：
+```typescript
+transition('inactive => active, active => inactive',
+ animate('100ms ease-out'))
+```
+  如果要对同一个转场的两个方向都使用相同的时间线，就可以使用<=>这种简写语法：
+```typescript
+transition('inactive <=> active', animate('100ms ease-out'))
+```
+  有时希望一些样式只在动画期间生效，但在结束后并不保留它们。这时可以把这些样式内联在transition中进行定义。 在下面的代码里，该元素会立刻获得一组样式，然后动态转场到下一个状态。当转场结束时，这些样式并不会被保留，因为它们并没有被定义在state中。
+```typescript
+transition('inactive => active', [
+  style({
+    backgroundColor: '#cfd8dc',
+    transform: 'scale(1.3)'
+  }),
+  animate('80ms ease-in', style({
+    backgroundColor: '#eee',
+    transform: 'scale(1)'
+  }))
+]),
+```
+#### 4.2 通配符状态
+  *(通配符)状态匹配任何动画状态。当定义那些不需要管当前处于什么状态的样式及转场时，这很有用，比如：
+  - 当该元素的状态从active变成任何其它状态时，active => *转场都会生效。
+  - 当在任意两个状态之间切换时，* => *转场都会生效。
+#### 4.3 void状态
+  有一种叫做void的特殊状态，它可以应用在任何动画中。它表示元素没有被附加到视图。这种情况可能是由于它尚未被添加进来或者已经被移除了。 void状态在定义“进场”和“离场”的动画时会非常有用。
+   一个元素离开视图时，* => void转场就会生效，而不管它在离场以前是什么状态。
+   ps：*（通配符）也能匹配void
+### 5.例子：进场与离场
+  使用void和*状态，可以定义元素进场与离场时的转场动画：
+  - 进场：void => *
+  - 离场：* => void
+    比如，在下面的animations数组中，这两个转场语句使用void => *和* => void语法来让该元素以动画形式进入和离开当前视图。
+```typescript
+animations: [
+  trigger('flyInOut', [
+    state('in', style({transform: 'translateX(0)'})),
+    transition('void => *', [
+      style({transform: 'translateX(-100%)'}),
+      animate(100)
+    ]),
+    transition('* => void', [
+      animate(100, style({transform: 'translateX(100%)'}))
+    ])
+  ])
+]
+//ps:注意，在这个例子中，这些样式在转场定义中被直接应用到了void状态，但并没有一个单独的state(void)定义。 这么做是因为希望在进场与离场时使用不一样的转换效果：元素从左侧进场，从右侧离开。
+```
+```txt
+这两个常见的动画，有自己的别名：
+    transition(':enter', [ ... ]); // void => *
+    transition(':leave', [ ... ]); // * => void
+```
+### 6.从不同的状态下进场和离场
+  通过把人物动画的状态，还能把该动画跟以前的转场动画组合成一个复合动画。这让我们能根据该人物的当前状态为其配置不同的进场与离场动画：
+  - 非激活人物进场：void => inactive
+  - 人物英雄进场：void => active
+  - 非激活人物离场：inactive => void
+  - 激活人物离场：active => void
+      现在就对每一种转场都有了细粒度的控制：
+```typescript
+animations: [
+  trigger('personState', [
+    state('inactive', style({transform: 'translateX(0) scale(1)'})),
+    state('active',   style({transform: 'translateX(0) scale(1.1)'})),
+    transition('inactive => active', animate('100ms ease-in')),
+    transition('active => inactive', animate('100ms ease-out')),
+    transition('void => inactive', [
+      style({transform: 'translateX(-100%) scale(1)'}),
+      animate(100)
+    ]),
+    transition('inactive => void', [
+      animate(100, style({transform: 'translateX(100%) scale(1)'}))
+    ]),
+    transition('void => active', [
+      style({transform: 'translateX(0) scale(0)'}),
+      animate(200)
+    ]),
+    transition('active => void', [
+      animate(200, style({transform: 'translateX(0) scale(0)'}))
+    ])
+  ])
+]
+```
+### 7.可动的（Animatable）属性与单位
+  由于Angular的动画支持是基于Web Animations标准的，所以也能支持浏览器认为可以参与动画的任何属性。这些属性包括位置(position)、大小(size)、变换(transform)、颜色(color)、边框(border)等很多属性
+  尺寸类属性(如位置、大小、边框等)包括一个数字值和一个用来定义长度单位的后缀：‘50px‘，’3rem‘，’100%'
+  对大多数尺寸类属性而言，还能只定义一个数字，那就表示它使用的是像素(px)数：50相当于‘50px’
+### 8.自动属性值计算
+  有时候，要想在动画中使用的尺寸类样式，它的值在开始运行之前都是不可知的。比如，元素的宽度和高度往往依赖于它们的内容和屏幕的尺寸。处理这些属性对CSS动画而言通常是相当棘手的。
+  如果用Angular动画，就可以用一个特殊的*属性值来处理这种情况。该属性的值将会在运行期被计算出来，然后插入到这个动画中。
+  像下面中的“离场”动画会取得该元素在离场前的高度，并且把它从这个高度用动画转场到0高度：
+```typescript
+animations: [
+  trigger('shrinkOut', [
+    state('in', style({height: '*'})),
+    transition('* => void', [
+      style({height: '*'}),
+      animate(250, style({height: 0}))
+    ])
+  ])
+]
+```
+### 9.动画时间线
+  对每一个动画转场效果，有三种时间线属性可以调整：持续时间(duration)、延迟(delay)和缓动(easing)函数。它们被合并到了一个单独的转场时间线字符串。
+#### 9.1 持续时间
+  持续时间控制动画从开始到结束要花多长时间。可以用三种方式定义持续时间：
+  - 作为一个普通的数字，以毫秒为单位，比如100就100ms
+  - 作为一个字符串，以毫秒为单位，比如‘100ms’
+  - 作为一个字符串，以秒为单位，比如‘0.1s'
+#### 9.2 延迟
+  延迟控制的是在动画已经触发但尚未真正开始转场之前要等待多久。可以把它添加到字符串中的持续时间后面，它的选项格式也跟持续时间是一样的：
+  - 等待100毫秒，然后运行200毫秒：'0.2s 100ms'。
+#### 9.3 缓动函数
+  缓动函数用于控制动画在运行期间如何加速和减速。比如：使用ease-in函数意味着动画开始时相对缓慢，然后在进行中逐步加速。可以通过在这个字符串中的持续时间和延迟后面添加第三个值来控制使用哪个缓动函数(如果没有定义延迟就作为第二个值)。
+  - 等待100毫秒，然后运行200毫秒，并且带缓动：'0.2s 100ms ease-out'
+  - 运行200毫秒，并且带缓动：'0.2s ease-in-out'
+#### 9.4 例子
+  现在有两个自定义时间线的动态演示，进场和离场都持续200ms，但是它们有不同的缓动函数，离场动画会在100ms的延迟之后开始，也就是“0.2s 10 ease-out”
+```typescript
+animations: [
+  trigger('flyInOut', [
+    state('in', style({opacity: 1, transform: 'translateX(0)'})),
+    transition('void => *', [
+      style({
+        opacity: 0,
+        transform: 'translateX(-100%)'
+      }),
+      animate('0.2s ease-in')
+    ]),
+    transition('* => void', [
+      animate('0.2s 0.1s ease-out', style({
+        opacity: 0,
+        transform: 'translateX(100%)'
+      }))
+    ])
+  ])
+]
+```
+### 10.基于关键帧的多阶段动画
+  通过定义动画的关键帧，可以把两组样式之间的简单转场，升级成一种更复杂的动画，它会在转场期间经历一个或多个中间样式。每个关键帧都可以被指定一个偏移量，用来定义该关键帧将被用在动画期间的哪个时间点。偏移量是一个介于0(表示动画起点)和1(表示动画终点)之间的数组。
+  在下面的代码中，我用关键帧来为进场和离场动画添加一些“反弹效果”：
+```typescript
+animations:[
+    trigger('flyOut',[
+        state('in',style({transform:'translateX(0)'})),
+        transition('void => *',[
+            animate(300,keyframes([
+                style({opacity: 0, transform: 'translateX(-100%)', offset: 0}),
+        style({opacity: 1, transform: 'translateX(15px)',  offset: 0.3}),
+        style({opacity: 1, transform: 'translateX(0)',     offset: 1.0})
+            ]))
+        ]),
+        transition('* => void', [
+            animate(300, keyframes([
+                style({opacity: 1, transform: 'translateX(0)',     offset: 0}),
+                style({opacity: 1, transform: 'translateX(-15px)', offset: 0.7}),
+                style({opacity: 0, transform: 'translateX(100%)',  offset: 1.0})
+            ]))
+    	])
+    ])
+]
+```
+  注意，这个偏移量并不是用绝对数字定义的时间段，而是在0到1之间的相对值（百分比）。动画的最终时间线会基于关键帧的偏移量、持续时间、延迟和缓动函数计算出来。为关键帧定义偏移量是可选的。如果省略它们，偏移量会自动根据帧数平均分布出来。例如，三个未定义过偏移量的关键帧会分别获得偏移量：0、0.5和1。
+### 11.并行动画组
+  只要放进同一个style（）中定义，就可以在同一个时段进行多个样式的动画，但是有时候想给同时发生的几个动画配置不同的时间线，比如，同时对两个CSS属性做动画，但又得为它们定义不同的缓动函数。
+  这种情况下就可以用动画组来解决了。在下面的代码中，同时在进场和离场时使用了组，以便能让它们使用两种不同的时间线配置。 它们被同时应用到同一个元素上，但又彼此独立运行：
+```typescript
+animations:[
+    trigger('flyOut',[
+      state('in',style({width:120,transform:'translateX(0)',opacity:1})),
+      transition('void => *',[
+          style({width:10,transform:'translateX(50px)',opacity:0}),
+          group([
+              animate('0.3s 0.1s ease', style({
+                  transform: 'translateX(0)',
+                  width: 120
+            })),
+              animate('0.3s ease', style({
+              	opacity: 1
+            }))
+          ])
+      ])
+    ]),
+    transition('* => void', [
+      group([
+        animate('0.3s ease', style({
+          transform: 'translateX(50px)',
+          width: 10
+        })),
+        animate('0.3s 0.2s ease', style({
+          opacity: 0
+        }))
+      ])
+    ])
+  ])
+]
+```
+  其中一个动画组对元素的transform和width做动画，另一组对opacity做动画。
+### 12.动画回调
+  当动画开始和结束时，会触发一个回调。
+  对于例子中的关键帧，有一个叫做@flyOut的trigger，在那里可以挂钩到那些回调，就像这样：
+```html
+template: `
+  <ul>
+    <li *ngFor="let person of lists"
+        (@flyInOut.start)="animationStarted($event)"
+        (@flyInOut.done)="animationDone($event)"
+        [@flyInOut]="'in'">
+      {{person.name}}
+    </li>
+  </ul>
+`
+```
+  这些回调接收一个AnimationTranslationEvent参数，包括一些属性比如：fromState，toState，totalTime。不管动画是否执行，回调函数总会被触发。
+#核心知识——表单
+##一、用户输入
+### 1.绑定到用户输入事件。
+  通过Angular事件绑定机制来相应DOM事件，许多DOM事件是由用户输入触发的，绑定这些事件就可以获取用户输入啦。
+  要绑定 DOM 事件，只要把 DOM 事件的名字包裹在圆括号中，然后用放在引号中的模板语句对它赋值就可以了。
+  比如我要绑定一个单击事件，就这样写：
+```html
+<button (click)="onClickMe()">Click me!</button>
+```
+  等号左边的(click)表示把按钮的点击事件作为绑定目标。 等号右边引号中的文本是模板语句，通过调用组件的onClickMe方法来响应这个点击事件。
+  写绑定时，需要知道模板语句的执行上下文。 出现在模板语句中的每个标识符都属于特定的上下文对象。 这个对象通常都是控制此模板的 Angular 组件。上面就写了一行HTML模板，整个的组件长这样：
+```typescript
+@Component({
+  selector: 'app-click-me',
+  template: `
+    <button (click)="onClickMe()">Click me!</button>
+    {{clickMessage}}`
+})
+export class ClickMeComponent {
+  clickMessage = '';
+  onClickMe() {
+    this.clickMessage = '37大旗永不倒！';
+  }
+}
+```
+  当用户点击按钮时，Angular 调用ClickMeComponent的onClickMe方法。
+### 2.通过$event对象取得用户输入
+  DOM事件可以携带可能对组件有用的信息，比如以keyup事件为例，在每个敲击键盘时获取用户输入。下面的代码监听keyup事件，并将整个事件载荷 ($event) 传递给组件的事件处理器。
+```html
+template: `
+  <input (keyup)="onKey($event)">
+  <p>{{values}}</p>
+`
+```
+  当用户按下并释放一个按键时，触发keyup事件，Angular 在$event变量提供一个相应的 DOM 事件对象，上面的代码将它作为参数传递给onKey()方法。
+```typescript
+export class KeyUpComponent_v1 {
+  values = '';
+  onKey(event: any) { // 没有类型
+    this.values += event.target.value + ' | ';
+  }
+}
+```
+  $event对象的属性取决于 DOM 事件的类型。例如，鼠标事件与输入框编辑事件包含了不同的信息。所有标准 DOM 事件对象都有一个target属性， 引用触发该事件的元素。 在本例中，target是<input>元素， event.target.value返回该元素的当前内容。在组件的onKey()方法中，把输入框的值和分隔符 (|) 追加组件的values属性。 使用插值表达式来把存放累加结果的values属性回显到屏幕上。
+  加入我要输入abc，然后再一个一个的删除，那界面就先显示a，ab，abc，我删除的时候又显示ab，a，空白，加入我用event.key替代event.target.value，积累各个按键本身，这样同样的用户输入可以产生：a，b，c，backspace，backspace，backspace。
+#### 2.1 $event的类型
+  上面将$event转换为any类型。 这样简化了代码，但是有成本。 没有任何类型信息能够揭示事件对象的属性，防止简单的错误。
+  比如下面，使用带类型的方法：
+```typescript
+export class KeyUpComponent_v1 {
+  values = '';
+  onKey(event: KeyboardEvent) { // 这次的event给了类型	
+    this.values += (<HTMLInputElement>event.target).value + ' | ';
+  }
+}
+```
+  $event的类型现在是KeyboardEvent。 不是所有的元素都有value属性，所以它将target转换为输入元素。 OnKey方法更加清晰的表达了它期望从模板得到什么，以及它是如何解析事件的。
+#### 2.2 传入$event靠不住
+  类型化事件对象揭露了重要的一点，即反对把整个 DOM 事件传到方法中，因为这样组件会知道太多模板的信息。 只有当它知道更多它本不应了解的 HTML 实现细节时，它才能提取信息。 这就违反了模板（用户看到的）和组件（应用如何处理用户数据）之间的分离关注原则。
+  所以需要用模板引用变量来解决。
+### 3.从一个模板中引用变量获取用户输入
+  使用 Angular 的模板引用变量。 这些变量提供了从模块中直接访问元素的能力。 在标识符前加上井号 (#) 就能声明一个模板引用变量。
+  下面的代码里面使用了局部模板变量，在一个超简单的模板中实现按键反馈功能。
+```typescript
+@Component({
+  selector: 'app-loop-back',
+  template: `
+    <input #box (keyup)="0">
+    <p>{{box.value}}</p>
+  `
+})
+export class LoopbackComponent { }
+```
+  这个模板引用变量名叫box，在<input>元素声明，它引用<input>元素本身。 代码使用box获得输入元素的value值，并通过插值表达式把它显示在<p>标签中。这个模板完全是完全自包含的。它没有绑定到组件，组件也没做任何事情。
+  在输入框中输入，就会看到每次按键时，显示也随之更新了。
+  除只绑定一个事件，否则这将完全无法工作。只有在应用做了些异步事件（如击键），Angular 才更新绑定（并最终影响到屏幕）。上面代码将keyup事件绑定到了数字0，这是可能是最短的模板语句。 虽然这个语句不做什么，但它满足 Angular 的要求，所以 Angular 将更新屏幕。
+  从模板变量获得输入框比通过$event对象更加简单。 下面的代码重写了之前keyup示例，它使用变量来获得用户输入。
+```typescript
+@Component({
+  selector: 'app-key-up2',
+  template: `
+    <input #box (keyup)="onKey(box.value)">
+    <p>{{values}}</p>
+  `
+})
+export class KeyUpComponent_v2 {
+  values = '';
+  onKey(value: string) {
+    this.values += value + ' | ';
+  }
+}
+```
+  这个方法最漂亮的一点是：组件代码从视图中获得了干净的数据值。再也不用了解$event变量及其结构了。
+### 4.按键事件过滤（通过key.enter）
+  (keyup)事件处理器监听每一次按键。 有时只在意回车键，因为它标志着用户结束输入。 解决这个问题的一种方法是检查每个$event.keyCode，只有键值是回车键时才采取行动。更简单的方法是：绑定到 Angular 的keyup.enter 模拟事件。 然后，只有当用户敲回车键时，Angular 才会调用事件处理器。就像下面这样：
+```typescript
+@Component({
+  selector: 'app-key-up3',
+  template: `
+    <input #box (keyup.enter)="onEnter(box.value)">
+    <p>{{value}}</p>
+  `
+})
+export class KeyUpComponent_v3 {
+  value = '';
+  onEnter(value: string) { this.value = value; }
+}
+```
+  只有当输入结束，按下enter键的时候，页面才会展示出用户输入的值。
+### 5.失去焦点事件
+  在上面的代码里，如果用户没有先按回车键，而是移开了鼠标，点击了页面中其它地方，输入框的当前值就会丢失。 只有当用户按下了回车键候，组件的values属性才能更新。
+  下面通过同时监听输入框的回车键和失去焦点事件来修正这个问题：
+```typescript
+@Component({
+  selector: 'app-key-up4',
+  template: `
+    <input #box
+      (keyup.enter)="update(box.value)"
+      (blur)="update(box.value)">
+    <p>{{value}}</p>
+  `
+})
+export class KeyUpComponent_v4 {
+  value = '';
+  update(value: string) { this.value = value; }
+}
+```
+### 6.结合在一起
+  现在在一个小例子中把这些全部用上，能够显示人物列表，并把新的人物添加到列表里面，用户可以通过输入人物名字和单击按钮进行添加，最后代码长这样：
+```typescript
+@Component({
+    selector:'app-little-tour',
+    template:`
+    	<inpput #newPerson (keyup.enter)="addPerson(newPerson.value)"
+    			(blur)="addPerson(newPerson.value);newPerson.value=''">
+    	<button (click)="addPerson(newPerson.value)">添加</button>
+    	<ul><li *ngFor="let person of lists">{{person}}</li></ul>
+    `
+})
+export class LittleTourComponent{
+    lists=["许嵩","山田凉介","知念侑李","夏目贵志"];
+    addPerson(newPerson:string){
+        if(newPerson) this.lists.push(newPerson)
+    }
+}
+```
+  最后的效果就是，单击按钮添加新人物，失去焦点或者回车添加新人物。
+**总结**
+  - 使用模板变量引用元素，newPerson模板变量引用了<input>元素，可以在<input>的任何兄弟或子级元素中引用newPerson。
+  - 传递数值，而不是元素，获取输入框的值然后传递给组件的addPerson，不是传递给newPerson。
+  - 保持模板语句简单 — (blur)事件被绑定到两个 JavaScript 语句。 第一句调用addPerson，第二句newPerson.value=''在添加新人物到列表中后清除输入框。
+##二、模板驱动表单
+  表单用的太多，用它来执行登录、求助、下单、预订机票、安排会议，以及不计其数的其它数据录入任务。
+  在开发表单时，创建数据方面的体验是非常重要的，它能指引用户明细、高效的完成工作流程。
+  开发表单需要设计能力（嗯，设计什么的先不管），而框架支持双向数据绑定、变更检测、验证和错误处理，开始学习！
+  过程一览：
+  - 用组件和模板构建Angular表单。
+  - 用ngModel 创建双向数据绑定，以读取和写入输入控件的值。
+  - 跟踪状态的变化，并验证表单控件。
+  - 使用特殊的CSS类来跟踪控件的状态并给出视觉反馈。
+  - 向用户显示验证错误提示，以及启用/禁用表单控件。
+  - 使用模板引用变量在HTML元素之间共享信息。
+### 1.模板驱动的表单
+  利用 Angular 模板，可以构建几乎所有表单 — 登录表单、联系人表单…… 以及任何的商务表单。 可以创造性的摆放各种控件、把它们绑定到数据、指定校验规则、显示校验错误、有条件的禁用或 启用特定的控件、触发内置的视觉反馈等等，不胜枚举。
+  它用起来很简单，这是因为 Angular 处理了大多数重复、单调的任务，避免自己掉进去。
+  比如，要构建一个“模板驱动”表单，这是一个职业介绍所，使用这个表单来维护每个人的个人信息。
+  表单中的三个字段，其中两个是必填的。必填的字段在左侧有个绿色的竖条，方便用户分辨哪些是必填项。如果删除了英雄的名字，表单就会用醒目的样式把验证错误显示出来。如果必填项没有填，提交按钮就会被禁用，会有红色提示文字。
+  步骤如下：
+```txt
+    第一，创建Hero模型类。
+    第二，创建控制此表单的组件。
+    第三、创建具有初始表单布局的模板。
+    第四、使用ngModel双向数据绑定语法把数据属性绑定到每个表单输入控件。
+    第五、往每个表单输入控件上添加name属性 (attribute)。
+    第六、添加自定义 CSS 来提供视觉反馈。
+    第七、显示和隐藏有效性验证的错误信息。
+    第八、使用 ngSubmit 处理表单提交。
+    第九、禁用此表单的提交按钮，直到表单变为有效。
+```
+### 2.搭建
+  创建一个新的angular-forms的项目先。
+### 3.创建Person模型类
+  当用户输入表单数据时，需要捕获它们的变化，并更新到模型的实例中。 除非知道模型里有什么，否则无法设计表单的布局。
+  最简单的模型是个“属性包”，用来存放应用中一件事物的事实。 这里使用三个必备字段 (id、name、power)，和一个可选字段 (cp)。
+  首先创建person.ts
+```typescript
+export class Hero {
+  constructor(
+    public id: number,
+    public name: string,
+    public power: string,
+    public cp?: string
+  ) {  }
+}
+```
+  TypeScript 编译器为每个public构造函数参数生成一个公共字段，在创建新的英雄实例时，自动把参数值赋给这些公共字段。cp是可选的，调用构造函数时可省略，注意cp?中的问号 (?)。
+  然后创建新人物：
+```typescript
+let myPerson =  new Person(42, 'Yamada',
+                       '唱歌跳舞演戏样样精通',
+                       'Chinen');
+console.log( myPerson.name+'是我的人'); 
+```
+### 4.创建表单组件
+  Angular 表单分为两部分：基于 HTML 的模板和组件类，用来程序处理数据和用户交互。 先从组件类开始，是因为它可以简要说明人物编辑器能做什么。
+  初始代码长这样：
+```typescript
+import { Component } from '@angular/core';
+import { Person }    from './person';
+
+@Component({
+  selector: 'app-perosn-form',
+  templateUrl: './person-form.component.html'
+})
+export class PersonFormComponent {
+  powers = ['帅', '又高又帅','唱歌超好', '跳舞帅炸'];
+  model = new Person(20, 'Yamada', this.powers[0], 'Chinen');
+  submitted = false;
+  onSubmit() { this.submitted = true; }
+  // 添加一个diagnostic属性，以返回这个模型的 JSON 形式。在开发过程中，它用于调试，最后清理时会丢弃它。
+  get diagnostic() { return JSON.stringify(this.model); }
+}
+```
+  现在还没哟表单相关的东西，就是普通的组件：
+  这段代码导入了Angular核心库以及刚刚创建的Person模型。@Component选择器“person-form”表示可以用<person-form>标签把这个表单放进父模板。moduleId: module.id属性设置了基地址，用于从相对模块路径加载templateUrl。templateUrl属性指向一个独立的 HTML 模板文件。
+**分离模板文件的问题**
+  当模板足够短的时候，内联形式更招人喜欢。 但大多数的表单模板都不短。通常，TypeScript 和 JavaScript 文件不是写（读）大型 HTML 的好地方， 而且没有几个编辑器能对混写的 HTML 和代码提供足够的帮助。
+  就算是在仅仅显示少数表单项目时，表单模板一般都比较庞大。所以通常最好的方式是将 HTML 模板放到单独的文件中。 一会儿将编写这个模板文件。在这之前，先退一步，再看看app.module.ts和app.component.ts，让它们使用新的PersonFormComponent。
+### 5.修改app.module
+  引入上面的组件，在declarations数组里面声明该组件，从@angualr/forms里面引入FormsModule，并放进imports数组里面。
+### 6.修改app.component
+  把<app-person-form>标签放到template里面，直接加载刚刚创建的组件。
+### 7.创建HTML表单模板
+  HTML文件里面长这样：
+```html
+<div class="container">
+    <h1>Person Form</h1>
+    <form>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" required>
+      </div>
+      <div class="form-group">
+        <label for="cp">cp</label>
+        <input type="text" class="form-control" id="cp">
+      </div>
+      <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>
+```
+  这是普通的HTML代码，还没有用到angular的东西，为了用样式方便，在index.html里面引入bootstrap
+```html
+<link rel="stylesheet" href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+```
+### 8.ngFor添加人物能力
+  这些人必须从认证过的固定列表中选择一项能力，在表单中添加select，用ngFor把powers列表绑定到列表选项。修改一下代码：
+```html
+<div class="form-group">
+  <label for="power">Person Power</label>
+  <select class="form-control" id="power" required>
+    <option *ngFor="let pow of powers" [value]="pow">{{pow}}</option>
+  </select>
+</div>
+```
+  列表中的每一项能力都会渲染成<option>标签。 模板输入变量p在每个迭代指向不同的超能力，使用双花括号插值表达式语法来显示它的名称。
+### 9.使用ngModel进行双向数据绑定
+  目前来运行程序，什么也看不到，因为还没有绑定到某个人身上，所以看不到任何数据。 
+  现在，需要同时进行显示、监听和提取。虽然可以在表单中再次使用这些技术。 但是，今天用新东西，[(ngModel)]语法，使表单绑定到模型的工作变得超级简单。
+  找到 Name 对应的<input>标签，做一些改动：
+```html
+<input type="text" class="form-control" id="name"
+       required
+       [(ngModel)]="model.name" name="name">
+```
+  要显示数据，还要在表单中声明一个模板变量。往<form>标签中加入#heroForm="ngForm"，代码长这样：
+```html
+<form #personForm="ngForm">
+<!--Angular会在<form>标签上自动创建并附加一个NgForm指令。NgForm指令为form增补了一些额外特性。 它会控制那些带有ngModel指令和name属性的元素，监听他们的属性（包括其有效性）。 它还有自己的valid属性，这个属性只有在它包含的每个控件都有效时才是真。-->
+```
+  注意，<input>标签还添加了name属性 (attribute)，并设置为 "name"，表示人物的名字。 使用任何唯一的值都可以，但使用具有描述性的名字会更有帮助。 当在表单中使用[(ngModel)]时，必须要定义name属性。在内部，Angular 创建了一些FormControl，并把它们注册到NgForm指令，再将该指令附加到<form>标签。 注册每个FormControl时，使用name属性值作为键值。
+  为cp和power属性添加类似的[(ngModel)]绑定和name属性。 抛弃输入框的绑定消息，在组件顶部添加到diagnostic属性的新绑定。 这样就能确认双向数据绑定在整个 Hero 模型上都能正常工作了。
+  改过之后，表单的代码长这样：
+```html
+{{diagnostic}}
+<div class="form-group">
+  <label for="name">Name</label>
+  <input type="text" class="form-control" id="name"
+         required
+         [(ngModel)]="model.name" name="name">
+</div>
+<div class="form-group">
+  <label for="cp">cp</label>
+  <input type="text"  class="form-control" id="cp"
+         [(ngModel)]="model.cp" name="cp">
+</div>
+<div class="form-group">
+  <label for="power">Person Power</label>
+  <select class="form-control"  id="power"
+          required
+          [(ngModel)]="model.power" name="power">
+    <option *ngFor="let pow of powers" [value]="pow">{{pow}}</option>
+  </select>
+</div>
+```
+### 10.通过ngModel跟踪修改状态与有效性验证
+  NgModel 指令不仅仅跟踪状态。它还使用特定的 Angular CSS 类来更新控件，以反映当前状态。 可以利用这些 CSS 类来修改控件的外观，显示或隐藏消息。
+| 状态      | 为真时的CSS类   | 为假时的CSS类     |
+| ------- | ---------- | ------------ |
+| 控件被访问过了 | ng-touched | ng-untouched |
+| 控件的值变化了 | ng-dirty   | ng-pristine  |
+| 控件的值有效  | ng-valid   | ng-invalid   |
+  往姓名<input>标签上添加名叫 center 的临时模板引用变量， 然后用这个 center 来显示它上面的所有 CSS 类。
+```html
+<input type="text" class="form-control" id="name"
+  required
+  [(ngModel)]="model.name" name="name"
+  #center>
+```
+### 11.添加一些CSS
+```css
+.ng-valid[required], .ng-valid.required  {
+  border-left: 5px solid #42A948; /* 正确就是绿的 */
+}
+
+.ng-invalid:not(form)  {
+  border-left: 5px solid #a94442; /* 错误就是红的 */
+}
+```
+### 12.显示和隐藏错误信息
+  “Name” 输入框是必填的，清空它会让左侧的条变红。这表示某些东西是错的，但我们不知道错在哪里，或者如何纠正。 可以借助ng-invalid类来给出有用的提示。
+  首先在<input>标签中添加模板引用变量，然后给一个“is required”消息，放在邻近的<div>元素中，只有当控件无效时，才显示它。
+```html
+<label for="name">Name</label>
+<input type="text" class="form-control" id="name"
+       required
+       [(ngModel)]="model.name" name="name"
+       #name="ngModel">
+<!--模板引用变量可以访问模板中输入框的 Angular 控件。 这里，创建了名叫name的变量，并且赋值为 "ngModel"。-->
+<div [hidden]="name.valid || name.pristine"
+     class="alert alert-danger">
+  Name is required
+</div>
+<!--把div元素的hidden属性绑定到name控件的属性，这样就可以控制“姓名”字段错误信息的可见性了。-->
+```
+  上面的代码里，当控件是有效的 (valid) 或全新的 (pristine) 时，隐藏消息。 “全新的”意味着从它被显示在表单中开始，用户还从未修改过它的值。
+  这种用户体验取决于自己的选择。有些人会希望任何时候都显示这条消息。 如果忽略了pristine状态，就会只在值有效时隐藏此消息。 如果往这个组件中传入全新（空）的英雄，或者无效的人物，将立刻看到错误信息 —— 虽然我还啥都没做。
+  如果是想只有在用户做出无效的更改的时候才显示，那就不要那个全新的属性就行，但是加上这个属性，这个选择还是很重要的。人物的cp是可选的，所以不用改。人物的能力是必填项，要是想的话也可以在<select>上面添加错误处理，但是没有必要，因为选择框就已经限制了就只能选那几个啊。
+  还有在这个表单中添加新的人物，在表单底部添加一个按钮，并把事件绑定到newPerson组件。
+```html
+<button type="button" class="btn btn-default" (click)="newPerson()">New Person</button>
+```
+```javascript
+newHero() {
+  this.model = new Person(42, '', '');
+}
+```
+ 现在运行应用，点击按钮，表单被清空了。 输入框左侧的必填项竖条是红色的，表示name和power属性是无效的。 这可以理解，因为有一些必填字段。 错误信息是隐藏的，因为表单还是全新的，还没有修改任何东西。
+  那输入一个名字，再次点击按钮。 这次，出现了错误信息，并不希望显示新（空）的英雄时，出现错误信息。用浏览器工具审查这个元素就会发现，这个 name 输入框并不是全新的。 表单记得在点击 按钮 前输入的名字。 更换了人物并不会重置控件的“全新”状态。
+  所以必须清除所有标记，在调用newPerson()方法后调用表单的reset()方法即可。代码这样改：
+```html
+<button type="button" class="btn btn-default" (click)="newPerson(); personForm.reset()">New Person</button>
+```
+### 13.使用ngSubmit提交表单
+  在填表完成之后，用户还应该能提交这个表单。 “Submit（提交）”按钮位于表单的底部，它自己不做任何事，但因为有特殊的 type 值 (type="submit")，所以会触发表单提交。
+  现在这样仅仅触发“表单提交”是没用的。 要让它有用，就要把该表单的ngSubmit事件属性绑定到人物表单组件的onSubmit()方法上：
+```html
+<form (ngSubmit)="onSubmit()" #personForm="ngForm">
+```
+  之前已经定义了一个模板引用变量#personForm，并且把赋值为“ngForm”。 现在，就可以在“Submit”按钮中访问这个表单了。
+  现在要把表单的总体有效性通过personForm变量绑定到此按钮的disabled属性上，代码如下：
+```html
+<button type="submit" class="btn btn-success" [disabled]="!personForm.form.valid">Submit</button>
+```
+  现在重新运行应用。表单打开时，状态是有效的，按钮是可用的。
+  现在，如果删除姓名，就会违反“必填姓名”规则，就会像以前那样显示出错误信息。同时，Submit 按钮也被禁用了。
+### 14.切换两个表达区域
+  现在来实现一些更炫的视觉效果。 隐藏掉数据输入框，显示一些其它东西。
+```html
+<div [hidden]="submitted">
+  <h1>Person Form</h1>
+  <form (ngSubmit)="onSubmit()" #personForm="ngForm">
+	<!--HTML代码等会加-->
+  </form>
+</div>
+```
+  主表单从一开始就是可见的，因为submitted属性是 false，直到提交了这个表单。PersonFormComponent的代码片段有一段这样的：
+```typescript
+submitted = false;
+onSubmit() { this.submitted = true; }
+```
+  当点击 Submit 按钮时，submitted标志会变成 true，并且表单像预想中一样消失了。
+  现在，当表单处于已提交状态时，需要显示一些别的东西。 在刚刚写的<div>包装下方，添加下列 HTML 语句：
+```html
+<div [hidden]="!submitted">
+  <h2>You submitted the following:</h2>
+  <div class="row">
+    <div class="col-xs-3">Name</div>
+    <div class="col-xs-9  pull-left">{{ model.name }}</div>
+  </div>
+  <div class="row">
+    <div class="col-xs-3">cp</div>
+    <div class="col-xs-9 pull-left">{{ model.cp }}</div>
+  </div>
+  <div class="row">
+    <div class="col-xs-3">Power</div>
+    <div class="col-xs-9 pull-left">{{ model.power }}</div>
+  </div>
+  <br>
+  <button class="btn btn-primary" (click)="submitted=false">Edit</button>
+</div>
+```
+  人物又出现了，它通过插值表达式绑定显示为只读内容。 这一小段 HTML 只在组件处于已提交状态时才会显示。这段HTML包含一个 “Edit（编辑）”按钮，将 click 事件绑定到表达式，用于清除submitted标志。当点Edit按钮时，这个只读块消失了，可编辑的表单重新出现了。
+##三、表单验证
+###1.模板驱动验证
+  为了往模板驱动表单中增加验证机制，就需要添加一些验证属性，就像原生的HTML表单验证器，Angular会用指令来匹配这些具有验证功能的指令。
+  每当表单控件中的值发生变化时，Angular就会验证，并生成一个验证错误的列表或者null。
+  可以通过把ngModel导出成局部模板变量来直接看该控件的状态，比如下面把ngModel导出一个叫name的变量：
+```html
+<input id="name" name="name" class="form-control"
+       required minlength="4" appForbiddenName="mary"
+       [(ngModel)]="person.name" #name="ngModel" >
+<div *ngIf="name.invalid && (name.dirty || name.touched)"
+     class="alert alert-danger">
+  <div *ngIf="name.errors.required">
+    姓名必填
+  </div>
+  <div *ngIf="name.errors.minlength">
+    姓名至少四个字符
+  </div>
+  <div *ngIf="name.errors.forbiddenName">
+    姓名不能是mary
+  </div>
+</div>
+```
+  注意：
+```txt
+    <input>元素带有一些HTML的验证属性：required和minlength。还带有一个自定义的验证器指令forbiddenName。等会儿说自定义验证器。
+    #name="ngModel"把ngModel导出成了一个名叫name的局部变量。NgModel把自己要控制的FormControl实例的属性映射出去，然后就能在模板中检查控件的状态了，比如valid和dirty
+    <div>元素的*ngIf控制着一群div，当输入的名字不符合条件的时候错误信息就会显示出来啦。
+
+    检查touched和dirty是因为不希望用户在还没有编辑过表单的时候就显示错误提示，对于dirty和touched的检查可以避免这种问题。改变控件的值会改变控件的dirty状态，当控件失去焦点的时候，就会改变touched的状态。
+```
+###2.响应式表单的验证
+  在响应式表单中，真正的源码都在组件类中。不应该通过模板上的属性来添加验证器，而应该在组件类中直接把验证器的函数添加到表单控件模型上（就是FormControl啦），然后，一旦控件发生了变化，Angular就会调用这些函数。
+#### 2.1 验证器函数
+  有两种验证器函数：同步验证器和异步验证器：
+  - 同步验证器函数接受一个控件实例，然后返回一组验证错误或者null，那么就可以在实例化一个FormControl时把它作为构造函数的第二个参数传进去。
+  - 异步验证器函数接受一个控件实例，并返回一个承诺（Promise）或可观察对象（Observable），它们稍后会发出一组验证错误或者null。那就可以在实例化一个FormControl时把它作为构造函数的第三个参数传进去。
+    ps：出于性能方面的考虑，只有在所有的同步验证器都通过之后，Angular才会运行异步验证器，当每一个异步验证器都执行完了之后，才会设置这些验证错误。
+#### 2.2 内置验证器
+  验证器可以自己写，但是Angular准备好的也有一些内置验证器。
+  模板驱动表单中可用的那些属性型验证器（如required，minlength等）对应于Validators类中的同名函数。要把人物表单改成响应式表单，还是用那些内置验证器，但这次用他们的函数形态：
+```typescript
+ngOnInit():void{
+    this.personForm=new FormGroup({
+        'name':new FormControl(this.person.name,[
+            Validators.required,
+            Validators.minlength(4),
+            forbiddenName(/mary/i)
+        ]),
+        'cp':new FormControl(this.person.xp),
+        'power':new FormControl(this.person.power,Validators.required)
+    });
+}
+get name() {return this.personForm.get('name')}
+get power() {return this.personForm.get('power')}
+```
+  注意：
+```txt
+	name控件设置了两个内置验证器，Validators.required和Validators.minlength(4)
+	由于这些验证器都是同步验证，因此要把它们作为第二个参数传进去。
+	可以通过把这些函数放进一个数组后传进去，可以支持多重验证器。
+	这个demo添加了一些getter方法，在响应式表单中，通常会通过它所属的控件组（FormControl）的get方法来访问表单控件，但有时候为模板定义一些getter作为简短的形式。
+```
+  其实这里面的name输入框和之前的模板驱动的例子很像，主要改的有：
+  - 该表单不再导出任何指令，而是使用组件类中的name读取器。
+  - required属性仍然存在，虽然验证不再需要它，但是仍然在模板中保存下来，以支持CSS样式或可访问的属性。
+### 3.自定义验证器
+  内置的验证器并不能适用所有的应用场景，所以有时候需要自定义验证器。
+  前面的forbiddenNameValidator函数，这个函数定义的时候是这样的：
+```typescript
+/*人物名字匹配到传进来的正则就错误 */
+export function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+  return (control: AbstractControl): {[key: string]: any} => {
+    const forbidden = nameRe.test(control.value);
+    return forbidden ? {'forbiddenName': {value: control.value}} : null;
+  };
+}
+```
+  这个函数是一个工厂，它接受一个用来检测指定名字是否已经被禁用的正则表达式，并返回一个验证器函数。比如我要禁止的名字是mary，验证器会拒绝任何带有mary的人物名字，在其它地方，只要正则能匹配的上，也可能会拒绝别的名字。
+  forbiddenNameValidator工厂函数返回配置好的验证器函数，该函数接受一个Angular控制器对象，并在控制器有效时返回null，或无效时返回验证错误的对象。 验证错误对象通常有一个名为验证秘钥（forbiddenName）的属性。其值为一个任意词典，可以用来插入错误信息（{name}）。
+  自定义异步验证器和同步验证器很像，只是它们必须有返回值，返回一个稍后会输出null或验证错误对象的承诺或可观对象，如果是可观对象，那么它必须在某个时间点被完成（complete），那时候这个表单就会使用它输出的最后一个值作为验证结果（HTTP请求是自动完成的，但是某些自定义的可观察对象可能需要手动调用complete方法）。
+#### 3.1 添加响应式表单
+  在响应式表单组件中，添加自定义验证器就简答了，就把这个函数传给FormControl就行了。
+```typescript
+this.personForm=new FormGroup({
+    'name':new FormControl(this.person.name,[
+        Validators.required,
+        Validators.minlength(4),
+        forbiddenNameValidator(/mary/i)
+    ]),
+    'cp':new FormControl(this.person.cp),
+    'power':new FormControl(this.person.power,Validator.required)
+})
+```
+#### 3.2 添加到模板驱动表单
+  在模板驱动表单中，不用直接访问FormControl的实例，所以不能像响应式表单中那样把验证器传进去，而应该在模板中添加一个指令。
+  ForbiddenValidatorDirective指令相当于forbiddenNameValidator的包装器。Angular在验证流程中的识别出指令的作用，是因为指令把自己注入到了NG_VALIDATORS提供商中，该提供商拥有一组可扩展的验证器。
+```typrscript
+providers: [{provide: NG_VALIDATORS, useExisting: ForbiddenValidatorDirective, multi: true}]
+```
+  然后该指令类实现了Validator接口，以便他能简单的与Angular表单集成在一起，这个指令的其余部分长这样，看完就知道它们之间如何协作：
+```typescript
+@Directive({
+  selector: '[forbiddenName]',
+  providers: [{provide: NG_VALIDATORS, useExisting: ForbiddenValidatorDirective, multi: true}]
+})
+export class ForbiddenValidatorDirective implements Validator {
+  @Input('appForbiddenName') forbiddenName: string;
+
+  validate(control: AbstractControl): null{[key: string]: any} {
+    return this.forbiddenName ? forbiddenNameValidator(new RegExp(this.forbiddenName, 'i'))(control)
+  }
+}
+```
+  一旦ForbiddenValidatorDirective写好了，就只要把forbiddenName选择器添加到输入框就可以激活这个验证器了，比如：
+```html
+<input id="name" name="name" class="form-control"
+       required minlength="4" appForbiddenName="mary"
+       [(ngModel)]="hero.name" #name="ngModel" >
+<!--自定义验证器指令是用useExisting而不是useClass来实例化的。注册的验证器必须是这个 ForbiddenValidatorDirective 实例本身，也就是表单中 forbiddenName 属性被绑定到了"bob"的那个。如果用useClass来代替useExisting，就会注册一个新的类实例，而它是没有forbiddenName的。-->
+```
+### 4.表单控件状态的CSS类
+  Angular会自动把很多控件属性作为CSS类映射到控件所在的元素上，可以使用这些类来根据表单状态给表单状态给表单控件元素添加样式，目前支持以下类：
+  - .ng-valid
+  - .ng-invalid
+  - .ng-pending
+  - .ng-pristine
+  - .ng-dirty
+  - .ng-untouched
+  - .ng-touched
+    比如这个人物表单使用.ng-valid和.ng-invalid来设置每个表单控件的边框颜色：
+```css
+.ng-valid[required], .ng-valid.required  {
+  border-left: 5px solid #42A948; /* 正确的绿色*/
+}
+.ng-invalid:not(form)  {
+  border-left: 5px solid #a94442; /* 错误的红色 */
+}
+```
+##四、响应式表单
+### 1.响应式表单简介
+  Angular提供了两种构建表单的技术：响应式表单和模板驱动表单。这两项技术都属于@angular/forms库，并且共享一组公共的表单控件类。
+  但是二者在设计哲学、编程风格和具体技术上有显著区别，所有它们有自己的模块，ReactiveFormsModule和FormsModule。
+####1.1 响应式表单
+  Angular响应式表单能让实现响应式编程风格更容易，这种编程风格更倾向于在非UI的数据模型之间显式的管理数据流，并且用一个UI导向的表单模型来保存屏幕上的HTML控件的状态和值。响应式表单可以让使用响应式编程模式、测试和校验更容易。
+  使用响应式表单可以在组件中创建表单控件的对象树，并且用等会儿要学的技术把它们绑定到组件模板中的原生表单控件元素上。
+  我可以在组件类中直接创建和维护表单控件的对象。由于组件类可以同时访问数据模型和表单控件结构，因为就可以把表单模型的变化推送到表单控件中，并把变化后的值拉去回来。组件可以监听表单控件状态的变化，并对此做出响应。
+  直接使用表单控件对象的优点之一，是值和有效性状态的更新总是同步的，并且在我的控制之下，不会遇到时序问题，这个问题有时在模板驱动表单中会成为灾难。而且响应式表单更容易进行单元测试。
+  在响应式编程范式中，组件会负责维护数据模型的不可变性，把模型当做纯粹的原始数据源。 组件不会直接更新数据模型，而是把用户的修改提取出来，把它们转发给外部的组件或服务，外部程序才会使用这些进行处理（比如保存它们）， 并且给组件返回一个新的数据模型，以反映模型状态的变化。
+  使用响应式表单的指令，并不要求我遵循所有的响应式编程原则，但它能让你更容易使用响应式编程方法，从而更愿意使用它。
+####1.2 模板驱动表单
+  在之前的模板里面说过模板驱动表单，是一种完全不同的方式。
+  把HTML表单控件放进组件模板中，并用ngModel等指令把它们绑定到组件中数据模型的属性上。自己不需要创建Angular表单控件对象，Angular指令会使用数据绑定中的信息创建它们，我们不用自己推送和拉取数据。Angular会使用ngModel来替自己管理它们。当用户做出更改的时候，Angular会据此更新可变的数据模型。所以ngModel并不是ReactiveFormsModule模块的一部分。虽然这样意味着组件中的代码比较少，但是模板驱动表单是异步工作的，在跟高级的开发中应该会让开发更复杂。
+#### 1.3 异步 vs 同步
+  响应式表单是同步的，模板驱动表单是异步的。
+  使用响应式表单，会在代码中创建这个表单控件树，然后可以立即更新一个值或者深入到表单中的任意节点，因为所有的控件都始终是可用的。
+  模板驱动表单会委托指令来创建它们的表单控件，为了消除 检查完了又变化了 的错误，这些指令需要消耗一个以上的变更周期来构建整个控件树，这意味着在从组件类中操纵任何控件之前，都必须先等上一个节拍。
+  比如，如果要用@ViewChild（NgForm）查询来注入表单控件，并在生命周期钩子ngAfterViewInit中检查它，就会发现它没有子控件，就必须使用setTimeout等待一个节拍才能从控件中提取值、测试有效性，或把它设置为新值。
+  模板驱动表单的异步性让单元测试也变得复杂化了。 必须把测试代码包裹在async()或fakeAsync()中来解决要查阅的值尚不存在的情况。 使用响应式表单，在所期望的时机一切都是可用的。
+  二者各有优缺点，在开发项目的时候选择合适的就行，只要乐意在同一个项目里面同时使用也行。下面就用一个小demo项目来学响应式表单。
+### 2.准备开始了
+  先创建一个一个新项目，叫angular-reactive-forms，
+  命令：ng new angular-reactive-forms
+### 3.创建数据模型
+  这个例子就是为了响应式表单和能编辑一个英雄，现在需要一个Person类和一些人物数据。
+  创建一个新的类，ng g cl data-modal，然后在文件里面写入：
+```typescript
+export class Person {
+  id = 0;
+  name = '';
+  addresses: Address[];
+}
+export class Address {
+  street = '';
+  city   = '';
+  state  = '';
+  zip    = '';
+}
+export const persons: Person[] = [
+  {
+    id: 1,
+    name: '许嵩',
+    addresses: [
+      {street: '123 Main',  city: 'Anywhere', state: 'CA',  zip: '94801'},
+      {street: '456 Maple', city: 'Somewhere', state: 'VA', zip: '23226'},
+    ]
+  },
+  {
+    id: 2,
+    name: '山田凉介',
+    addresses: [
+      {street: '789 Elm',  city: 'Smallville', state: 'OH',  zip: '04501'},
+    ]
+  },
+  {
+    id: 3,
+    name: '知念侑李',
+    addresses: [ ]
+  },
+];
+export const states = ['CA', 'MD', 'OH', 'VA'];
+```
+  这个文件导出两个类和两个常量，Address和Person类定义应用的数据模型。persons和states常量提供测试数据。
+### 3.创建响应式表单组件
+  先生成一个PersonDetail的新组件：ng g c PersonDetail。
+  从@angular/forms里面导入FormControl，然后创建并导出一个带有FormControl的PersonDetailComponent类。FormControl是一个指令，它允许直接创建并管理一个FormControl实例。
+```typescript
+export class PersonDetailComponent1 {
+  name = new FormControl();
+}
+```
+  这里创建了一个名叫name的FormControl。它将会绑定到模板中的input框，表示人物的名字，FormControl构造函数接收三个可选参数：初始值、验证器数组和异步验证器数组。最简单的控件并不需要数据或验证器，但是在实际应用中，大部分表单控件都会同时具备它们。
+### 4.创建模板
+  修改模板HTML代码，长这样：
+```html
+<h2>人物详情</h2>
+<h3>一个FormControl</h3>
+<label class="center-block">姓名：
+	<input class="form-control" [formControl]="name">
+</label>
+```
+  要让Angular知道我是希望把这个输入框关联到类中的FormControl型属性name，需要在模板中的input上面加上[formControl]="name"
+### 5.导出ReactiveFormsModule
+  HeroDetailComponent的模板中使用了来自ReactiveFormsModule的formControlName。
+  在 app.module.ts 中做了下面两件事：
+      用import引入ReactiveFormsModule和HeroDetailComponent。
+      把ReactiveFormsModule添加到AppModule的imports列表中。
+### 6.显示PersonDetailComponent
+  修改AppComponent的模板，来显示PersonDetailComponent
+```html
+<div class="container">
+	<h1>响应式表单</h1>
+	<app-person-detail></app-person-detail>
+</div>
+```
+#### 6.1 基础的表单类
+  - AbstractControl是三个具体表单类的抽象基础类，并为它们提供了一些共同的行为和属性，其中有些是可观察对象（Abservable）。
+  - FormControl用于跟踪一个单独的表单控件的值和有效性状态，它对应于一个HTML表单控件，比如输入框和下拉框。
+  - FormGroup用于跟踪一组AbstractControl的实例的值和有效性状态，改组的属性中包含了它的子控件，组件中的顶级表单就是一个FormGroup。
+  - FormArray用于跟踪AbstractControl实例组成的有序数组的值和有效性状态。
+#### 6.2 为应用添加样式
+  给模板添加点样式，可以直接在style.css里面引入bootstrap
+```css
+@import url('https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css');
+```
+  模板中的input框的样子就变成了boot的默认input的样子啦。
+### 7.添加FormGroup
+  通常，如果有多个FormControl，那最好就是给它们注册进一个父FormGroup中，所以在person-detail.componnet里面从@angular/form里面引入FormGroup就好啦。然后在这里面，把FormGroup包裹进一个personForm的FormGroup中：
+```typescript
+export class PersonDetailComponent {
+  personForm = new FormGroup ({
+    name: new FormControl()
+  });
+}
+```
+  改完类，就要改HTML模板啦：
+```html
+<h2>人物详情</h2>
+<h3>FormControl in a FormGroup</h3>
+<form [formGroup]="personForm" novalidate>
+  <div class="form-group">
+    <label class="center-block">姓名:
+      <input class="form-control" formControlName="name">
+    </label>
+  </div>
+</form>
+```
+  现在单行输入框位于一个form元素中，<form>元素上的novalidate属性会阻止浏览器使用原生的HTML表单验证器。formGroup是一个响应式表单的指令，它拿到一个现有的FormGroup实例，并把它关联到一个HTML元素上。 这种情况下，它关联到的是form元素上的FormGroup实例heroForm。
+  由于现在有了一个FormGroup，因此必须修改模板语法来把输入框关联到组件类中对应的FormControl上。 以前没有父FormGroup的时候，[formControl]="name"也能正常工作，因为该指令可以独立工作，也就是说，不在FormGroup中时它也能用。 有了FormGroup，name输入框就需要再添加一个语法formControlName=name，以便让它关联到类中正确的FormControl上。 这个语法告诉Angular，查阅父FormGroup（这里是personForm），然后在这个FormGroup中查阅一个名叫name的FormControl。
+### 8.表单模型概览
+  当用户输入名字的时候，这个值进入了幕后表单模型中的FormControl构成的表单组，要想知道表单模型是什么样的，可以在HTML中的form标签下加上：
+```html
+<p>Form Value:{{personForm.value | json}}</p>
+```
+  personForm.value会返回表单模型，用json管道把值以json格式渲染到浏览器上，那输入的值就能一直看到了。
+### 9.FormBuilder简介
+  FormBuilder类能通过处理控件创建的细节问题来帮助我减少重复劳动。要使用FormBuilder，就要先把它导入person-detail组件里面，和FormGroup一样，直接从@angular/forms里面导入就行啦。现在ts长这样：
+```typescript
+export class HeroDetailComponent3 {
+  personForm: FormGroup; // 把personForm属性的类型声明为FormGroup
+
+  constructor(private fb: FormBuilder) { // 注入 FormBuilder
+    this.createForm();//在构造函数里面调用createForm
+  }
+  createForm() {//添加一个名叫createForm的新方法，它会用FormBuilder来定义personForm。
+    this.personForm = this.fb.group({
+      name: '', // 叫 ‘name’ 的 FormControl
+    });
+  }
+}
+```
+  FormBuilder.group是一个用来创建FormGroup的工厂方法，它接受一个对象，对象的键和值分别是FormControl的名字和它的定义。 在这个例子中，name控件的初始值是空字符串。把一组控件定义在一个单一对象中，可以更加紧凑、易读。 完成相同功能时，这种形式优于一系列new FormControl(...)语句。
+#### 9.1 Validators.required验证器
+  在@angular/forms里面导入Validators，要想让name这个FormControl是必须的，请把FormGroup中的name属性改为一个数组，第一个条目是name的初始值，第二个是required验证器：
+```typescript
+this.personForm = this.fb.group({
+  name: ['', Validators.required ],
+});
+```
+  然后修改模板底部的诊断信息，以显示表单的有效性状态。
+```html
+<p>Form value: {{ personForm.value | json }}</p>
+<p>Form status: {{ personForm.status | json }}</p>
+```
+  现在这个时候，浏览器显示的值就是Form value:{"name":""},Form status:{"INVALID"},这证明Validators.required生效了，但是状态还是INVALID，因为输入框中还没有值，在输入框输入值的话，就能看到INVALID变成VALID的了。当然了现在这样写是调试程序的时候用的，这压根儿也不是给人看的信息，在正式的应用中可以修改成对用户更友好的信息。
+#### 9.2 更多的表单控件
+  每个人物可以有多个名字，还有一个住址，一个能力和一个cp。住址中有个省的属性，用户将会从select中选择一个省，用option元素渲染各个州，先从data-modal中导入省列表，然后声明states属性并往personForm中添加一些表示住址的FormControl，代码长这样：
+```typescript
+export class HeroDetailComponent4 {
+  personForm: FormGroup;
+  states = states;
+  constructor(private fb: FormBuilder) {
+    this.createForm();
+  }
+  createForm() {
+    this.personForm = this.fb.group({
+      name: ['', Validators.required ],
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+      power: '',
+      cp: ''
+    });
+  }
+}
+```
+  然后在模板文件中把对应的脚本添加到form元素中。
+```html
+<h2>人物详情</h2>
+<h3><i>多个FormGroup</i></h3>
+<form [formGroup]="personForm" novalidate>
+  <div class="form-group">
+    <label class="center-block">姓名:
+      <input class="form-control" formControlName="name">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">Street:
+      <input class="form-control" formControlName="street">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">City:
+      <input class="form-control" formControlName="city">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">State:
+      <select class="form-control" formControlName="state">
+          <option *ngFor="let state of states" [value]="state">{{state}}</option>
+      </select>
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">Zip Code:
+      <input class="form-control" formControlName="zip">
+    </label>
+  </div>
+  <div class="form-group radio">
+    <h4>power</h4>
+    <label class="center-block"><input type="radio" formControlName="power" value="handsome">帅</label>
+    <label class="center-block"><input type="radio" formControlName="power" value="handsome tall">又高又帅</label>
+    <label class="center-block"><input type="radio" formControlName="power" value="music">音乐</label>
+  </div>
+  <div class="checkbox">
+    <label class="center-block">
+      <input type="checkbox" formControlName="sidekick">猜猜我的cp是谁
+    </label>
+  </div>
+</form>
+<p>Form value: {{ personForm.value | json }}</p>
+<!--不用管这些脚本中提到的form-group、form-control、center-block和checkbox等。 它们是来自Bootstrap的CSS类，Angular本身不会管它们。 注意formGroupName和formControlName属性。 他们是Angular指令，用于把相应的HTML控件绑定到组件中的FormGroup和FormControl类型的属性上。-->
+```
+  修改过的模板包含更多文本输入框，一个state选择框，power的单选按钮和一个cp检查框。
+  我要用[value]="state"来绑定选项的value属性。 如果不绑定这个值，这个选择框就会显示来自数据模型中的第一个选项。
+  组件类定义了控件属性而不用管它们在模板中的表现形式。 那可以像定义name控件一样定义state、power和cp控件，并用formControlName指令来指定FormControl的名字。
+#### 9.3 多级FormGroup
+  这个表单变得越来越大、越来越笨重。可以把一些相关的FormControl组织到多级FormGroup中。 street、city、state和zip属性就可以作为一个名叫address的FormGroup。 用这种方式，多级表单组和控件可以让我们轻松地映射多层结构的数据模型，以便帮助跟踪这组相关控件的有效性和状态。用FormBuilder在这个名叫personForm的组件中创建一个FormGroup，并把它用作父FormGroup。 再次使用FormBuilder创建一个子级FormGroup，其中包括这些住址控件。把结果赋值给父FormGroup中新的address属性。
+  然后代码中间的一段变这样：
+```typescript
+createForm() {
+    this.personForm = this.fb.group({ // 父FormGroup
+      name: ['', Validators.required ],
+      address: this.fb.group({ // 子FormGroup，里面都是地址相关
+        street: '',
+        city: '',
+        state: '',
+        zip: ''
+      }),
+      power: '',
+      cp: ''
+    });
+  }
+```
+  现在已经修改了组件类中表单控件的结构，还必须对组件模板进行相应的调整。
+  在person-detail.component.html中，把与住址有关的FormControl包裹进一个div中。 往这个div上添加一个formGroupName指令，并且把它绑定到"address"上。 这个address属性是一个FormGroup，它的父FormGroup就是personForm。
+  然后HTML代码改成这样：
+```html
+<div formGroupName="address" class="well well-lg">
+	<div class="form-group">
+		<label class="center-block">Street:
+			<input class="form-control" formControlName="street">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">City:
+			<input class="form-control" formControlName="city">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">State:
+			<input class="form-control" formControlName="state">
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="center-block">Zip code:
+			<input class="form-control" formControlName="zip">
+		</label>
+	</div>
+</div>
+```
+  现在浏览器再输出就是这样的json了：personForm value:{"name":"","address":{"street":""..}}
+### 10.查看FormControl的属性
+  此时我是把整个表单模型展示在了页面里，但是有时候值想看某个特定FormControl的状态。那就可以使用.get()方法来提取表单中一个单独的FormControl的状态，可以在组件类中这样做，或者往模板中添加以下代码来把它显示在页面中，就添加在{{form.value  | json}}插值表达式的后面：
+```html
+<p>Name value:{{personForm.get('name').value}}
+```
+  要取得FormGroup中的FormGroup的状态，也是使用 . 来指定到控件的路径：
+```html
+<p>Street value: {{ personForm.get('address.street').value}}</p>
+```
+  用 . 可以显示FormGroup的任意属性，代码如下：
+| 属性                  | 说明                                       |
+| ------------------- | ---------------------------------------- |
+| myControl.value     | FormControl的值                            |
+| myControl.status    | FormControl的有效性，可能的值有VALID、INVALID、PENDING或DISABLED |
+| myControl.pristine  | 如果用户尚未改变过这个控件的值，则为true，它总是与myControl.dirty相反 |
+| myControl.untouched | 如果用户尚未进入这个HTML控件，也没有触发过它的blur（失去焦点）事件，则为true。 它是myControl.touched的反义词。 |
+
