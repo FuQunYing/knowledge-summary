@@ -108,8 +108,41 @@ providers:[PersonTaxReturnService]
 ![图片](car-components.png)
   在幕后，每个组件都有自己的注入器，这个注入器带有为组件本身准备的0个、1个或者多个提供商。当在最深层组件C解析Car的实例时2，它使用注入器C解析生成了一个Car的实例，使用注入器B解析了Engine，而Tires则是由根注入器A解析的。
 ![图片](injector-tree.png)
+##三、DI实用技巧
+###1.应用程序全局依赖
+  在应用程序根组件AppComponent中注册那些被应用程序全局使用的依赖提供商。在下面的例子中，通过@Component元数据的providers数据导入和注册了几个服务（LoggerService，userContext和UserService）
+```typescript
+import {LoggerService}      from './logger.service';
+import {UserContextService} from './user-context.service';
+import {UserService}        from './user.service';
 
-
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  providers: [LoggerService, UserContextService, UserService]
+})
+export class AppComponent {
+/* 代码代码 */
+}
+```
+  所有这些服务都是用类实现的，服务类能充当自己的提供商，这就是为什么只要把它们列在providers数组里就算注册成功了。现在已经注册了这些服务，这样Angular就能在应用程序的任何地方，把它们注入到任何组件和服务的构造函数里。
+```typescript
+constructor(logger:LoggerService){
+  logger.logInfo('创建 人物输出组件')
+}
+```
+```typescript
+constructor(private userService: UserService, private loggerService: LoggerService) {
+}
+```
+### 2.外部模块配置
+  通常会在NgModule中注册提供商，而不是在应用程序根组件中。那如果我希望这个服务在应用中到处可以被注入，或者必须在应用启动前注册一个全局服务，那就这么做。
+  下面的例子是第二种情况，它为组件路由器配置了一个非默认的地址策略，并把它加入到AppModule的providers数组中：
+```typescript
+providers: [
+  { provide: LocationStrategy, useClass: HashLocationStrategy }
+]
+```
 
 
 
