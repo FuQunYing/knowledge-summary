@@ -1908,3 +1908,570 @@ export class AstronautComponent implements OnDestroy {
   不需要在MissionControlComponent中添加这个保护措施，因为它作为父组件，控制着MissionService的生命期。
 */
 ```
+## 五、组件样式
+  Angular应用使用标准的CSS来设置样式，所以CSS的东西都可以直接用到Angular里面去，还有，Angular还能把组件样式捆绑在我们的组件上，以实现比标准样式更加模块化的设计。
+### 1.使用组件样式
+  对于每个 Angular 组件来说，除了定义 HTML 模板之外，还要定义用于模板的 CSS 样式、 指定任意的选择器、规则和媒体查询。
+  实现方式之一，是在组件的元数据中设置styles属性。 styles属性可以接受一个包含 CSS 代码的字符串数组。 通常只给它一个字符串就行了，就像这样：
+```typescript
+@Component({
+  selector: 'app-root',
+  template: `
+    <h1>緑間呢</h1>
+    <app-person-main [person]=person></app-person-main>`,
+  styles: ['h1 { font-weight: normal; }']
+})
+export class PersonAppComponent {
+
+}
+```
+  上面styles，放在组件样式中的选择器，只会应用在组件自身的模板中。上面这个例子中的h1选择器只会对 PersonAppComponent模板中的<h1>标签生效，而对应用中其它地方的<h1>元素毫无影响。
+  这种模块化相对于 CSS 的传统工作方式是一个巨大的改进。
+  - 可以使用对每个组件最有意义的 CSS 类名和选择器。
+  - 类名和选择器是仅属于组件内部的，它不会和应用中其它地方的类名和选择器出现冲突。
+  - 组件的样式不会因为别的地方修改了样式而被意外改变。
+  - 可以让每个组件的 CSS 代码和它的 TypeScript、HTML 代码放在一起，这样项目结构就很清爽啦。
+  - 将来可以修改或移除组件的 CSS 代码，而不用遍历整个应用来看它有没有被别处用到，只要看看当前组件就可以了。
+### 2.特殊的选择器
+  组件样式中有一些从 Shadow DOM 样式范围领域引入的特殊选择器：
+#### 2.1 :host选择器
+  使用:host伪类选择器，用来选择组件宿主元素中的元素（相对于组件模板内部的元素）。
+```css
+:host {
+  display: block;
+  border: 1px solid black;
+}
+```
+  这是能以宿主元素为目标的唯一方式。除此之外，就没有办法指定它了， 因为宿主不是组件自身模板的一部分，而是父组件模板的一部分。要把宿主样式作为条件，就要像函数一样把其它选择器放在:host后面的括号中。
+  比如下面这样，再次把宿主元素作为目标，但是只有当它同时带有active CSS 类的时候才会生效。
+```css
+:host(.active) {
+  border-width: 3px;
+}
+```
+#### 2.2 :host-context选择器
+  有时候，基于某些来自组件视图外部的条件应用样式是很有用的。 例如，在文档的<body>元素上可能有一个用于表示样式主题 (theme) 的 CSS 类，而我们应当基于它来决定组件的样式。这时可以使用:host-context()伪类选择器。它也以类似:host()形式使用。它在当前组件宿主元素的祖先节点中查找 CSS 类， 直到文档的根节点为止。在与其它选择器组合使用时，它非常有用。
+  在下面的例子中，只有当某个祖先元素有 CSS 类theme-light时，才会把background-color样式应用到组件内部的所有<h2>元素中。
+```css
+:host-context(.theme-light) h2 {
+  background-color: #eef;
+}
+```
+#### 2.3 已废弃的 /deep/、>>>和::ng-deep
+  组件样式通常只会作用于组件自身的 HTML 上我们可以使用/deep/选择器，来强制一个样式对各级子组件的视图也生效，它不但作用于组件的子视图，也会作用于组件的内容。
+  比如下面，以所有的<h3>元素为目标，从宿主元素到当前元素再到 DOM 中的所有子元素：
+```css
+:host /deep/ h3 {
+  font-style: italic;
+}
+```
+```txt
+  /deep/ 组合器还有两个别名：>>>和::ng-deep。
+  /deep/和>>>选择器只能被用在仿真 (emulated) 模式下,CSS标准中用于 "刺穿Shadow DOM" 的组合器已经被废弃，并将这个特性从主流浏览器和工具中移除。 因此，在 Angular 中将移除对它们的支持（包括/deep/、>>> 和 ::ng-deep）。 目前，建议先统一使用::ng-deep，以便兼容将来的工具。
+```
+### 3.把样式加载进组件中
+#### 3.1 数据中的样式
+  可以给@Component装饰器添加一个styles数组型属性。 这个数组中的每一个字符串（通常也只有一个）定义一份 CSS。
+```typescript
+@Component({
+  selector: 'app-root',
+  template: `
+    <h1>元数据中的样式</h1>
+    <app-person-main [person]=person></app-person-main>`,
+  styles: ['h1 { font-weight: normal; }']
+})
+export class PersonAppComponent {
+/*随便写点啥*/
+}
+```
+#### 3.2 元数据中指定样式表的URL
+  通过在组件的@Component装饰器中添加styleUrls属性，就可以从外部CSS文件中加载样式：
+```typescript
+@Component({
+  selector: 'app-person-details',
+  template: `
+    <h2>指定样式表</h2>
+    <app-person-team [person]=person></app-person-team>
+    <ng-content></ng-content>
+  `,
+  styleUrls: ['./hero-details.component.css']
+})
+export class HeroDetailsComponent {
+/*随便写点啥*/
+}
+```
+```txt
+  注意：像 Webpack 这类模块打包器的用户可能会使用styles属性来在构建时从外部文件中加载样式。它们可能这样写：styles: [require('my.component.css')]
+  其实，这时候是在设置styles属性，而不是styleUrls属性！ 是模块打包器在加载 CSS 字符串，而不是 Angular。 Angular 看到的只是打包器加载它们之后的 CSS 字符串。 对 Angular 来说，这跟我们手写了styles数组没有任何区别
+```
+#### 3.3 模板内联样式
+  可以在组件的HTML模板中写上<style>的标签啊：
+```typescript
+@Component({
+  selector: 'app-person-controls',
+  template: `
+    <style>
+      button {
+        background-color: white;
+        border: 1px solid #777;
+      }
+    </style>
+    <h3>模板内联样式</h3>
+    <button (click)="activate()">Activate</button>
+  `
+})
+```
+#### 3.4 模板中的link标签
+  同样可以在组件的HTML模板中写link标签，这个link标签的url相对于应用的根目录。
+```typescript
+@Component({
+  selector: 'app-person-team',
+  template: `
+    <link rel="stylesheet" href="assets/person-team.component.css">
+    <h3>模板内的link标签</h3>
+    <ul>
+      <li *ngFor="let member of person.team">
+        {{member}}
+      </li>
+    </ul>`
+})
+```
+#### 3.5 CSS @imports语法
+  此外还可以利用标准的 CSS @import规则来把其它 CSS 文件导入到我们的 CSS 文件中。
+  在这种情况下，URL 是相对于我们执行导入操作的 CSS 文件的。
+```typescript
+@import 'person-details-box.css'
+```
+### 4.控制视图的封装模式
+  组件的 CSS 样式被封装进了自己的视图中，而不会影响到应用程序的其它部分。通过在组件的元数据上设置视图封装模式，就可以分别控制每个组件的封装模式。 可选的封装模式一共有如下几种：
+  - Native模式使用浏览器原生的 Shadow DOM 实现来为组件的宿主元素附加一个 Shadow DOM。组件的样式被包裹在这个 Shadow DOM 中。(不进不出，没有样式能进来，组件样式出不去。)
+  - Emulated模式（默认值）通过预处理（并改名）CSS 代码来模拟 Shadow DOM 的行为，以达到把 CSS 样式局限在组件视图中的目的。 (只进不出，全局样式能进来，组件样式出不去)
+  - None意味着 Angular 不使用视图封装。 Angular 会把 CSS 添加到全局样式中。而不会应用上前面讨论过的那些作用域规则、隔离和保护等。 从本质上来说，这跟把组件的样式直接放进 HTML 是一样的。(能进能出。)
+      通过组件元数据中的encapsulation属性来设置组件封装模式：
+```typescript
+  encapsulation: ViewEncapsulation.Native
+```
+  原生(Native)模式只适用于有原生 Shadow DOM 支持的浏览器。 因此仍然受到很多限制，这就是为什么会把仿真 (Emulated) 模式作为默认选项，并建议将其用于大多数情况。
+  **查看仿真 (Emulated) 模式下生成的 CSS**
+```txt
+  当使用默认的仿真模式时，Angular 会对组件的所有样式进行预处理，让它们模仿出标准的 Shadow CSS 作用域规则。
+  当查看启用了仿真模式的 Angular 应用时，可以看到每个 DOM 元素都被加上了一些额外的属性。
+  <hero-details _nghost-pmm-5>
+  <h2 _ngcontent-pmm-5>仿真模式</h2>
+  <hero-team _ngcontent-pmm-5 _nghost-pmm-6>
+    <h3 _ngcontent-pmm-6>跳跳</h3>
+  </hero-team>
+ </hero-detail>
+  里面有两种被生成的属性：
+· 元素在原生封装方式下可能是 Shadow DOM 的宿主，在这里被自动添加上一个_nghost属性。 这是组件宿主元素的典型情况。
+· 视图中的每一个元素，都有一个_ngcontent属性，它会标记出该元素是哪个宿主的模拟 Shadow DOM。
+  这些属性的具体值并不重要。它们是自动生成的，反正不会在程序代码中直接引用到它们。 但它们会作为生成的组件样式的目标，就像在 DOM 的<head>区看到的：
+[_nghost-pmm-5] {
+  display: block;
+  border: 1px solid black;
+}
+
+h3[_ngcontent-pmm-6] {
+  background-color: white;
+  border: 1px solid #777;
+}
+  这些就是自己写的那些样式被处理后的结果，于是每个选择器都被增加了_nghost或_ngcontent属性选择器。 在这些附加选择器的帮助下，才实现了文档中所描述的这些作用域规则。
+```
+  **使用相对URL加载样式**
+  把组件的代码 (ts/js)、HTML 和 CSS 分别放到同一个目录下的三个不同文件，是一个常用的实践：
+```txt
+    quest-summary.component.ts
+    quest-summary.component.html
+    quest-summary.component.css
+```
+  Angular里面通过设置元数据的templateUrl和styleUrls属性把模板和 CSS 文件包含进来。 既然这些文件都与组件（代码）文件放在一起，那么通过名字，而不是到应用程序根目录的全路径来指定它，就是个好方式。
+  此外也可以通过为文件名加上./前缀来使用相对URL：
+```typescript
+@Component({
+  selector: 'app-quest-summary',
+  templateUrl: './quest-summary.component.html',
+  styleUrls:  ['./quest-summary.component.css']
+})
+export class QuestSummaryComponent { }
+```
+## 六、动态组件
+### 1.动态组件加载
+  组件的模板不会永远是固定的。应用可能会需要在运行期间加载一些新的组件。
+  假如说，在例子里面，我要搞一个广告活动，需要在广告条里面现在是一系列不同的广告，几个不同的小组可能会频繁加入新的广告组件，再用只支持静态组件结构的模板显然不好实现。那么就需要一种新的组件加载方式，它不需要在广告条组件的模板中引用固定的组件。
+  Angular 自带的API就能支持动态加载组件。
+### 2.指令
+  在添加组件之前，先要定义一个锚点来告诉Angular要把组件插入到什么地方。广告条使用一个名叫AdDirective的辅助指令来在模板中标记出有效的插入点。
+```typescript
+import { Directive, ViewContainerRef } from '@angular/core';
+@Directive({
+  selector: '[ad-host]',
+})
+export class AdDirective {
+  constructor(public viewContainerRef: ViewContainerRef) { }
+}
+```
+  AdDirective注入了ViewContainerRef来获取对容器视图的访问权，这个容器就是那些动态加入的组件的宿主。在@Directive装饰器中，要注意选择器的名称：ad-host，它就是将要应用到元素上的指令。
+### 3.加载组件
+  广告条的大部分实现代码都在ad-banner.component.ts中。 例子比较简单，就把HTML直接放在了@Component装饰器的template属性中。<ng-template>元素就是刚才制作的指令将应用到的地方。 要应用AdDirective，来自ad.directive.ts的选择器ad-host。把它应用到<ng-template>（不用带方括号）。 然后，Angular就知道该把组件动态加载到哪里了。
+```typescript
+template: `
+            <div class="ad-banner">
+              <h3>广告广告</h3>
+              <ng-template ad-host></ng-template>
+            </div>
+          `
+```
+  <ng-template>元素是动态加载组件的最佳选择，因为它不会渲染任何额外的输出。
+### 4.解析组件
+  来看看ad-banner.component.ts中的方法。
+  AdBannerComponent接收一个AdItem对象的数组作为输入，它最终来自AdService。 AdItem对象指定要加载的组件类，以及绑定到该组件上的任意数据。 AdService可以返回广告活动中的那些广告。给AdBannerComponent传入一个组件数组可以让我们在模板中放入一个广告的动态列表，而不用写死在模板中。通过getAds()方法，AdBannerComponent可以循环遍历AdItems的数组，并且每三秒调用一次loadComponent()来加载新组件。
+```typescript
+export class AdBannerComponent implements AfterViewInit, OnDestroy {
+  @Input() ads: AdItem[];
+  currentAddIndex: number = -1;
+  @ViewChild(AdDirective) adHost: AdDirective;
+  subscription: any;
+  interval: any;
+  constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
+  ngAfterViewInit() {
+    this.loadComponent();
+    this.getAds();
+  }
+  ngOnDestroy() {
+    clearInterval(this.interval);
+  }
+  loadComponent() {
+    this.currentAddIndex = (this.currentAddIndex + 1) % this.ads.length;
+    let adItem = this.ads[this.currentAddIndex];
+    let componentFactory = this.componentFactoryResolver.resolveComponentFactory(adItem.component);
+    let viewContainerRef = this.adHost.viewContainerRef;
+    viewContainerRef.clear();
+    let componentRef = viewContainerRef.createComponent(componentFactory);
+    (<AdComponent>componentRef.instance).data = adItem.data;
+  }
+  getAds() {
+    this.interval = setInterval(() => {
+      this.loadComponent();
+    }, 3000);
+  }
+}
+```
+  这里的loadComponent()方法很重要。 我们来一步步看看。首先，它选取了一个广告。
+```txt
+  loadComponent()如何选择广告
+  loadComponent()方法使用某种算法选择了一个广告。
+（译注：循环选取算法）首先，它把currentAddIndex递增一，然后用它除以AdItem数组长度的余数作为新的currentAddIndex的值， 最后用这个值来从数组中选取一个adItem。
+```
+  在loadComponent()选取了一个广告之后，它使用ComponentFactoryResolver来为每个具体的组件解析出一个ComponentFactory。 然后ComponentFactory会为每一个组件创建一个实例。接下来，我们要把viewContainerRef指向这个组件的现有实例。但我们怎么才能找到这个实例呢？ 很简单，因为它指向了adHost，而这个adHost就是我们以前设置过的指令，用来告诉Angular该把动态组件插入到什么位置。回忆一下，AdDirective曾在它的构造函数中注入了一个ViewContainerRef。 因此这个指令可以访问到这个被我们用作动态组件宿主的元素。要把这个组件添加到模板中，我们可以调用ViewContainerRef的createComponent()。
+  createComponent()方法返回一个引用，指向这个刚刚加载的组件。 使用这个引用就可以与该组件进行交互，比如设置它的属性或调用它的方法。
+```
+  **对选择器的引用**
+  通常，Angular编译器会为模板中所引用的每个组件都生成一个ComponentFactory类。 但是，对于动态加载的组件，模板中不会出现对它们的选择器的引用。
+  要想确保编译器照常生成工厂类，就要把这些动态加载的组件添加到NgModule的entryComponents数组中：
+​```typescript
+entryComponents: [ HeroJobAdComponent, HeroProfileComponent ],
+```
+### 5.公共的AdComponent接口
+  在广告条中，所有组件都实现了一个公共接口AdComponent，它定义了一个标准化的API，让我们把数据传给组件。
+  最终的代码像这样：
+  **job-ad.component.ts**
+```typescript
+import { Component, Input } from '@angular/core';
+import { AdComponent }      from './ad.component';
+@Component({
+  template: `
+    <div class="job-ad">
+      <h4>{{data.headline}}</h4> 
+      {{data.body}}
+    </div>
+  `
+})
+export class HeroJobAdComponent implements AdComponent {
+  @Input() data: any;
+
+}
+```
+  **profile.component.ts**
+```typescript
+import { Component, Input }  from '@angular/core';
+import { AdComponent }       from './ad.component';
+@Component({
+  template: `
+    <div>
+      <h3>Featured Hero Profile</h3>
+      <h4>{{data.name}}</h4>
+      <p>{{data.bio}}</p>
+      <strong>Hire this hero today!</strong>
+    </div>
+  `
+})
+export class HeroProfileComponent implements AdComponent {
+  @Input() data: any;
+}
+```
+  **ad.component.ts**
+```typescript
+export interface AdComponent {
+  data: any;
+}
+```
+## 七、属性型指令
+### 1.指令概览
+  在angular中有三种类型的指令：
+  - 组件--拥有模板的指令
+  - 结构型指令--通过添加和移除 DOM 元素改变 DOM 布局的指令
+  - 属性型指令--改变元素、组件或其它指令的外观和行为的指令。
+      组件是这三种指令中最常见的，结构型指令会修改视图的结构，属性指令会改变一个元素的外观或者行为
+### 2.创建一个简单的属性型指令
+  属性型指令至少需要一个带有@Directive装饰器的控制器类。该装饰器指定了一个用于标识属性的选择器。 控制器类实现了指令需要的指令行为。
+  这次就写个简单的属性型指令，鼠标悬停时，改变背景色，就像这样：
+```html
+<p appHightlight>悬停改变背景色</p>
+```
+#### 2.1 编写指令代码
+  首先创建attribute-directives项目文件夹，在文件夹下创建highlight.directive.ts
+```typescript
+import { Directive, ElementRef, Input } from '@angular/core';
+@Directive({ selector: '[appHighlight]' })//要用的就是这个名字啦
+export class HighlightDirective {
+    constructor(el: ElementRef) {
+       el.nativeElement.style.backgroundColor = 'black';//颜色随便写
+    }
+}
+```
+  import语句指定了从 Angular 的core库导入的一些符号。Directive提供@Directive装饰器功能。ElementRef注入到指令构造函数中。这样代码就可以访问 DOM 元素了。Input将数据从绑定表达式传达到指令中。然后，@Directive装饰器函数以配置对象参数的形式，包含了指令的元数据。@Directive装饰器需要一个 CSS 选择器，以便从模板中识别出关联到这个指令的 HTML。用于 attribute 的 CSS 选择器就是属性名称加方括号。 这里，指令的选择器是[myHighlight]，Angular 将会在模板中找到所有带myHighlight属性的元素。
+#### 2.2 为什么不直接叫做“highlight”
+```txt
+  尽管highlight 是一个比 myHighlight 更简洁的名字，而且它确实也能工作。 但是最佳实践是在选择器名字前面添加前缀，以确保它们不会与标准 HTML 属性冲突。 它同时减少了与第三方指令名字发生冲突的危险。
+  而且不能给highlight指令添加ng前缀。 那个前缀属于 Angular，使用它可能导致难以诊断的 bug。例如，这个简短的前缀my可以帮助区分自定义指令。
+```
+  @Directive元数据之后就是该指令的控制器类，名叫HighlightDirective，它包含该指令的逻辑。 然后导出HighlightDirective，以便让它能从其它组件中访问到。Angular 会为每个匹配的元素创建一个指令控制器类的实例，并把 Angular 的ElementRef和Renderer注入进构造函数。 ElementRef是一个服务，它赋予我们通过它的nativeElement属性直接访问 DOM 元素的能力。 Renderer服务允许通过代码设置元素的样式。
+### 3.使用属性型指令
+  要使用这个新的HighlightDirective，创建一个模板，把这个指令作为属性应用到一个段落(p)元素上。 用 Angular 的话说，<p>元素就是这个属性型指令的宿主。然后把这个模板放到它的app.component.html文件中，就像这样：
+```html
+<h1>属性型指令</h1>
+<p appHightlight>悬停变色</p>
+```
+  然后，在AppComponent中引用这个模板：
+```typescript
+import { Component } from '@angular/core';
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent {
+  color: string;
+}
+```
+  接下来，添加了一个import语句来获得Highlight指令类，并把这个类添加到 NgModule 元数据的declarations数组中。 这样，当 Angular 在模板中遇到myHighlight时，就能认出这是指令了。
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppComponent } from './app.component';
+import { HighlightDirective } from './highlight.directive';
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [
+    AppComponent,
+    HighlightDirective
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+**指令生效了吗？**
+```txt
+  如果没有，记着先设置@NgModule的declarations数组，
+“EXCEPTION: Template parse errors:
+  Can't bind to 'myHighlight' since it isn't a known property of 'p'.”
+这个错误信息，就是Angular 检测到你正在尝试绑定到某些东西，但它不认识。所以它在declarations元数据数组中查找。 把HighlightDirective列在元数据的这个数组中，Angular 就会检查对应的导入语句，从而找到highlight.directive.ts，并了解myHightlight的功能。
+```
+  总结：Angular 在<p>元素上发现了一个myHighlight属性。 然后它创建了一个HighlightDirective类的实例，并把所在元素的引用注入到了指令的构造函数中。 在构造函数中，我们把<p>元素的背景设置为了黄色。
+### 4.响应用户引发的事件
+  当前，myHighlight只是简单的设置元素的颜色。 这个指令应该在用户鼠标悬浮一个元素时，设置它的颜色。先把HostListener加进导入列表中，同时再添加Input符号，一会儿就用到了：
+```typescript
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+```
+  然后使用HostListener装饰器添加两个事件处理器，它们会在鼠标进入或离开时进行响应。
+```typescript
+@HostListener('mouseenter') onMouseEnter() {
+  this.highlight('yellow');
+}
+@HostListener('mouseleave') onMouseLeave() {
+  this.highlight(null);
+}
+private highlight(color: string) {
+  this.el.nativeElement.style.backgroundColor = color;
+}
+```
+  @HostListener装饰器引用属性型指令的宿主元素，在这个例子中就是<p>。
+```txt
+    也可以通过标准的JavaScript方式手动给宿主 DOM 元素附加一个事件监听器。 但这种方法至少有三个问题：
+    必须正确的书写事件监听器。
+    当指令被销毁的时候，必须拆卸事件监听器，否则会导致内存泄露。
+    必须直接和 DOM API 打交道，应该避免这样做。
+```
+  这些处理器委托给了一个辅助方法，它用于为DOM元素设置颜色，el就是在构造器中声明和初始化过的。
+```typescript
+  constructor(private el: ElementRef) { }
+```
+下面是修改后的指令代码：
+```typescript
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+@Directive({
+  selector: '[appHighlight]'
+})
+export class HighlightDirective {
+  constructor(private el: ElementRef) { }
+  @HostListener('mouseenter') onMouseEnter() {
+    this.highlight('yellow');
+  }
+  @HostListener('mouseleave') onMouseLeave() {
+    this.highlight(null);
+  }
+  private highlight(color: string) {
+    this.el.nativeElement.style.backgroundColor = color;
+  }
+```
+### 5.使用数据绑定向指令传递值
+  现在的高亮颜色是硬编码在指令中的，这不够灵活。 我们应该让指令的使用者可以在模板中通过绑定来设置颜色。
+首先先把highlightColor属性添加到指令类中，就像这样：
+```typescript
+@Input() highlightColor: string;
+```
+#### 5.1 绑定到@Input属性
+  注意看@Input装饰器。它往类上添加了一些元数据，从而让该指令的highlightColor能用于绑定。它之所以称为输入属性，是因为数据流是从绑定表达式流向指令内部的。 如果没有这个元数据，Angular就会拒绝绑定。
+  把下列指令绑定变量添加到AppComponent的模板中：
+```html
+<p appHightlight highlightColor="yellow">黄色的</p>
+<p appHightlight [highlightColor]="'orange'">橙色的</p>
+```
+  把color属性添加到AppComponent中：
+```typescript
+export class AppComponent {
+  color = 'yellow';
+}
+```
+  让它通过属性绑定来控制高亮颜色。
+```html
+<p appHightlight [highlightColor]="color">高亮父组件的颜色</p>
+```
+  这样就还行，但是还可以在应用该指令时在同一个属性中设置颜色，就像这样：
+```html
+<p [appHighlight]="color">高亮</p>
+```
+  [myHighlight]属性同时做了两件事：把这个高亮指令应用到了<p>元素上，并且通过属性绑定设置了该指令的高亮颜色。 然后我复用了该指令的属性选择器[myHighlight]来同时完成它们。 这是清爽、简约的语法。
+  然后还要把该指令的highlightColor改名为myHighlight，因为它是颜色属性目前的绑定名。
+```typescript
+@Input() myHighlight: string;
+```
+  但是这样不怎么地，因为myHighlight是一个比较差的属性名，而且不能反映该属性的意图。
+  不过，angular允许随意命名该指令的属性，并且给它指定一个用于绑定的别名。
+#### 5.2 绑定到@Input别名
+  恢复原始属性名，并在@Input的参数中把选择器myHighlight指定为别名。
+```typescript
+@Input('appHighlight') highlightColor: string;
+```
+  在指令内部，该属性叫highlightColor，在外部，当我们绑定到它时，它叫myHighlight。
+  这是最好的结果：理想的内部属性名，理想的绑定语法：
+```html
+<p [appHighlight]="color">Highlight me!</p>
+```
+  现在，绑定到了highlightColor属性，并修改onMouseEnter()方法来使用它。 如果有人忘了绑定到highlightColor，那就用红色进行高亮。
+```typescript
+@HostListener('mouseenter') onMouseEnter() {
+  this.highlight(this.highlightColor || 'red');
+}
+```
+  最终指令长这样：
+```typescript
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+@Directive({
+  selector: '[appHighlight]'
+})
+export class HighlightDirective {
+  constructor(private el: ElementRef) { }
+  @Input('appHighlight') highlightColor: string;
+  @HostListener('mouseenter') onMouseEnter() {
+    this.highlight(this.highlightColor || 'red');
+  }
+  @HostListener('mouseleave') onMouseLeave() {
+    this.highlight(null);
+  }
+  private highlight(color: string) {
+    this.el.nativeElement.style.backgroundColor = color;
+  }
+}
+```
+### 6.在模板中测试
+  把AppComponent改成一个测试程序，它让你可以通过单选按钮来选取高亮颜色，并且把我选取的颜色绑定到指令中。
+  然后app.component.html长这样：
+```html
+<h1>指令</h1>
+<h4>选颜色</h4>
+<div>
+  <input type="radio" name="colors" (click)="color='lightgreen'">绿色
+  <input type="radio" name="colors" (click)="color='yellow'">黄色
+  <input type="radio" name="colors" (click)="color='cyan'">青色
+</div>
+<p [appHighlight]="color">亮起来</p>
+```
+  然后修改AppComponent.color,让它不再有初始值：
+```typescript
+export class AppComponent {
+  color: string;
+}
+```
+### 7.绑定到第二个属性
+  本例的指令只有一个可定制属性，真实的应用通常需要更多。目前，默认颜色（它在用户选取了高亮颜色之前一直有效）被硬编码为红色。我们要让模板的开发者也可以设置默认颜色。
+  把第二个名叫defaultColor的输入属性添加到HighlightDirective中：
+  然后highlight.directive.ts被改成这样：
+```typescript
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+@Directive({
+  selector: '[appHighlight]'
+})
+export class HighlightDirective {
+  constructor(private el: ElementRef) { }
+  @Input() defaultColor: string;
+  @Input('appHighlight') highlightColor: string;
+  @HostListener('mouseenter') onMouseEnter() {
+    this.highlight(this.highlightColor || this.defaultColor || 'red');
+  }
+  @HostListener('mouseleave') onMouseLeave() {
+    this.highlight(null);
+  }
+  private highlight(color: string) {
+    this.el.nativeElement.style.backgroundColor = color;
+  }
+}
+```
+  修改该指令的onMouseEnter，让它首先尝试使用highlightColor进行高亮，然后用defaultColor，如果它们都没有指定，那就用红色作为后备。
+```typescript
+@HostListener('mouseenter') onMouseEnter() {
+  this.highlight(this.highlightColor || this.defaultColor || 'red');
+}
+```
+  当已经绑定过myHighlight属性时，要如何绑定到第二个属性呢？
+  像组件一样，直接可以绑定到指令的很多属性，只要把它们依次写在模板中就行了。 开发者可以绑定到AppComponent.color，并且用紫罗兰色作为默认颜色，就像这样：
+```html
+<p [appHighlight]="color" defaultColor="violet">
+  亮起来
+</p>
+```
+  Angular之所以知道defaultColor绑定属于HighlightDirective，是因为之前已经通过@Input装饰器把它设置成了公共属性。
+**为什么要加@Input？**
+  在这个例子中hightlightColor是HighlightDirective的一个输入型属性。它没有用别名时的代码是这样：
+```typescript
+@Input() highlightColor: string;
+```
+  用别名时的代码长这样：
+```typescript
+@Input('appHighlight') highlightColor: string;
+```
+  无论哪种方式，@Input装饰器都告诉Angular，该属性是公共的，并且能被父组件绑定。 如果没有@Input，Angular就会拒绝绑定到该属性。但之前也曾经把模板HTML绑定到组件的属性，而且从来没有用过@Input。 有啥区别呢。
+  区别在于信任度不同。 Angular把组件的模板看做从属于该组件的。 组件和它的模板默认会相互信任。 这也就是意味着，组件自己的模板可以绑定到组件的任意属性，无论是否使用了@Input装饰器。但组件或指令不应该盲目的信任其它组件或指令。 因此组件或指令的属性默认是不能被绑定的。 从Angular绑定机制的角度来看，它们是私有的，而当添加了@Input时，它们变成了公共的 只有这样，它们才能被其它组件或属性绑定。
+  所以可以根据属性名在绑定中出现的位置来判定是否要加@Input。
+  - 当它出现在等号右侧的模板表达式中时，它属于模板所在的组件，不需要@Input装饰器。
+  - 当它出现在等号左边的方括号（[ ]）中时，该属性属于其它组件或指令，它必须带有@Input 装饰器。
+  比如 <p [appHighlight]="color">Highlight me!</p>，在这句代码里面，color属性位于右侧的绑定表达式中，它属于模板所在的组件。 该模板和组件相互信任。因此color不需要@Input装饰器。myHighlight属性位于左侧，它引用了MyHighlightDirective中一个带别名的属性，它不是模板所属组件的一部分，因此存在信任问题。 所以，该属性必须带@Input装饰器。
