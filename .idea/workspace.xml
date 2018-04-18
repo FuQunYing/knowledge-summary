@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md" beforeDir="false" afterPath="$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/angular-summary/angular技术总结0417.md" beforeDir="false" afterPath="$PROJECT_DIR$/angular-summary/angular技术总结0417.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,11 +20,8 @@
         <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="335">
+              <first_editor relative-caret-position="106736">
                 <caret line="6671" column="34" selection-start-line="6671" selection-start-column="34" selection-end-line="6671" selection-end-column="34" />
-                <folding>
-                  <element signature="e#0#47#0" expanded="true" />
-                </folding>
               </first_editor>
               <second_editor />
             </state>
@@ -36,11 +32,8 @@
         <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0417.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="16">
-                <caret line="1" selection-start-line="1" selection-end-line="109" selection-end-column="24" />
-                <folding>
-                  <element signature="e#7#18#0" />
-                </folding>
+              <first_editor relative-caret-position="175">
+                <caret line="105" column="91" selection-start-line="105" selection-start-column="91" selection-end-line="105" selection-end-column="91" />
               </first_editor>
               <second_editor />
             </state>
@@ -72,7 +65,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="1358" />
     <option name="y" value="-8" />
     <option name="width" value="1874" />
@@ -83,6 +76,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -99,13 +93,12 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="JavaScriptWeakerCompletionTypeGuess" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="D:/compony-project/coubuy.payment.cbshop - newlab" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -136,25 +129,26 @@
       <option name="presentableId" value="Default" />
       <updated>1523935198328</updated>
       <workItem from="1523935200391" duration="56000" />
-      <workItem from="1523936595599" duration="3010000" />
+      <workItem from="1523936595599" duration="3686000" />
+      <workItem from="1524014666221" duration="1219000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3066000" />
+    <option name="totallyTimeSpent" value="4961000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1358" y="-8" width="1874" height="1096" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.174482" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.174482" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.45151198" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.45151198" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -176,31 +170,27 @@
     <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor>
-            <folding>
-              <element signature="e#0#37#0" expanded="true" />
-              <element signature="e#1#43#0" expanded="true" />
-              <element signature="e#0#41#0" expanded="true" />
-              <element signature="e#0#42#0" expanded="true" />
-              <element signature="e#0#49#0" expanded="true" />
-              <element signature="e#0#42#0" expanded="true" />
-              <element signature="e#0#57#0" expanded="true" />
-              <element signature="e#0#57#0" expanded="true" />
-              <element signature="e#0#43#0" expanded="true" />
-              <element signature="e#0#51#0" expanded="true" />
-              <element signature="e#0#60#0" expanded="true" />
-              <element signature="e#0#49#0" expanded="true" />
-              <element signature="e#0#50#0" expanded="true" />
-              <element signature="e#0#41#0" expanded="true" />
-              <element signature="e#0#52#0" expanded="true" />
-              <element signature="e#0#42#0" expanded="true" />
-              <element signature="e#0#52#0" expanded="true" />
-              <element signature="e#0#58#0" expanded="true" />
-              <element signature="e#0#47#0" expanded="true" />
-              <element signature="e#0#42#0" expanded="true" />
-              <element signature="n#!!doc" expanded="true" />
-            </folding>
+          <first_editor relative-caret-position="106736">
+            <caret line="6671" column="34" selection-start-line="6671" selection-start-column="34" selection-end-line="6671" selection-end-column="34" />
           </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0417.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1680">
+            <caret line="105" column="91" selection-start-line="105" selection-start-column="91" selection-end-line="105" selection-end-column="91" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
           <second_editor />
         </state>
       </provider>
@@ -210,14 +200,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="766">
             <caret line="533" lean-forward="true" selection-start-line="533" selection-end-line="533" />
-            <folding>
-              <element signature="e#0#45#0" expanded="true" />
-              <element signature="e#0#56#0" expanded="true" />
-              <element signature="e#0#41#0" expanded="true" />
-              <element signature="e#0#53#0" expanded="true" />
-              <element signature="e#0#46#0" expanded="true" />
-              <element signature="e#0#40#0" expanded="true" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -228,13 +210,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="638">
             <caret line="412" lean-forward="true" selection-start-line="412" selection-end-line="412" />
-            <folding>
-              <element signature="e#0#36#0" expanded="true" />
-              <element signature="e#0#45#0" expanded="true" />
-              <element signature="e#0#46#0" expanded="true" />
-              <element signature="e#0#55#0" expanded="true" />
-              <element signature="e#0#52#0" expanded="true" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -255,9 +230,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="336">
             <caret line="19" column="45" lean-forward="true" selection-end-line="171" />
-            <folding>
-              <element signature="n#!!doc" expanded="true" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -268,9 +240,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="2176">
             <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
-            <folding>
-              <element signature="e#0#39#0" expanded="true" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -281,9 +250,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="70" selection-end-column="235" />
-            <folding>
-              <element signature="e#7#16#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -304,10 +270,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="1072">
             <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
-            <folding>
-              <element signature="e#7#23#0" />
-              <element signature="e#1198#1216#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -318,9 +280,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="160">
             <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
-            <folding>
-              <element signature="e#7#27#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -331,9 +290,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="208">
             <caret line="84" lean-forward="true" selection-start-line="84" selection-end-line="84" />
-            <folding>
-              <element signature="e#86#100#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -376,11 +332,8 @@
       </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="335">
+          <first_editor relative-caret-position="106736">
             <caret line="6671" column="34" selection-start-line="6671" selection-start-column="34" selection-end-line="6671" selection-end-column="34" />
-            <folding>
-              <element signature="e#0#47#0" expanded="true" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -389,11 +342,8 @@
     <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0417.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="109" selection-end-column="24" />
-            <folding>
-              <element signature="e#7#18#0" />
-            </folding>
+          <first_editor relative-caret-position="175">
+            <caret line="105" column="91" selection-start-line="105" selection-start-column="91" selection-end-line="105" selection-end-column="91" />
           </first_editor>
           <second_editor />
         </state>
