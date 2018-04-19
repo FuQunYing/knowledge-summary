@@ -147,7 +147,35 @@ export class PersonBiosAndContactsComponent{
 }
 ```
   在<person-bio>标签中是一个新的<person-contact>元素，Angular就会把相应的PersonContactComponent投影给PersonBioComponent的视图里，将它放在PersonBioComponent模板的<ng-content>标签槽里。
-  下面的PersonContactComponent，示范了限定型装饰器
+  下面的PersonContactComponent，示范了限定型装饰器（@Optional和@Host）
+```typescript
+@Component({
+  selector:'app-person-contact',
+  template:`<div>电话：#{{phoneNumber}}
+  	<span *ngIf = "hasLogger">略略略略</span>
+  </div>`
+})
+export class PersonContactComponent{
+  hasLogger = false;
+  constructor(
+  	@Host() // 限定型装饰器代替PersonCacheService
+  	private personCache:PersonCacheService,
+  	@Host() // 限制logger的搜索，隐藏应用程序范围的logger
+  	@Optional() // 如果logger不存在就是OK的
+  	private loggerService:LoggerService
+  ) {
+    if (loggerService) {
+      this.hasLogger = true;
+      loggerService.logInfo('PersonContactComponent 可以打印log了')
+    }
+  }
+  get phoneNumber() {return this.personCache.person.phone}
+}
+```
+  注意一下上面@Host()函数是personCache属性的装饰器，确保从其父组件PersonBioComponent得到一个缓存服务。如果该父组件不存在这个服务，Angular就会 抛出错误，即使组件树里的再上级有某个组件拥有这个服务，Angular也会抛出错误。
+  另一个@Host()函数是属性loggerService的装饰器，在本应用程序中只有一个在AppComponent级提供的LoggerService实例。该宿主PersonBioComponent没有自己的LoggerService提供商。如果没有同时使用@Optional()装饰器的话，Angular就会抛出错误。但是还好有@Optional()，Angular把loggerService设置为null，并继续执行组件而不会抛出错误。
+  如果注释掉@Host()装饰器，Angular就会沿着注入器树往上走，直到在AppComponent中找到该日志服务，日志服务的逻辑加入进来，更新了英雄的显示信息，这表明了确实 找到了日志服务。另一方面，如果恢复@Host()装饰器，注释掉@Optional，应用程序就会运行失败，因为它在宿主组件级别找不到需要的日志服务。
+
 
 
 
