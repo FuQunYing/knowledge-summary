@@ -99,7 +99,54 @@ export class PersonOfTheMonthComponent{
   const somePerson = new Person(01, "许嵩",'今天发新歌啦', '233-233-233')
   其它提供商只在需要注入它们的事后才创建并多次那个加载它们的值。
 ```
-
+  - useClass - 类-提供商
+```txt
+  userClass提供商创建并返回一个指定类大的新实例，使用该技术来为公共或默认类提供备选实现。该替代品能实现有一个不同的策略，比如拓展默认类或者在测试的事后假冒真实类。看一下刚刚PersonOfTheMMonthComponent里的例子：
+  {provide:PersonService,useClass: PersonService}
+  {provide:LoggerService,useClass:DateLoggerService}
+  第一个提供商是展开了语法糖的，是一个典型情况的展开，一般来说，被新建的类（PersonService）同时也是该提供商的注入令牌，这里用完整形态来编写它，来反衬受欢迎的缩写形式。
+  第二个提供商2使用DateLoggerService来满足LoggerService，该LoggerService在AppComponent级别已经被注册，当这个组件要求LoggerService的时候，它得到的却是DateLoggerService服务。 这个组件及其子组件会得到DateLoggerService实例，这个组件树之外的组件得到的仍是LoggerService实例。
+  DateLoggerService从LoggerService继承，它把当前的日期/时间附加到每条信息上：
+  
+  @Injectable()
+  export class DateLoggerService extends LoggerService{
+    logInfo(msg:any){super.logInfo(stamp(msg))}
+    logDebug(msg: any) { super.logInfo(stamp(msg))}
+    logError(msg: any) { super.logError(stamp(msg))}
+  }
+  function stamp(msg:any){return new Date() + '有新消息' + msg}
+```
+  - useExisting - 别名-提供商
+```txt
+  使用useExisting，提供商可以把一个token映射到另一个上面，实际上第一个token是第二个token所对应的服务的别名，创造了访问同一个服务对象的两种方法。
+  {provide: MinimalLogger, useExisting: LoggerService}
+  通过使用别名接口来把一个API变窄，就像下面的例子使用别名就是这个目的。如果LoggerService有个很大的API接口虽然它只有三个接口一个属性，通过使用MinimalLogger类-接口别名，就能成功的把这个API接口缩小到只暴露两个成员：
+  
+  export abstract class MinimalLogger{
+    logs:string[];
+    logInfo:(msg:string)=>void;
+  }
+  然后在一个简化版的PersonOfTheMonthComponent中使用它：
+  
+  @Component({
+    selector:'app-person-of-the-month',
+    templateUrl:'./person-of-the-month.component.html',
+    providers: [{ provide: MinimalLogger, useExisting: LoggerService}]
+  })
+  export class PersonOfTheMonthComponent{
+    log:string[] =[];
+    constructor(logger:MinimalLogger){
+      logger.logInfo('开始')
+    }
+  }
+  PersonOfTheMonthComponent构造函数的logger参数是一个MinimalLogger类型，支持Typescript的编辑器里面就会只看到两个成员logs和logInfo。实际上，Angular确实想把logger参数设置为注入器里LoggerService的完整版本，只是在之前的提供商注册里使用了useClass，所以该完整版本被DateLoggerService取代了。
+```
+  - useFactory - 工厂-提供商
+```txt
+  useFactory提供商通过调用工厂函数来新建一个依赖对象，就像下面这样：
+  {provide: RUNNERS_UP,    useFactory:  runnersUpFactory(2), deps: [Person, PersonService]}
+  使用这个技术，可以用包含了一些依赖服务和本地状态输入的工厂函数来建立一个依赖对象。
+```
 
 
 
