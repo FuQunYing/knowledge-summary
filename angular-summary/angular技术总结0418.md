@@ -1,5 +1,5 @@
 #Day34
-##三、DI实用技巧
+##四、DI实用技巧
 ###1.应用程序全局依赖
   在应用程序根组件AppComponent中注册那些被应用程序全局使用的依赖提供商。在下面的例子中，通过@Component元数据的providers数据导入和注册了几个服务（LoggerService，userContext和UserService）
 ```typescript
