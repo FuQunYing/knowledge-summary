@@ -146,7 +146,49 @@ export class PersonOfTheMonthComponent{
   useFactory提供商通过调用工厂函数来新建一个依赖对象，就像下面这样：
   {provide: RUNNERS_UP,    useFactory:  runnersUpFactory(2), deps: [Person, PersonService]}
   使用这个技术，可以用包含了一些依赖服务和本地状态输入的工厂函数来建立一个依赖对象。
+  该依赖对象不一定是一个类实例。它可以是任何东西。在这个例子里，依赖对象是一个字符串，代表了本月第二人物的名字。本地状态是数字 2，该组件应该显示的人物的个数。它就会立刻用 2 来执行 runnersUpFactory。runnersUpFactory 自身不是提供商工厂函数。真正的提供商工厂函数是 runnersUpFactory 返回的函数。
+  export function runnerUpFactory(take:number){
+    return (winner:Person,personService:PersonService):string => {
+      /**/
+    }
+  }
+  这个返回的函数需要一个Person和一个PersonService参数。Angular通过使用deps数组中的两个token，来识别注入的值，用来提供这些参数。这两个deps值是供注入器使用的token，用来提供工厂函数的依赖。一些内部工作后，这个函数返回名字字符串，Angular将其注入到PersonOfTheMonthComponent组件的runnersUp参数里。
 ```
+### 9.备选提供商token：类-接口和Injection Token
+  Angular依赖注入当token是类的时候是最简单的，该类同时也是返回的依赖对象的类型，但是token不一定都是类，就算它是一个类，它也不一定都返回类型相同的对象。
+####9.1 类-接口
+  前面的那个例子使用了MinimalLogger类作为LoggerService提供商的token，那个MinimalLogger是一个抽象类：
+```typescript
+  export abstract class MinimalLogger{
+    logs:strinng[];
+    logInfo:(msg:string) =>void
+  }
+```
+  通常是从一个抽象类继承，但这个应用中并没有类会继承MinimalLogger。LoggerService和DateLoggerService本可以从MinimalLogger中继承，它们也可以实现MinimalLogger，而不用单独定义接口，但它们没有。MinimalLogger在这里仅仅被用作一个“依赖注入令牌”，这种用法的类叫做类-接口，它关键的好处是：提供了接口的强类型，能像正常类一样把它当做提供商token使用。类-接口应该只定义允许它的消费者调用的成员，窄的接口有助于 解耦该类的具体实现和它的消费者。
+```txt
+  为什么MinimalLogger是一个类而不是一个Typescript接口？
+  不能把接口当做是提供商的token，因为接口不是有效的JavaScript对象，它们只存在在Typescript大的设计空间里，它们会在被编译为JavaScript之后消失，一个提供商token必须是一个真实的JavaScript对象上提供类似于接口的特性，一个真实的类会占用内存，该类应用没有具体的实现，MinimalLogger会被转译成下面这段没有优化过的，尚未最小化的JavaScript：
+  
+  var MinimalLogger = (function() {
+    function MinimalLogger() {}
+    return MinimalLogger;
+  }());
+  exports("MinimalLogger", MinimalLogger)
+  只要不实现它，不管添加多少成员，它永远不会增长大小
+```
+#### 9.2 InjectionToken值
+  依赖对象可以是一个简单的值，比如日期、数字和字符串，或者一个无形的对象，比如数组和函数。这样的对象没有应用程序接口，所以不能用一个类来表示，更适合表示它们的是：唯一的和符号性的令牌，一个JavaScript对象有个友好的名字，但是不会与其它的同名token发生冲突。
+  InjectionToken具有这些特征，在Person of the month中出现了两次，一个是title的值，一个是runnersUp工厂提供商。，
+```typescript
+{ provide: TITLE,useValue:   'Person of the Month' },
+{ provide: RUNNERS_UP,useFactory:  runnersUpFactory(2), deps: [Person, PersonService] }
+```
+  这样创建TITLE令牌：
+```typescript
+import { InjectionToken } from '@angular/core';
+export const TITLE = new InjectionToken<string>('title');
+```
+  类型参数，虽然是可选的，但可以向开发者和开发工具传达类型信息，而且这个token的描述信息也可以为开发者提供帮助。
 
 
 
