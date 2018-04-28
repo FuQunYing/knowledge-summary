@@ -4,4 +4,5 @@
   PersonsBaseComponent能自己独立运行工，它在自己的实例里要求PersonService,用来得到人物，并将他们按照数据库返回的顺序显示出来
   **sorted-person.component.ts**
 ```typescript
+
 ```
