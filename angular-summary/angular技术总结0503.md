@@ -136,6 +136,68 @@ export class BarryComponent implements Parent {
   constructor( @SkipSelf() @Optional() public parent: Parent ) { }
 }
 ```
+  Barry的providers数组看起来很想Vae的那个，如果准备一直像这样编写别名提供商的话，应该建立一个辅助函数，先看一下Barry的构造函数：
+```typescript
+constructor( @SkipSelf() @Optional() public parent: Parent ) { }
+```
+  这是Carol的构造函数：
+```typescript
+constructor( @Optional() public parent: Parent ) { }
+```
+  除了额外添加了一个@SkipSelf外，它和Carol的构造函数一样，添加@SkipSelf有两个原因：
+  - 它告诉注入器从一个在自己上一级的组件开始搜索一个Parent依赖
+  - 如果没写@SkipSelf装饰器的话，Angular就会抛出一个循环依赖的错误，不能创建循环依赖实例（BethComponent -> Parent -> BethComponent）
+####  11.5 Parent类-接口
+  类-接口是一个抽象类，被当成一个接口使用，而非基类。
+  这个例子定义了一个Parent类-接口
+```typescript
+export abstract class Parent {name:string;}
+```
+  该Parent类-接口定义了Name属性，它有类型声明，但是没有实现，该name是该父级的所有子组件们唯一能调用的属性，这种“窄接口”有助于解耦子组件类和它的父组件。一个能用做父级的组价应该实现类-接口，和下面的AliceComponent的做法一样：
+```typescript
+export class AliceComponent implements Parent
+```
+  这样做可以提升代码的清晰度，但严格来说并不是必须的，虽然VaeComponent有一个name属性，但它的类签名并不需要提及Parent。
+```typescript
+export class VaeComponent extends Base
+```
+#### 11.6 provideParennt()助手函数
+  编写父组件相同的各种别名提供商很快就会变得特别繁杂，在用forwardRef大的时候更加绕口：
+```typescript
+providers:[{provide:Parent,useExisting:forwardRef(()=>{VaeComponent})}]
+```
+  可以像下面这样把该逻辑抽取到一个助手函数里面：
+```typescript
+//助理函数以`parentType`的名义提供当前组件实例。
+const provideParent =
+  (component: any) => {
+    return { provide: Parent, useExisting: forwardRef(() => component) };
+  };
+```
+  现在就可以为组件添加一个更简单的、直观的父级提供商了：
+```typescript
+providers:[provideParent(AliceComponent)]
+```
+  但是现在这个助手函数只能为Parent类-接口提供别名，应用程序可能有很多类型的父组件，每个父组件都有自己的类-接口令牌，现在进行修改，默认接受一个Parent，但同时接受一个可选的第二参数，可以用来指定一个不同的父级类-接口
+```typescript
+//助理函数以`parentType`的名义提供当前组件实例。
+//省略第二个参数时，`parentType`默认为`Parent`。
+const provideParent=(component:any,parentType?:any)=>{
+    return {provide:parentType || Parent,useExisting:forwardRef(()=>component)}
+}
+```
+  然后使它添加一个不同类型的父级：
+```typescript
+providers:  [provideParent(BethComponent, DifferentParent)]
+```
+### 12.使用一个前向引用（forwardRef）来打破循环
+  在TypeScript里面，类声明的顺序是很重要的，如果一个类尚未定义，就不能引用它，这通常不是一个问题，特别是当我遵循一个文件一个类规则的时候，但是有时候循环引用可能不能避免，当一个类A引用类B，同时'B'引用'A‘的时候，咋整，它们中间的某一个必须要先定义。
+  Angular的forwardRef()函数建立一个间接的引用，Angular可以随后解析。ParentFinder是一个充满了无法解决的循环引用的例子。
+  当一个类需要引用自身的时候，就面临同样的困境，就像在VaeComponent的providers数组中的困境一样，该providers数组是一个@Component装饰器函数的一个属性，它必须在类定义之前出现。
+  现在用forwardRef来打破这种循环：
+```typescript
+providers:[{provide:Parent,useExisting:forwardRef(()=>VaewComponent)}]
+```
 
 
 
