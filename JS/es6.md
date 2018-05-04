@@ -777,7 +777,7 @@ jQuery.ajax=function(url,{
 //加载模块时，往往需要指定输入哪些方法，结构赋值可以让输入语句更清晰
 const {SourceMapConsumer,SourceNode}=require('source-map')
 ```
-## 四、字符串的扩展
+## 三、字符串的扩展
 ### 1.字符的Unicode表示
   JS允许采用\uxxxx形式表示一个字符，其中xxxx表示字符的Unicode码点，比如：
 ```javascript
@@ -876,4 +876,574 @@ for (let i of text) {
 // 第二条语句，charAt方法期望返回的是用2个字节表示的字符，但是这个汉字占了4个字符，charAt(0)表示获取这4个字节中的前2个字节，所以无法正常显示，目前有一个字符串实例的at方法，可以识别Unicode编号大于0xFFFF的字符，返回正确的字符：
 'abc'.at(0) // "a"
 '𠮷'.at(0) // "𠮷"
+```
+### 6.normalize()
+  许多欧洲语言有语调符号和重音符号，为了表示它们，Unicode提供了两种方法，一种是直接提供带重音符号的字符，另一种是提供合成符号，就是原字符与重音符号的合成，两个字符合成一个字符，这两种表示方法在视觉和语义上 都等价，但是JavaScript不能识别：
+```javascript
+  '\u01d1'==='\u004f\u030c' //false
+  '\u01d1'.length//1
+  '\u004f\u030c'.length //2
+  // 上面代码表示，JavaScript将和合成字符视为两个字符，导致了两种表示方法不相等
+```
+  es6提供字符串实例的normalize()方法，用来将字符大的不同表示方法统一为同样的形式，这称为Unicode正规化：
+```javascript
+  '\u01D1'.normalize() === '\u004F\u030C'.normalize()// true
+```
+  normalize方法可以接受一个参数来指定normalize的方式，参数可选值有：
+  - NFC，默认参数，表示 标准等价合成，，返回多个简单字符的合成字符，标准的能加指的就是视呵呵语义上的等价。Normalization Form Canonical Composition
+  - NFD，表示 标准等价分解，就是在标准等价的前提下，返回合成字符分解的多个简单字符。Normalizattion Form Canonical Decomposition
+  - NFKC，表示 兼容等价合成，返回合成字符，兼容等价指的是语义上存在等价，但视觉上不等价，Normalization Form Compatibility Composition。
+  - NFKD，表示 兼容等价分解，就是在兼容等价的前提下，返回合成字符分解的多个简单 字符，Normalization Form Compatibility Decomposition
+```javascript
+'\u004F\u030C'.normalize('NFC').length // 1
+'\u004F\u030C'.normalize('NFD').length // 2
+// 这两行代码表示，NFC参数返回字符的合成形式，NFD参数返回字符的分解形式，不过，normalize方法目前不能识别三个或者三个以上的字符，这种情况下，就还是用正则表达式，通过Unicode编号区间判断
+```
+### 7.includes() startsWith() endsWith()
+  以前，JavaScript只有indexOf方法，可以用来确定一个字符串是否包含在另一个字符串中，es6提供了新的三种方法：
+  - includes() 返回布尔值，表示是否找到了参数字符转
+  - startsWith() 返回布尔值，表示参数字符串是否在原字符串的头部
+  - endsWith() 返回布尔值，表示参数字符串是否在原字符串的尾部
+```javascript
+let str='hello world!'
+str.startsWith('h')//true
+str.endsWith('!')//true
+str.includes(d)//true
+// 这三个方法都支持第二个参数，表示从第n位开始查找
+let str='hello vae!'
+str.startsWith('vae', 6)//true
+str.endsWith('hello',5)//true
+str.includes('hello', 6)//false
+// 这样写就表示使用第二个参数nn时，endsWith的行为与其它两个方法有所不同，它针对前n个字符，而其它两个方法针对从第n个位置直到字符串结束
+```
+### 8.repeat()
+  repeat方法返回一个新的字符串，表示将原字符串重复n次
+```javascript
+'x'.repeat(3)//'xxx'
+'vae'.repeat(2)//'vaevae'
+'no'.repea(0)//''
+// 参数如果是小数，会被取整
+'no'.repeat(2.9)//'nono'
+// 如果repeat的参数是负数或者Infinity，会报错
+'vae'.repeat(Infinity)//RangeError
+'vae'.repeat(-1)//RangeError
+//但是如果参数是0到-1之间的小数，则等同于0，这是因为会先进行取整运算，0到-1之间的小数，取整以后等于-0，repeat相当于0
+'no'.repeat(-0.9)//''
+//参数NaN等同于0
+'no'.repeat(NaN)//0
+//如果repeat的参数是字符串，就先转为数字
+'no'.repeat('ai') // ""
+'no'.repeat('3') // "nonono"
+```
+### 9.padStart() padEn()
+  es6引入了字符串补全长度的功能，如果某个字符串不够指定长度，会在头部或者尾部补全，padStart用于头部补全，padEnd用于尾部补全：
+```javascript
+'x'.padStart(5, 'ab')//'ababx'
+'x'.padStart(4, 'ab')//'abax'
+'x'.padEnd(5, 'ab')//'xabab'
+'x'.padEnd(4, 'ab')//'xaba'
+//padStart和padEnd一共接受两个参数，第一个参数用来指定字符串的最小长度，第二个参数是用来补全的字符串
+
+//如果原字符串的长度，等于或大于指定的最小长度，则返回原字符串
+'xxx'.padStart(2, 'ab') // 'xxx'
+'xxx'.padEnd(2, 'ab') // 'xxx'
+
+//如果用来补全的字符串与原字符串，二者的长度之和超过了指定的最小长度，则会截去超出位数的补全字符串
+'ab'.padStart(10,'0123456789')//'01234567ab'
+
+//如果省略第二个参数，默认使用空格补全长度
+'x'.padStart(44)//'    x'
+'x'.padEnd(4)//'x    '
+
+//padStart的常见用途是为数值补全指定位数，比如这样：
+'1'.padStart(10, '0') // "0000000001"
+'12'.padStart(10, '0') // "0000000012"
+'123456'.padStart(10, '0') // "0000123456"
+
+//另一个用途是提示字符串格式
+'12'.padStart(10, 'YYYY-MM-DD') // "YYYY-MM-12"
+'09-12'.padStart(10, 'YYYY-MM-DD') // "YYYY-09-12"
+```
+### 10.matchAll() 
+  matchAll方法返回一个正则表达式在当前字符串的所有匹配
+### 11.模板字符串
+  以前的JavaScript语言，输出模板通常这样写：
+```javascript
+$('#result').append(
+	'你说啥<b>'+person.name+'</b>'+
+	'听不见'+person.name+'瞎了'+person.year+'年了'
+)
+````
+  这种写法太复杂了，错一个引号就慢慢找去吧，模板字符串就很好用了：
+```javascript
+$('#result').append(
+	`你说啥<b>${person.name}</b>听不见，${person.name}瞎了${person.year}年了`
+)
+```
+  模板字符串是增强版的字符串，用反引号标识，他可以当做普通字符串使用，也可以用来定义多行字符串，或者在字符串中嵌入变量：
+```javascript
+`潇洒如我最近确变得有点敏感'\n'半小时收不到你讯息就会坐立不安`//普通字符串
+
+`都说别爱的太满 这道理知易行难
+我还挺乐意享受这份甜中微酸`//多行字符串
+
+//字符串嵌入变量
+let name='你' , thing ='西瓜'
+`${name}的笑像${thing}最中间那一勺的口感，点亮了一整个夏天星空也为你斑斓`
+
+//模板字符串都是用反引号表示，如果在模板字符串中需要使用反引号，那就要用\转译
+let greeting = `\`Yo\` World!`
+
+//如果使用模板字符串表示多行字符串，所有的空格和缩进都会被保留在输出之中
+$('#list').html(`
+<ul>
+  <li>壹</li>
+  <li>贰</li>
+</ul>
+`);
+
+//上面这样写，所有的模板字符串的空格和换行，都是被保留的，比如ul标签前面会有一个换行，如果也要消除这个换行，可以使用trim方法消除：
+$('#list').html(`
+<ul>
+  <li>壹</li>
+  <li>贰</li>
+</ul>
+`.trim());
+
+//模板字符串中嵌入变量，需要将变量名写在${}里面
+function authorize(user, action) {
+  if (!user.hasPrivilege(action)) {
+    throw new Error(
+      // 传统写法为
+      // 'User '+ user.name+ ' is not authorized to do '+ action+ '.'
+      `User ${user.name} is not authorized to do ${action}.`);
+  }
+}
+```
+  大括号里面可以放任意的JavaScript表达式，可以进行运算，以及引用对象属性，在大括号里面也可以调用函数。
+  如果大括号中的值不是字符串，将按照一般的规则转为字符串，比如大括号中是一个对象，将默认调用对象的toString方法，如果模板字符串中的变量没有声明，将报错：
+```javascript
+// 变量name没有声明
+let msg = `Hello, ${name}`// 报错
+```
+  由于模板字符串的大括号内部就是执行JavaScript代码，所以要是大括号内部是一个字符串，就直接输出了：
+```javascript
+`hello ${'worrld'}`//hello world
+```
+  模板字符串也可以嵌套：
+```javascript
+const tmp=addr=>`
+	<table>
+		${addr.map(addr=>`
+			<tr><td>${addr.first}</td></tr>
+			<tr><td>${addr.last}</td></tr>
+		`).join('')}
+	</table>
+`
+//这个就是在模板字符串的变量中，又嵌入了另一个模板字符串，这样用：
+const data =[
+  {first:'baker',last:'street'}
+  {first: 221,last:'B'}
+]
+console.log(tmp(data))
+/*
+<table>
+	<tr><td>baker</td></tr>
+	<tr><td>sreet</td></tr>
+	<tr><td>221</td></tr>
+	<tr><td>B</td></tr>
+</table>
+*/
+```
+  如果需要引用模板字符串本身，在需要时执行，可以这样写：
+```javascript
+//一、
+let str='return'+'`hello ${name}`'
+let fun=new Function('name',str)
+fun('vae')//hello vae
+//二、
+let str='(name)=>`hello ${name}`'
+let fun=eval.call(null,str)
+fun('vae')//hello vae
+```
+### 12.标签模板
+  除了上面的功能，它还可以紧跟在一个函数名后面，该函数将被用来处理这个模板字符串，被称为“标签模板”功能
+```javascript
+alert `123` //等同于
+alert (123)
+```
+  标签模板其实不是模板，而是函数调用的一种特殊形式，标签 指的的就是函数，紧跟在后面的模板字符就是它的参数，但是如果模板字符里面有变量，就不是简单的调用了，而是会将模板字符串先处理成多个参数，再调用函数：
+```javascript
+let a=1;
+let b=2;
+tag`hello ${a+b}world${a*b}`
+tag(['hello','world','',3,2])
+//这里面模板字符串前面有一个标识名tag，它是一个函数，整个表达式的返回值就是tag函数处理模板字符串后的返回值，函数tag又一次会接收到多个参数：
+function tag(strArr,val1,val2){//...}//等同于
+function tag(strArr,...vals){//...}
+```
+  tag函数的第一个参数是一个数组，该数组的成员是模板字符串中的那些没有变量替代的部分，也就是说，变量替换只发生在数组的第一个成员与第二个成员之间、第二个成员与第三个成员之间，以此类推。tag函数的其它参数，都是模板字符串各个变量被替换后的值，上面的例子里面，模板字符串包含有两个变量，因此tag会接收到val1和val2两个参数。
+  tag函数所有参数的实际值是这样的：
+  - 第一个参数 :['hello','world','']
+  - 第二个参数:3
+  - 第三个参数:2
+  所以也就是说tag函数实际以下面的形式调用：
+```javascript
+tag(['Hello ', ' world ', ''], 3, 2)
+```
+  可以按照需要编写tag的代码，下面是tag函数的一种写法以及运行结果：
+```javascript
+let a=1;
+let b=2;
+function tag(s,v1,v2){
+  console.log(s[0]);
+  console.log(s[1]);
+  console.log(s[2]);
+  console.log(v1);
+  console.log(v2);
+  return "OK";
+}
+tag`Hello ${a+b} world ${a*b}`;// hello//world//''//3//2//ok
+```
+  一个更复杂的例子：
+```javascript
+let total = 30;
+let msg = passthru`总价${total} (含税：${total*1.05})`;
+
+function passthru(literals) {
+  let result = '';
+  let i = 0;
+  while (i<literals.length) {
+    result+=literals[i++];
+    if (i<arguments.length) {
+      result+=arguments[i];
+    }
+  }
+  return result;
+}
+
+msg // "总价30 (含税31.5)"
+//这个例子展示了，如何将各个参数按照原来的位置拼合回去
+```
+  passthru函数采用rest参数的写法长这样：
+```javascript
+function passthru(literals, ...values) {
+  let output = "";
+  let index;
+  for (index = 0; index<values.length; index++) {
+    output += literals[index]+values[index];
+  }
+  output+=literals[index]
+  return output;
+}
+```
+  标签模板的一个重要应用，就是过滤HTML字符串，防止用户恶意输入：
+```javascript
+let message = SaferHTML`<p>${sender}给你发了个消息</p>`
+function SaferHTML(tmpData){
+  let s=tmpData[0];
+  for(let i=1;i<arguments.length;i++){
+    let arg=String(arguments[i])
+     s+=arg.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");//避开替换中的特殊字符
+     s+=tmpData[i]//不避开模板中中的特殊字符
+  }
+  return s;;
+}
+//其中sender变量往往是用户提供的，经过SaferHTML函数处理，里面的特殊字符都会被转义
+let sender = '<script>alert("abc")</script>'; // 恶意代码
+let message = SaferHTML`<p>${sender} 给你发了个消息</p>`;
+message//<p>&lt;script&gt;alert("abc")&lt;/script&gt; 给你发了个消息</p>
+```
+  标签模板的另一个应用，就是多语言转换：
+```javscript
+i18n`欢迎访问 ${siteName},您是第 ${visitorNumber}位访问者!`
+// "欢迎访问xxx，您是第xxxx位访问者！"
+```
+  模板字符串本身并不能取代Mustache之类的模板库，因为没有条件判断和循环处理功能，但是通过标签函数，可以自己添加这些功能：
+```javascript
+// 下面的hashTemplate函数是一个自定义的模板处理函数
+let libraryHtml=hashTemplate`
+  <ul>
+    #for book in ${myBooks}
+      <li><i>#{book.title}</i> by #{book.author}</li>
+    #end
+  </ul>
+`;
+```
+  此外，也可以使用标签模板，在JS里里面呢嵌入其它语言：
+```javascript
+jsx`<div>
+    <input ref='input' onChange='${this.handleChange}'  defaultValue='${this.state.value}' /> ${this.state.value} </div>
+`
+//通过jsx函数，将一个DON字符串转为React对象。
+```
+  假如在JS的代码里面运行Java代码：
+```javascript
+java`
+class HelloWorldApp {
+  public static void main(String[] args) {
+    System.out.println(“Hello World!”); // 打印该字符串
+  }
+}
+`
+HelloWorldApp.main();
+//模板处理函数的第一个参数，还有一个raw属性
+console.log`123`//['123', raw: Array[1]]
+//console.log接受的参数，实际上是一个数组。该数组有一个raw属性，保存的是转义后的原字符串。
+```
+  又有一个例子：
+```javascript
+tag`第一行的\n第二行的`
+
+function tag(strings) {
+  console.log(strings.raw[0]);
+  // strings.raw[0] 为 "第一行的\\n第二行的"
+  // 打印输出 "第一行的\n第二行的"
+}
+//这里面，tag函数的第一个参数strings，有一个raw属性，也指向一个数组。该数组的成员与strings数组完全一致。比如，strings数组是["第一行的\n第二行的"]，那么strings.raw数组就是["第一行的\\n第二行的"]。两者唯一的区别，就是字符串里面的斜杠都被转义了。比如，strings.raw 数组会将\n视为\\和n两个字符，而不是换行符。
+```
+### 13.String.raw()
+  es6为原生的String对象，提供了raw方法。String.raw方法，往往用来充当模板字符串的处理函数，返回一个斜杠都被转义（即斜杠前面再加一个斜杠）的字符串，对应于替换变量后的模板字符串。
+```javascript
+String.raw`Hi\n${2+2}!`;// 返回 "Hi\\n4!"
+String.raw`Hi\u000A!`;// 返回 "Hi\\u000A!"
+//如果原字符串的斜杠已经转义，那么String.raw会进行再次转义。
+String.raw`Hi\\n` // 返回 "Hi\\\\n"
+```
+  String.raw方法可以作为处理模板字符串的基本方法，它会将所有变量替换，而且对斜杠进行转义，方便下一步作为字符串来使用。String.raw方法也可以作为正常的函数使用。这时，它的第一个参数，应该是一个具有raw属性的对象，且raw属性的值应该是一个数组。
+```javascript
+String.raw({ raw: 'test' }, 0, 1, 2);// 't0e1s2t'
+// 等同于
+String.raw({ raw: ['t','e','s','t'] }, 0, 1, 2);
+```
+  作为函数，String.raw的代码实现长这样：
+```javascript
+String.raw = function (strings, ...values) {
+  let output = '';
+  let index;
+  for (index=0; index<values.length; index++) {
+    output+=strings.raw[index]+values[index];
+  }
+  output+=strings.raw[index]
+  return output;
+}
+```
+### 14.模板中字符串的限制
+  标签模板里面，可以内嵌其它语言，但是，模板字符串默认会将字符串转义，导致无法嵌入其他语言。
+  比如，标签模板里面可以嵌入LaTEX语言（什么鬼？~）
+```javascript
+//一段不知道是什么语言的代码
+function latex(strings) {
+  // ...
+}
+
+let document = latex`
+\newcommand{\fun}{\textbf{Fun!}}  // 正常工作
+\newcommand{\unicode}{\textbf{Unicode!}} // 报错
+\newcommand{\xerxes}{\textbf{King!}} // 报错
+Breve over the h goes \u{h}ere // 报错
+`
+//这里面，变量document内嵌的模板字符串，对于 LaTEX 语言来说完全是合法的，但是 JavaScript 引擎会报错。原因就在于字符串的转义。模板字符串会将\u00FF和\u{42}当作 Unicode 字符进行转义，所以\unicode解析时报错；而\x56会被当作十六进制字符串转义，所以\xerxes会报错。也就是说，\u和\x在 LaTEX 里面有特殊含义，但是 JavaScript 将它们转义了。
+```
+  为了解决这个问题，ES2018 放松了对标签模板里面的字符串转义的限制。如果遇到不合法的字符串转义，就返回undefined，而不是报错，并且从raw属性上面可以得到原始字符串。
+```javascript
+function tag(strs) {
+  strs[0] === undefined
+  strs.raw[0] === "\\unicode and \\u{55}";
+}
+tag`\unicode and \u{55}`
+//这里面，模板字符串原本是应该报错的，但是由于放松了对字符串转义的限制，所以不报错了，JavaScript 引擎将第一个字符设置为undefined，但是raw属性依然可以得到原始字符串，因此tag函数还是可以对原字符串进行处理。
+
+//注意，这种对字符串转义的放松，只在标签模板解析字符串时生效，不是标签模板的场合，依然会报错。
+let bad = `bad escape sequence: \unicode`; // 报错
+```
+
+
+
+
+
+
+
+
+
+\
+## 四、正则的扩展
+### 1.RegExp构造函数
+  在es5中，RegExp构造函数的参数有两种情况，第一种情况是参数是字符串，这时第二个参数表示正则表达式的修饰符（flag）
+```javascript
+var regex=new RegExp('xyz','i')//等价于
+var regex=/xyz/i  // i ignore，忽略大小写
+```
+  第二种情况是，参数是一个正则表达式，这时会返回一个原有正则表达式的拷贝：
+```javascript
+var regex=new RegExp(/xyz/i) // 等价于
+var regex=/xyz/i
+```
+  但是es5不允许此时使用第二个参数添加修饰符，否则就会报错：
+```javascript
+var regex=new RegExp(/xyz/, ''i'')//报错，从另一个RegExp构建一个RegExp时不支持修饰符
+```
+  es6改变了这种行为，如果RegExp构造函数第一个参数是一个正则对象，那么可以使用第二个参数指定修饰符吗，而且返回的正则表达式会忽略原有的正则表达式的修饰符，只使用新的指定的修饰符：
+```javascript
+new RegExp(/abc/ig,'i').flags//原有正则对象的修饰符是ig，但是会被后面的i覆盖
+```
+### 2.字符串的正则方法
+  字符串对象共有4个方法，可以使用正则表达式：match()、replace()、search()和split()。es6将这4个方法，在语言内部全部调用RegExp的实例方法，从而做到所有与正则相关的方法全都定义在RegExp对象上：
+  - String.prototype.match调用RegExp.prototype[Symbol.match]
+  - String.prototype.replace调用RegExp.prototype[Symbol.replace]
+  - String.prototype.split调用RegExp.prototype[Symbol.split]
+### 3.u修饰符
+  es6对正则表达式添加了u修饰符，含义就是Unicode模式，用来正确处理大于\uuFFFF的Unicode字符，就是说，会正确处理四个字节的UTF-16编码。
+```javascript
+/^\uD83D/u.test('\uD83D\uDC2A') //false
+/^\uD83D/.test('\uD83D\uDC2A') //true
+//这里面，\uD83D]\uDC2A是一个四字节的UUTF-16编码，代表一个字符，但是es5不支持四个字节的UTF-16编码，会将其识别为两个字符，导致第二行代码的结果为true，加了u修饰符以后，es6就会识别其为一个字符，所以第一行的就是true
+```
+  加上u修饰符，就会修改下面这些正则表达式的行为：
+  - 点字符
+  点( . )字符在正则表达式中，含义是除了换行符以外的任意单个字符，对于码点大于0xFFFF的Unicode字符，点字符不能识别，必须加上u修饰符
+```javascript
+var s = '𠮷';
+/^.$/.test(s) //false
+/^.$/u.test(s) //true
+//如果不添加u修饰符，正则表达式就会认为字符串为两个字符，从而匹配失败
+```
+  - Unicode字符表示法
+  es6新增了使用大括号表示Unicode字符，这种表示方法在正则表达式中必须加上u修饰符，才能识别当中的大括号，否则会被解释为量词：
+```javascript
+/\u{61}/.test('a') //false
+/\u{61}/u.test('a') //true
+/\u{20BB7}/u.test('𠮷') //true
+//如果不加修饰符，正则表达式无法识别\u{61}这种表示法，只会认为匹配61个连续的u
+```
+  - 量词
+  使用u修饰符后，所有的量词都会正确识别码点大于0xFFFF的Unicode字符：
+```javascript
+/a{2}/.test('aa') //true
+/a{2}/u.test('aa') //true
+/𠮷{2}/.test('𠮷𠮷') //false
+/𠮷{2}/u.test('𠮷𠮷') //true
+```
+  - 预定义模式
+  u修饰符也影响到预定义模式，能否正确识别码点大于0xFFFF的Unicode字符：
+```javascript
+/^\S$/.test('𠮷') //false
+/^\S$/u.test('𠮷') //true
+//\s是预定义模式，匹配所有的非空白字符，只有加了u修饰符，才能正确匹配码点大于0xFFFF的Unicode字符，利用这一点，可以写出一个正确返回字符串长度的函数
+function codePointLength(text) {
+  var result=text.match(/[\s\S]/gu);
+  return result?result.length:0;
+}
+var s='𠮷𠮷';
+s.length // 4
+codePointLength(s) // 2
+```
+  - i修饰符
+  有些Unicode字符的编码不同，但是字型很接近，比如\u0048和\u212A都是大写的K：
+```javascript
+/[a-z]/i.test('\u212A') //false,不加u就无法识别非规范的K字符
+/[a-z]/iu.test('\u212A') //true
+```
+### 4.y修饰符
+  除了u修饰符，es6还为正则表达式添加了y修饰符，叫做sticky修饰符，y修饰符与g修饰符类似，也是全局匹配，后一次匹配都从上一次匹配成功的下一个位置开始，不同之处在于，g修饰符只要剩余位置中存在匹配就可以，但是y修饰符确保匹配必须从剩余的第一个位置开始：
+```javascript
+var s='aaa_aa_a';
+var r1=/a+/g;
+var r2=/a+/y;
+r1.exec(s) //["aaa"]
+r2.exec(s) //["aaa"]
+r1.exec(s) //["aa"]
+r2.exec(s) //null
+//这个代码里面有两个正则表达式，一个使用g修饰符，一个使用y修饰符，这连个正则表达式个执行了一次，第一次执行的时候，二者行为相同，剩余字符串都是_aa_a，由于g修饰没有位置要求，所以第二次执行会返回结果，而y修饰符要求匹配必须从头部开始，所以返回null，如果改一下正则表达式，保证每次都能头部匹配，y修饰符就会返回结果了：
+var s='aaa_aa_a';
+var r=/a+_/y;
+r.exec(s) //["aaa_"]
+r.exec(s) //["aa_"]
+
+//使用lastIndex属性，来更好的说明y修饰符
+const REGEX=/a/g
+REGEX.lastInedx=2;//指定从2号位置开始匹配
+const match=REGEX.exec('xaya')
+match.index//3
+REGEX.lastInndex//4
+REGEX.exec('xaya')//null，4号位置开始匹配失败
+//这个代码里面，lastIndex属性指定每次搜索的开始位置，g修饰符从这个位置开始向后搜索，知道发现匹配为止。
+
+//y修饰符同样遵守lastIndex属性，但是要求必须在lastIndex指定的位置发现匹配
+const REGEX = /a/y;
+REGEX.lastIndex = 2;// 指定从2号位置开始匹配
+REGEX.exec('xaya') // null，不是粘连，匹配失败
+REGEX.lastIndex = 3;// 指定从3号位置开始匹配
+const match = REGEX.exec('xaya');// 3号位置是粘连，匹配成功
+match.index // 3
+REGEX.lastIndex // 4
+```
+  其实，y修饰符符号隐含了头部匹配的标志^ 
+```javascript
+/b/y.exec('abc')//null,由于不能保证头部匹配，所以返回null，y修饰符的设计本意，就是让头部匹配的标志^在全局匹配中都有效
+
+//字符串对象的replace方法的例子：
+const REGEX = /a/gy;
+'aaxa'.replace(REGEX, '-') //'--xa'
+//这个代码里最后一个a因为不是出现在下一次匹配的头部，所以不会被替换。
+
+//单单一个y修饰符对match方法，只能返回第一个匹配，必须与g修饰符连用，才能返回所有匹配
+'a1a2a3'.match(/a\d/y) // ['a1']
+'a1a2a3'.match(/a\d/gy) // ['a1','a2','a3']
+```
+  y修饰符的一个应用，是从字符串提取token，y修饰符确保了匹配之间不会有漏掉的字符：
+```javascript
+const TOKEN_Y=/\s*(\+|[0-9]+)\s*/y;
+const TOKEN_G=/\s*(\+|[0-9]+)\s*/g;
+tokenize(TOKEN_Y, '3 + 4')// [ '3', '+', '4' ]
+tokenize(TOKEN_G, '3 + 4')// [ '3', '+', '4' ]
+function tokenize(TOKEN_REGEX, str) {
+  let resul =[];
+  let match;
+  while (match=TOKEN_REGEX.exec(str)) {
+    result.push(match[1]);
+  }
+  return result;
+}
+
+//如果字符串里面没有非法字符，y修饰符与g修饰符的提取结果是一样的，但是一旦出现非法字符，两者的行为就不一样了：
+tokenize(TOKEN_Y, '3x + 4')// [ '3' ]
+tokenize(TOKEN_G, '3x + 4')// [ '3', '+', '4' ]
+//g修饰符会忽略非法字符，y不会，就很容易发现错误了
+```
+### 5.sticky属性
+  与y修饰符相匹配，es6的正则对象多了sticky属性，表示是否设置了y修饰符
+```javascript
+var r = /hello\d/y;
+r.sticky // true
+```
+### 6.flags属性
+  es6为正则表达式新增了flags属性，会返回正则表达式的修饰符：
+```javascript
+/abc/ig.source //'abc',es5的source属性，返回正则表达式的正文
+/abc/ig.flags//’gi，es6的flags属性，返回正则表达式的修饰符
+```
+### 7.s修饰符：dotAll模式
+  正则表达式中，点（.）是一个特殊字符，代表任意的单个字符，但是有两个例外，一个是四个字节的UTF-16字符，这个可以用u修饰符解决，另一个是行终止符，该字符表示一行的终结，以下四个字符属于“行终止符”
+  - U+000A换行符（\n）
+  - U+000D 回车符（\r）
+  - U+2028 行分隔符（line separator）
+  - U+2029 段分隔符（paragraph separator）
+```javascript
+/foo.bar/ .test('foo\nbar')//false,因为 . 不匹配\n，所以正则返回false
+//但是，很多时候就想匹配的是任意单个字符，可以变通一下写法
+/foo[^]bar/.test('foo\nbar')// true，就是看着有点别扭
+```
+  es2018引入s修饰符，使得.可以匹配任意单个字符
+```javascript
+/foo.bar/s .test('foo\nbar') // true
+//这被称为dotAll模式，即点（.）代表一切字符，所以正则表达式还引入了dotAll属性，返回一个布尔值，表示该正则表达式是否处于dotAll模式
+const re = /foo.bar/s; // 另一种写法
+// const re = new RegExp('foo.bar', 's');
+re.test('foo\nbar') // true
+re.dotAll // true
+re.flags // 's'
+///s修饰符和多行修饰符/m不冲突,二者一起使用的情况下，. 匹配所有字符，而^和$匹配每一行的行首和行尾。
 ```
