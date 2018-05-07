@@ -181,7 +181,71 @@ download(){
 }
 ```
 ### 6.把数据发送到服务器
-  
+  除了从服务器获取数据之外，HttpClient还支持修改型的请求，也就是说，通过PUT、POST、DELETE这样的HTTP请求方法把数据发送到服务器。人物列表又来了，它会回去人物数据，并允许用户添加、删除和修改它们
+#### 6.1 添加请求头
+  很多服务器在进行保存型操作时需要额外的请求头，比如，它们可能需要一个Content-Type头来显式定义请求体的MIME类型，也能服务器会需要一个认证用的token，PersonsService在httpOptions对象中就定义了一些这样的请求头，并把它传给每个HttpClient的保存型方法：
+```typescript
+import {HttpHeaders} from '@angularr/commmon/http';
+const httpOptions={
+    headers:new HttpHeaders({
+        'Content-Type':'application/json',
+        'Authorization':'my-auth-token'
+    })
+}
+```
+#### 6.2 发起一个POST请求
+  应用经常把数据POST到服务器，它们会在提交表单时进行POST，下面的代码里，PersonService在把人物添加到数据库中时，就会使用POST：
+```typescript
+//使用POST添加一个人物数据
+addPerson(person:Person):Observable<Person>{
+    return this.http.post<Person>(this.personUrl,person,httpOptions)
+    .pipe(catchError(this.handleError('addPerson',person)))
+}
+```
+  HttpClient.post()方法像get()一样也有类型参数，它包含一个资源URL，它还接受另外两个参数：
+  - person-要POST的请求体数据
+  - httpOptions-这个例子中，该方法的选项指定了所需的请求头
+  它捕获错误的方式很像前面描述的操作方式，它还窃听了可观察对象的返回值，以记录成功的POST，PersonsComponent通过订阅该服务方法返回的Observable发起了一次实际的POST操作：
+```typescript
+this.personsService.addPerson(newPerson)
+    .subscribe(person=>this.persons.push(person))
+```
+  当服务器成功做出响应时，会带有这个新创建人物，然后该组件就会把这个人物添加到正在显示的persons列表里面。
+#### 6.3 发起DELETE请求
+  该应用可以把人物的id传给HttpClient.delete方法的请求URL来删除一个人物：
+```typescript
+//从服务器上删除一个人
+deletePerson(id:number):Observable<{}>{
+    const url=`${this.personUrl}/${oid}`
+    return this.http.delete(url,httpOptions)
+    .pipe(
+    	catchError(this.handleError('deletePerson'))
+    )
+}
+```
+  当PersonsComponent订阅了该服务方法返回的Observable时，就会发起一次实际的DELETE操作：
+```typescript
+this.personService.deletePerson(person.id).subscribe()//必须调用一些subscribe，不然什么也不会发生
+```
+  该组件不关心删除操作返回的结果，订阅时也没有回调函数，单纯的.subscribe()方法看似毫无意义，但实际上，它是必备的，否则调用的PersonService.deletePerson()时并不会发起DELETE请求
+#### 6.4 订阅
+  在调用方法返回的可观察对象的subscribe()方法之前，HttpClient方法不会发起HTTP请求，这适用于HttpClient的所有方法，HttpClient的所有方法返回的可观察对象都设计为冷的，HHTTP请求的执行都是延期执行的，让我可以用tap和catchError这样的操作符在实际执行什么之前，先对这个可观察对象进行扩展。
+  调用subscribe(...)会触发这个可观察对象的执行，并导致HttpClient组合并把HTTP请求发给服务器，可以把这些可观察对象看做实际HTTP请求的蓝图：
+```typescript
+//实际上，每个subscribe()都会初始化此可观察对象的一次单独的、独立的执行，订阅两次就会导致发起两个HTTP请求
+const req = http.get<Persons>('/api/persons');// 发出0个请求 - .subscribe（）未被调用。
+req.subscribe();// 1个请求订阅
+req.subscribe();// 2个请求订阅
+```
+#### 6.5 发起PUT请求
+  应用可以发送PUT请求，来使用修改后的数据完全替换掉一个资源，下面的PersonService例子和POST的例子很像：
+```typescript
+//更新服务器上的人物，更新成功就返回新的人物
+updatePerson(person:Person):Observable<Person>{
+    return this.http.put<Person>(this.personsUrl,,person,httpOptions)
+    .pipe(catchError(this.handleError('updatePerson',person)))
+}
+```
 
 
 
