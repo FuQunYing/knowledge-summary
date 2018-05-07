@@ -71,6 +71,32 @@ referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=1037
 path | String | 不存在页面的路径
 query | Object | 打开不存在页面的query
 isEntryPage | Boolean | 是否本次启动的首个页面（比如从分享等入口进来，首个页面是开发者配置的分享页面）
+  开发者可以在onPageNotFound回调中进行重定向处理，但必须在回调中同步处理，异步处理无效（比如setTimeOut异步执行）
+  示例代码：
+```javascript
+App({
+    onPageNotFound(res){
+        wx.redirectTo({//如果是tabbar页面，用wx.switchTab
+           url:'pages/....'
+        })
+    }
+})
+//如果这人没有添加onPageNotFound监听，当跳转页面不存在时，将推入微信客户端原生的页面不存在提示页面；如果onPageNotFound回调中又重定向到另一个不存在的页面，将推入微信客户端原生的页面不存在提示页面，并且不再回调onPageNotFound
+```
+#### 1.4 getApp()
+  全局的getApp()函数可以用来获取到小程序实例：
+```javascript
+//随便什么js文件
+var appInstance = getApp()
+console.log(appInstance.globalData)//全局数据
+/*
+注意：
+App()必须在aoo.js中注册，且不能注册多个
+不要在定义于App()内的函数中调用getApp()，使用this就可以拿到app实例
+不要在onLaunch的时候调用getCurrentPages，此时page还没有生成
+通过getApp()获取实例之后，不要私自调用声明周期函数
+*/
+```
 
 
 
