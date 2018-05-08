@@ -348,6 +348,7 @@ var getGlobal = function () {
   const global = getGlobal();
   这样就把顶层对象放入了变量global里。
 ```
+
 ## 二、变量的解构赋值
 ### 1.数组的解构赋值
 #### 1.1 基本用法
@@ -777,6 +778,7 @@ jQuery.ajax=function(url,{
 //加载模块时，往往需要指定输入哪些方法，结构赋值可以让输入语句更清晰
 const {SourceMapConsumer,SourceNode}=require('source-map')
 ```
+
 ## 三、字符串的扩展
 ### 1.字符的Unicode表示
   JS允许采用\uxxxx形式表示一个字符，其中xxxx表示字符的Unicode码点，比如：
@@ -1259,6 +1261,7 @@ tag`\unicode and \u{55}`
 //注意，这种对字符串转义的放松，只在标签模板解析字符串时生效，不是标签模板的场合，依然会报错。
 let bad = `bad escape sequence: \unicode`; // 报错
 ```
+
 ## 四、正则的扩展
 ### 1.RegExp构造函数
   在es5中，RegExp构造函数的参数有两种情况，第一种情况是参数是字符串，这时第二个参数表示正则表达式的修饰符（flag）
@@ -1437,6 +1440,7 @@ re.dotAll // true
 re.flags // 's'
 ///s修饰符和多行修饰符/m不冲突,二者一起使用的情况下，. 匹配所有字符，而^和$匹配每一行的行首和行尾。
 ```
+
 ## 五、数值的扩展
 ### 1.二进制和八进制表示法
   es6提供了二进制和八进制数值的新的写法，分别用前缀0b和0o表示：
@@ -1537,3 +1541,355 @@ Number.isInteger(5E-325) // true
 //上面代码中，5E-325由于值太小，会被自动转为0，因此返回true。
 ```
   所以，如果对数据精度要求较高，不建议使用Number.isInteger()判断一个数值是否为整数。
+### 5.Number.EPSILON
+  es6在Number对象上面，新增一个极小的常量Number.EPSILON，根据规格，它表示1与大于1的最小浮点数之间的差。对于64位浮点数来说，大于1的最小浮点数相当于二进制的1.00..001，小数点后面有连续51个零，这个值减去1之后，就等于2的-52次方。
+```javascript
+Number.EPSILON === Math.pow(2, -52)// true
+Number.EPSILON// 2.220446049250313e-16
+Number.EPSILON.toFixed(20)// "0.00000000000000022204"
+//Numebr.EPSILON实际上是JavaScript能够表示的最小精度，误差如果小于这个值，就可以认为已经没有意义了，即不存在误差了
+```
+  引入这么小的量的目的，在于为浮点数计算，设置一个误差范围，因为浮点数计算是不精确的：
+```javascript
+0.1 + 0.2//0.30000000000000004
+0.1 + 0.2 - 0.3// 5.551115123125783e-17
+5.551115123125783e-17.toFixed(20)// '0.00000000000000005551'
+//这样就知道了吧，0.2+0.1与0.3的结果是false
+0.1+0.2===0.3//false
+```
+  Number.EPSILON可以用来设置“能够接受的误差范围”，比如，误差范围设为2的-50次方，即如果两个浮点数的差小于这个值，就认为这两个浮点数相等：
+```javascript
+5.551115123125783e-17 < Number.EPSILON * Math.pow(2, 2)// true
+```
+  所以，Number.EPSILON的实质是一个可以接受的最小误差的范围
+```javascript
+function withinErrorMargin(left,right){//误差检查函数
+    return Math.abs(left-right)<Number.EPSILON*Math.pow(2,2)
+}
+0.1+0.2===0.3//false
+withinErrorMargin(0.1+0.2,,0.3)//true
+1.1 + 1.3 === 2.4 // false
+withinErrorMargin(1.1 + 1.3, 2.4) // true
+```
+### 6.安全整数和Number.isSafeInteger()
+  JavaScript能够准确表示的整数范围在-2^53到2^53之间，不含两个端点，超过这个范围无法精确表示这个值：
+```javascript
+Math.pow(2,53)// 9007199254740992
+9007199254740992  // 9007199254740992
+9007199254740993  // 9007199254740992
+Math.pow(2, 53) === Math.pow(2, 53) + 1// true,看看，这一个数就不精确了
+```
+  es6引入了Number,MAX_SAFE_INTEGER和Number.MIN_SAFE_INTEGER这两个常量，用来表示这个范围的上下限：
+```javascript
+Number.MAX_SAFE_INTEGER === Math.pow(2, 53) - 1// true
+Number.MAX_SAFE_INTEGER === 9007199254740991// true
+Number.MIN_SAFE_INTEGER === -Number.MAX_SAFE_INTEGER// true
+Number.MIN_SAFE_INTEGER === -9007199254740991// true
+//这可以看到JavaScript能够精确表示的极限
+
+//Number.isSafeInnteger()则是用来判断一个整数是否落在这个范围之内：
+Number.isSafeInteger('a') // false
+Number.isSafeInteger(null) // false
+Number.isSafeInteger(NaN) // false
+Number.isSafeInteger(Infinity) // false
+Number.isSafeInteger(-Infinity) // false
+Number.isSafeInteger(3) // true
+Number.isSafeInteger(1.2) // false
+Number.isSafeInteger(9007199254740990) // true
+Number.isSafeInteger(9007199254740992) // false
+Number.isSafeInteger(Number.MIN_SAFE_INTEGER - 1) // false
+Number.isSafeInteger(Number.MIN_SAFE_INTEGER) // true
+Number.isSafeInteger(Number.MAX_SAFE_INTEGER) // true
+Number.isSafeInteger(Number.MAX_SAFE_INTEGER + 1) // false
+
+//这个函数的实现很简单，就是跟安全整数的两个边界值比较一下
+Number.isSafeInteger = function (n) {
+  return (typeof n === 'number'&&Math.round(n) === n&&Number.MIN_SAFE_INTEGER <= n&&n <= Number.MAX_SAFE_INTEGER);
+}
+//实际使用这个函数的时候，需要注意验证运算结果是否落在安全整数的范围内，不要只验证运算结果，而要同时验证参与运算的每个值：
+Number.isSafeInteger(9007199254740993)// false
+Number.isSafeInteger(990)// true
+Number.isSafeInteger(9007199254740993 - 990)// true
+9007199254740993 - 990// 返回结果 9007199254740002，正确答案应该是 9007199254740003
+//这里面，9007199254740993不是一个安全整数，但是Number.isSafeInteger会返回结果，显示计算结果是安全的，这是因为这个数超出了精度范围，导致在计算机内部以9007199254740992的形式储存
+9007199254740993 === 9007199254740992// true
+
+//所以，如果只验证运算结果是否为安全整数，很可能得到错误结果，下面的函数可以同时验证两个运算数和运算结果
+function trusty(left,rigth,result){
+    if(Number.isSafeInteger(left))&&Number.isSafeInteger(right)&&Number.isSafeInteger(result){
+        return result;
+    }
+    throw new RangeError('不被信任的操作')
+}
+trusty(9007199254740993, 990, 9007199254740993 - 990)//报错：操作不被信任
+trusty(1,2,3)//3
+```
+### 7.Math对象的扩展
+  es6在Math对象上新增了17个（！！！！）与数学相关的方法，所有的这些方法都是静态的，只能在Math对象上调用：
+#### 7.1 Math.trunc()
+  Math.trunc方法用于去除一个数的小数部分，返回整数部分：
+```javascript
+Math.trunc(4.1) // 4
+Math.trunc(4.9) // 4
+Math.trunc(-4.1) // -4
+Math.trunc(-4.9) // -4
+Math.trunc(-0.1234) // -0
+```
+  对于非数值，Math.trunc内部使用Number方法将其先转换为数值：
+```javascript
+Math.trunc('123.456')//123
+Math.trunc(true)//1
+Math.trunc(false)//0
+Math.trunc(null) // 0
+```
+  对于空值和无法取整数的值，返回NaN：
+```javascript
+Math.trunc(NaN)//NaN
+Math.trunc('foo')// NaN
+Math.trunc()// NaN
+Math.trunc(undefined) // NaN
+```
+  对于没有部署这个方法的环境，可以用下面的代码模拟：
+```javascript
+Math.trunc=Math.trunc||function(x){
+    return x<0?Math.ceil(c):Math.floor(x)
+}
+```
+#### 7.2 Math.sign()
+  Math.sign方法用来判断一个数到底是正数、负数还是零。对于非数值，会先将其转换为数值，它会返回五种值：
+  - 参数为正数，返回+1
+  - 参数为负数，返回-1
+  - 参数为0，返回0
+  - 参数为-0，返回-0
+  - 其它值，返回NaN
+```javascript
+Math.sign(-5) // -1
+Math.sign(5) // +1
+Math.sign(0) // +0
+Math.sign(-0) // -0
+Math.sign(NaN) // NaN
+```
+  如果参数是非数值，会自动转换为数值，对于那些无法转为数值的值，会返回NaN：
+```javascript
+Math.sign('') // 0
+Math.sign(true)// +1
+Math.sign(false)// 0
+Math.sign(null)// 0
+Math.sign('9')// +1
+Math.sign('foo')// NaN
+Math.sign()// NaN
+Math.sign(undefined)// NaN
+```
+  对于没有部署这个方法的环境，可以自己写一个啊：
+```javascript
+Math.sign=Math.sign||function(x){
+    x= +x;
+    if(x===0 || isNaN(x)){
+        return x
+    }
+    rreturn x>0?1:-1;
+}
+```
+#### 7.3 Math.cbrt()
+  Math.cbrt方法用于计算一个数的立方根：
+```javascript
+Math.cbrt(-1)// -1
+Math.cbrt(0)// 0
+Math.cbrt(1)// 1
+Math.cbrt(2)// 1.2599210498948734
+```
+  对于非数值，Math.cbrt方法内部也是先使用Number方法将其转为数值：
+```javascript
+Math.cbrt('8')//2
+Math.cbrt('luelue')//NaN
+```
+  对于没有部署这个方法的环境，可以用下面的代码模拟：
+```javascript
+  Math.cbrt=Math.cbrt || function(x){
+    var y=Math.pow(Math.abs(x),1/3)
+    return x<0?-y:y
+}
+```
+#### 7.4 Math.clz32()
+  JavaScript的整数使用32位二进制形式表示，Math.clz32方法返回一个数的32位无符号整数形式有多少个前导0：
+```javascript
+Math.clz32(0) // 32
+Math.clz32(1) // 31
+Math.clz32(1000) // 22
+Math.clz32(0b01000000000000000000000000000000) // 1
+Math.clz32(0b00100000000000000000000000000000) // 2
+//这里面，0的二进制形式全为0，所以有32个前导0,1的二进制形式是0b1，只占1位，所以32位之中有31个前导0,1000的二进制形式是0b1111101000，一共有10位，所以32位之中有22个前导0
+```
+  clz32这个函数名就来自”count leading zero bits in 32-bit binary representation of a number“（计算一个数的 32 位二进制形式的前导 0 的个数）的缩写。左移运算符(<<)与Math.clz32方法直接相关：
+```javascript
+Math.clz32(0)// 32
+Math.clz32(1)// 31
+Math.clz32(1<<1)// 30
+Math.clz32(1<<2)// 29
+Math.clz32(1<<29)// 2
+```
+  对于小数，Math.clz32方法只考虑整数部分：
+```javascript
+Math.clz32(3.2)//30
+Math.clz32(3.9)//30
+```
+  对于空值或其它类型的值，Math.clz32方法会将它们先转为数值，然后再计算：
+```javascript
+Math.clz32()// 32
+Math.clz32(NaN)// 32
+Math.clz32(Infinity)// 32
+Math.clz32(null)// 32
+Math.clz32('foo')// 32
+Math.clz32([])// 32
+Math.clz32({})// 32
+Math.clz32(true)// 31
+```
+#### 7.5 Math.imul()
+  这个方法返回两个数以32位带符号整数形式相乘的结果，返回的也是一个32位的带符号整数：
+```javascript
+Math.imul(2, 4)   // 8
+Math.imul(-1, 8)  // -8
+Math.imul(-2, -2) // 4
+```
+  如果只考虑最后32位，大多数情况下，Math.imul(a,b)与a\*b的结果是相同的，即该方法等同于(a\*b)|0的效果，超过32位的部分溢出，之所以需要部署这个方法，是因为JavaScript有精度限制，超过2的53次方的值无法精确表示，这就是说，对于那些很大数的乘法，低位数值往往是不准确的，Math.imul方法可以返回正确的低位数值：
+```javascript
+(0x7fffffff * 0x7fffffff)|0 // 0，由于这两个二进制数的最低位都是 1,这个返回结果肯定不对的，因为根据二进制的乘法，计算结果的二进制最低位应该也是1，这个错误就是因为它们的乘积超过了2的53次方，JavaScript无法保存额外的精度，就把低位值变成0，Math.imul方法可以返回正确的1：
+Math.imul(0x7fffffff, 0x7fffffff) // 1
+```
+#### 7.6 Math.founnd()
+  此方法返回一个数的32位单精度浮点数形式，对于32位单精度格式来说，数值精度是24个二进制位，所以对于-2^24^至2^24^之间的整数，返回结果与参数本身一致:
+```javascript
+Math.fround(0)// 0
+Math.fround(1)// 1
+Math.fround(2 ** 24 - 1)// 16777215
+//如果参数的绝对值大于2^24^，返回的结果便开始丢失精度
+Math.fround(2 ** 24)// 16777216
+Math.fround(2 ** 24 + 1)// 16777216
+```
+  Math.fround方法的主要作用，是将64位双精度浮点数转为32位 单精度浮点数，如果小数的精度超过24个二进制位，返回值就会不同于原值，否则返回值不变，就还是和64位双精度值一致：
+```javascript
+// 未丢失有效精度
+Math.fround(1.125)// 1.125
+Math.fround(7.25)// 7.25
+// 丢失精度
+Math.fround(0.3)// 0.30000001192092896
+Math.fround(0.7)// 0.699999988079071
+Math.fround(1.0000000123) // 1
+```
+  对于NaN和Infinity，此方法返回原值，对于其它类型的非数值，Math.fround方法会先将其转为数值，再返回单精度浮点数：
+```javascript
+Math.fround(NaN)// NaN
+Math.fround(Infinity)// Infinity
+Math.fround('5')// 5
+Math.fround(true)// 1
+Math.fround(null)// 0
+Math.fround([])// 0
+Math.fround({})// NaN
+```
+  对于没有部署这个方法的环境，可以模拟一下：
+```javascript
+Math.fround=Math.fround||function(x){
+    return new Float32Arrat([x])[0]
+}
+```
+#### 7.7 Math.hypot()
+  此方法返回所有参数的平方和的平方根：
+```javascript
+Math.hypot(3, 4)// 5
+Math.hypot(3, 4, 5)// 7.0710678118654755
+Math.hypot()// 0
+Math.hypot(NaN)// NaN
+Math.hypot(3, 4, 'foo')// NaN
+Math.hypot(3, 4, '5')// 7.0710678118654755
+Math.hypot(-3) // 3
+//如果参数不是数值，Math.hypot方法会将其转为数值，只要有一个参数无法转为数值，就会返回NaN
+```
+#### 7.8 对数 方法
+##### 7.8.1 Math.expm1()
+  Math.expm1()返回e^x^-1即Math.exp(x)-1（高中的对数函数什么来着？？）
+```javascript
+Math.expm1(-1)// -0.6321205588285577
+Math.expm1(0)// 0
+Math.expm1(1)// 1.718281828459045
+```
+  对于没有部署这个方法的环境，可以写个函数模拟：
+```javascript
+Math.expm1=Math.expm1||function(x){
+    return Math.exp(x)-1
+}
+```
+##### 7.8.2 Math.log1p()
+  这个方法返回1+x的自然对数，即Math.log(1+x)，如果x小于-1，返回NaN：
+```javascript
+Math.log1p(1)// 0.6931471805599453
+Math.log1p(0)// 0
+Math.log1p(-1)// -Infinity
+Math.log1p(-2)// NaN
+```
+  对于没有部署这个方法的环境，可以自己写一个：
+```javascript
+Math.log1p=Math.log1p||function(x){
+    return Math.log(1+x)
+}
+```
+##### 7.8.3 Math.log10()
+  返回以10为底的x的对数。如果x小于0，则返回NaN：
+```javascript
+Math.log10(2)// 0.3010299956639812
+Math.log10(1)// 0
+Math.log10(0)// -Infinity
+Math.log10(-2)// NaN
+Math.log10(100000) // 5
+```
+  没有这个方法的环境，自己写：
+```javascript
+Math.log10=Math.log10||function(x){
+    return Math.log(x)/Math.LN10
+}
+```
+##### 7.8.4 Math.log2()
+  返回以2为底的对数，如果x小于0，则返回NaN：
+```javascript
+Math.log2(3)// 1.584962500721156
+Math.log2(2)// 1
+Math.log2(1)// 0
+Math.log2(0)// -Infinity
+Math.log2(-2)// NaN
+Math.log2(1024)// 10
+Math.log2(1 << 29)// 29
+```
+  没有这个方法的，自己动手，丰衣足食：
+```javascript
+Math.log2=Math.log2||function(x){
+    return Math.log(x)/MMath.LN2
+}
+```
+#### 7.9 双曲函数方法
+  - Math.sinh(x)返回x的双曲正弦
+  - Math.cosh(x)返回x的双曲余弦
+  - Math.tanh(x)返回x的双曲 正切
+  - Math.asinh(x)返回x的反双曲正弦
+  - Math.acosh(x)返回x的反双曲余弦
+  - Math.atanh(x)返回x的反双曲正切
+  - 这是记住了方法也不知道用在哪里 系列
+### 8.指数运算符
+  新增的 指数运算符： \*\*
+```javascript
+  2**2//4
+  2**3//8
+```
+  指数运算符可以与等号结合，形成一个新的赋值运算符(\*\*=)
+```javascript
+let a=10
+a**=2//100，,相当于a=a*a
+let b=4;
+b**+3//48,相当于b=b*b*b
+```
+  在V8引擎中，指数运算符与Math.pow的实现不相同，对于特别大的运算结果，两者会有细微的差异：
+```javascript
+Math.pow(99,99)//3.697296376497263e+197
+99 ** 99// 3.697296376497268e+197
+//运算结果的最后一位有效数字是有差异的
+```
+
+## 六、函数的扩展

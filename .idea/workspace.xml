@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md" beforeDir="false" afterPath="$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -19,41 +20,39 @@
       <file leaf-file-name="es6.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/JS/es6.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="64">
-                <caret line="1449" selection-start-line="1449" selection-end-line="1449" />
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="160">
+                <caret line="1894" column="10" selection-start-line="1894" selection-start-column="10" selection-end-line="1894" selection-end-column="10" />
                 <folding>
                   <element signature="e#0#15#0" />
                   <element signature="e#3514#3533#0" />
                   <element signature="e#5286#5298#0" />
                   <element signature="e#6571#6584#0" />
                   <element signature="e#7098#7111#0" />
-                  <element signature="e#8220#8232#0" />
-                  <element signature="e#8233#8246#0" />
-                  <element signature="e#10174#10187#0" />
-                  <element signature="e#12662#12676#0" />
-                  <element signature="e#12893#12910#0" />
-                  <element signature="e#13255#13270#0" />
-                  <element signature="e#14089#14100#0" />
-                  <element signature="e#14276#14295#0" />
-                  <element signature="e#14710#14729#0" />
-                  <element signature="e#14921#14929#0" />
-                  <element signature="e#16279#16290#0" />
-                  <element signature="e#16291#16309#0" />
-                  <element signature="e#16884#16903#0" />
-                  <element signature="e#17991#18019#0" />
-                  <element signature="e#19189#19206#0" />
-                  <element signature="e#20265#20305#0" />
-                  <element signature="e#20815#20829#0" />
-                  <element signature="e#21282#21306#0" />
-                  <element signature="e#22112#22130#0" />
-                  <element signature="e#22164#22176#0" />
-                  <element signature="e#24253#24264#0" />
-                  <element signature="e#27799#27818#0" />
-                  <element signature="e#28616#28632#0" />
-                  <element signature="e#29639#29649#0" />
+                  <element signature="e#8224#8236#0" />
+                  <element signature="e#16283#16294#0" />
+                  <element signature="e#29636#29646#0" />
+                  <element signature="e#34969#34979#0" />
+                  <element signature="e#34976#34992#0" />
+                  <element signature="e#35398#35436#0" />
+                  <element signature="e#36500#36543#0" />
+                  <element signature="e#36883#36907#0" />
+                  <element signature="e#37826#37846#0" />
+                  <element signature="e#38911#38944#0" />
+                  <element signature="e#41107#41122#0" />
+                  <element signature="e#47052#47063#0" />
                 </folding>
               </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="es6总结0508.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor />
               <second_editor />
             </state>
           </provider>
@@ -112,11 +111,6 @@
             <path>
               <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
               <item name="工作总结" type="462c0819:PsiDirectoryNode" />
-              <item name="work&amp;study" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
-              <item name="工作总结" type="462c0819:PsiDirectoryNode" />
               <item name="wxapp" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -166,25 +160,27 @@
       <workItem from="1524102094962" duration="2913000" />
       <workItem from="1525402110473" duration="1341000" />
       <workItem from="1525655134917" duration="1197000" />
+      <workItem from="1525761753871" duration="452000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10830000" />
+    <option name="totallyTimeSpent" value="11282000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.367049" />
-      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.367049" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -205,6 +201,23 @@
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="23184">
+            <caret line="1449" selection-start-line="1449" selection-end-line="1449" />
+            <folding>
+              <element signature="e#0#15#0" />
+              <element signature="e#3514#3533#0" />
+              <element signature="e#5286#5298#0" />
+              <element signature="e#6571#6584#0" />
+              <element signature="e#7098#7111#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="23184">
             <caret line="1449" lean-forward="true" selection-start-line="1449" selection-end-line="1449" />
             <folding>
               <element signature="e#0#15#0" />
@@ -212,30 +225,6 @@
               <element signature="e#5286#5298#0" />
               <element signature="e#6571#6584#0" />
               <element signature="e#7098#7111#0" />
-              <element signature="e#8220#8232#0" />
-              <element signature="e#8233#8246#0" />
-              <element signature="e#10174#10187#0" />
-              <element signature="e#12662#12676#0" />
-              <element signature="e#12893#12910#0" />
-              <element signature="e#13255#13270#0" />
-              <element signature="e#14089#14100#0" />
-              <element signature="e#14276#14295#0" />
-              <element signature="e#14710#14729#0" />
-              <element signature="e#14921#14929#0" />
-              <element signature="e#16279#16290#0" />
-              <element signature="e#16291#16309#0" />
-              <element signature="e#16884#16903#0" />
-              <element signature="e#17991#18019#0" />
-              <element signature="e#19189#19206#0" />
-              <element signature="e#20265#20305#0" />
-              <element signature="e#20815#20829#0" />
-              <element signature="e#21282#21306#0" />
-              <element signature="e#22112#22130#0" />
-              <element signature="e#22164#22176#0" />
-              <element signature="e#24253#24264#0" />
-              <element signature="e#27799#27818#0" />
-              <element signature="e#28616#28632#0" />
-              <element signature="e#29639#29649#0" />
             </folding>
           </first_editor>
           <second_editor />
@@ -476,21 +465,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
-        </state>
-      </provider>
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="304">
-            <caret line="6844" column="1" selection-start-line="6844" selection-start-column="1" selection-end-line="6844" selection-end-column="1" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/JS/es6总结0423.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -561,41 +535,181 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6.md">
+    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0507.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="64">
-            <caret line="1449" selection-start-line="1449" selection-end-line="1449" />
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="247" selection-end-column="3" />
+            <folding>
+              <element signature="e#8#23#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0508.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="417" />
+            <folding>
+              <element signature="e#8#18#0" />
+              <element signature="e#12974#12989#0" />
+              <element signature="e#14042#14056#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="256">
+            <caret line="7520" column="12" selection-start-line="7520" selection-start-column="12" selection-end-line="7520" selection-end-column="12" />
+            <folding>
+              <element signature="e#0#11#0" />
+              <element signature="e#0#37#0" expanded="true" />
+              <element signature="e#604#647#0" expanded="true" />
+              <element signature="e#8045#8060#0" />
+              <element signature="e#1#43#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#167#216#0" expanded="true" />
+              <element signature="e#0#42#0" expanded="true" />
+              <element signature="e#0#49#0" expanded="true" />
+              <element signature="e#0#42#0" expanded="true" />
+              <element signature="e#0#57#0" expanded="true" />
+              <element signature="e#0#57#0" expanded="true" />
+              <element signature="e#0#43#0" expanded="true" />
+              <element signature="e#0#51#0" expanded="true" />
+              <element signature="e#0#60#0" expanded="true" />
+              <element signature="e#0#49#0" expanded="true" />
+              <element signature="e#0#50#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#52#0" expanded="true" />
+              <element signature="e#0#42#0" expanded="true" />
+              <element signature="e#0#52#0" expanded="true" />
+              <element signature="e#0#58#0" expanded="true" />
+              <element signature="e#0#47#0" expanded="true" />
+              <element signature="e#119399#119408#0" />
+              <element signature="e#0#42#0" expanded="true" />
+              <element signature="n#!!doc" expanded="true" />
+              <element signature="e#168#174#0" expanded="true" />
+              <element signature="e#0#45#0" expanded="true" />
+              <element signature="e#0#56#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#53#0" expanded="true" />
+              <element signature="e#0#46#0" expanded="true" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#169501#169528#0" />
+              <element signature="e#0#36#0" expanded="true" />
+              <element signature="e#0#45#0" expanded="true" />
+              <element signature="e#0#46#0" expanded="true" />
+              <element signature="e#0#55#0" expanded="true" />
+              <element signature="e#0#52#0" expanded="true" />
+              <element signature="e#48#93#0" expanded="true" />
+              <element signature="e#191076#191088#0" />
+              <element signature="e#0#56#0" expanded="true" />
+              <element signature="e#193816#193832#0" />
+              <element signature="e#11#67#0" expanded="true" />
+              <element signature="n#!!doc" expanded="true" />
+              <element signature="e#37#95#0" expanded="true" />
+              <element signature="e#2#41#0" expanded="true" />
+              <element signature="e#0#56#0" expanded="true" />
+              <element signature="e#0#39#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#45#0" expanded="true" />
+              <element signature="e#227841#227875#0" />
+              <element signature="e#2#42#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#246031#246044#0" />
+              <element signature="e#2#43#0" expanded="true" />
+              <element signature="e#2#68#0" expanded="true" />
+              <element signature="e#251136#251146#0" />
+              <element signature="e#0#52#0" expanded="true" />
+              <element signature="e#258759#258776#0" />
+              <element signature="e#259056#259064#0" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#0#41#0" expanded="true" />
+              <element signature="e#259801#259815#0" />
+              <element signature="e#262334#262344#0" />
+              <element signature="e#264061#264098#0" />
+              <element signature="e#0#43#0" expanded="true" />
+              <element signature="e#264408#264426#0" />
+              <element signature="e#265170#265185#0" />
+              <element signature="e#267723#267733#0" />
+              <element signature="e#0#40#0" expanded="true" />
+              <element signature="e#15#72#0" expanded="true" />
+              <element signature="e#0#47#0" expanded="true" />
+              <element signature="e#280689#280704#0" />
+              <element signature="e#281757#281771#0" />
+              <element signature="e#121#169#0" expanded="true" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0507.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="350" selection-end-column="3" />
+            <folding>
+              <element signature="e#8#28#0" />
+              <element signature="e#1093#1126#0" />
+              <element signature="e#3289#3304#0" />
+              <element signature="e#9234#9245#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="160">
+            <caret line="1894" column="10" selection-start-line="1894" selection-start-column="10" selection-end-line="1894" selection-end-column="10" />
             <folding>
               <element signature="e#0#15#0" />
               <element signature="e#3514#3533#0" />
               <element signature="e#5286#5298#0" />
               <element signature="e#6571#6584#0" />
               <element signature="e#7098#7111#0" />
-              <element signature="e#8220#8232#0" />
-              <element signature="e#8233#8246#0" />
-              <element signature="e#10174#10187#0" />
-              <element signature="e#12662#12676#0" />
-              <element signature="e#12893#12910#0" />
-              <element signature="e#13255#13270#0" />
-              <element signature="e#14089#14100#0" />
-              <element signature="e#14276#14295#0" />
-              <element signature="e#14710#14729#0" />
-              <element signature="e#14921#14929#0" />
-              <element signature="e#16279#16290#0" />
-              <element signature="e#16291#16309#0" />
-              <element signature="e#16884#16903#0" />
-              <element signature="e#17991#18019#0" />
-              <element signature="e#19189#19206#0" />
-              <element signature="e#20265#20305#0" />
-              <element signature="e#20815#20829#0" />
-              <element signature="e#21282#21306#0" />
-              <element signature="e#22112#22130#0" />
-              <element signature="e#22164#22176#0" />
-              <element signature="e#24253#24264#0" />
-              <element signature="e#27799#27818#0" />
-              <element signature="e#28616#28632#0" />
-              <element signature="e#29639#29649#0" />
+              <element signature="e#8224#8236#0" />
+              <element signature="e#16283#16294#0" />
+              <element signature="e#29636#29646#0" />
+              <element signature="e#34969#34979#0" />
+              <element signature="e#34976#34992#0" />
+              <element signature="e#35398#35436#0" />
+              <element signature="e#36500#36543#0" />
+              <element signature="e#36883#36907#0" />
+              <element signature="e#37826#37846#0" />
+              <element signature="e#38911#38944#0" />
+              <element signature="e#41107#41122#0" />
+              <element signature="e#47052#47063#0" />
             </folding>
           </first_editor>
           <second_editor />
