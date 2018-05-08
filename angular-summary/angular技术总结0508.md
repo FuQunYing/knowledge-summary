@@ -54,9 +54,9 @@ constructor(private searchService: PackageSearchService) { }
   - debounceTime(500) - 等待，直到用户停止输入（这个例子中是停止 1/2 秒）
   - distinctUntilChanged() - 等待，直到搜索内容发生了变化
   - switchMap() - 把搜索请求发送给服务
-  这些代码把package$设置成了使用搜索结果组合出的Observable对象，模板中使用AsyncPipe订阅了package$，一旦搜索结果的值发回来了，就显示这些搜索结果，这样，只有当用户停止了输入且搜索值和以前不一样的时候，搜索值才会传给服务。
-  **switchMap()**
-  这个switchMap操作符有三个重要的特征：
+    这些代码把package$设置成了使用搜索结果组合出的Observable对象，模板中使用AsyncPipe订阅了package$，一旦搜索结果的值发回来了，就显示这些搜索结果，这样，只有当用户停止了输入且搜索值和以前不一样的时候，搜索值才会传给服务。
+    **switchMap()**
+    这个switchMap操作符有三个重要的特征：
   - 它的参数是一个返回Observable的函数，PackageSearchService.search 会返回 Observable，其它数据服务也一样
   - 如果以前的搜索结果仍然是在途状态（这会出现在慢速网络中），它会取消那个请求，并发起这个新的搜索
   - 它会按照原始的请求顺序返回这些服务的响应，而不用关心服务器实际上是以乱序返回的它们
@@ -108,6 +108,313 @@ providers:[httpInterceptorProviders]
 ```
 ##### 7.3.4 拦截器的顺序
   Angular会按照我提供它们的顺序应用这些拦截器，如果是提供拦截器的顺序是先A、再B、再C，那么请求阶段的执行顺序就是A->B->C，而响应阶段的执行顺序就反过来了，以后我就再也不能修改这些顺序或者移除某些拦截器了，如果需要动态启动或禁用某个拦截器，那就要在那个拦截器中自行实现这个功能。
+##### 7.3.5 HttpEvents
+  我想intercept() 和 handle() 方法会像大多数 HttpClient 中的方法那样返回 HttpResponse<any> 的可观察对象，然而并没有，它们返回的是 HttpEvent<any> 的可观察对象。这是因为拦截器工作的层级比那些 HttpClient 方法更低一些。每个 HTTP 请求都可能会生成很多个事件，包括上传和下载的进度事件。 实际上，HttpResponse 类本身就是一个事件，它的类型（type）是 HttpEventType.HttpResponseEvent。很多拦截器只关心发出的请求，而对 next.handle() 返回的事件流不会做任何修改。但那些要检查和修改来自 next.handle() 的响应体的拦截器希望看到所有这些事件。所以，我的拦截器应该返回我没有碰过的所有事件。
+##### 7.3.6 不可变性
+  虽然拦截器有能力改变请求和响应，但 HttpRequest 和 HttpResponse 实例的属性却是只读（readonly）的， 因此，它们在很大意义上说是不可变对象。有充足的理由把它们做成不可变对象：应用可能会重试发送很多次请求之后才能成功，这就意味着这个拦截器链表可能会多次重复处理同一个请求。 如果拦截器可以修改原始的请求对象，那么重试阶段的操作就会从修改过的请求开始，而不是原始请求。 而这种不可变性，可以确保这些拦截器在每次重试时看到的都是同样的原始请求。
+  通过把 HttpRequest 的属性设置为只读的，TypeScript 可以防止这种错误。
+```typescript
+// Typescript不允许进行以下分配，因为req.url是只读的
+req.url = req.url.replace('http://', 'https://');
+```
+  要想修改该请求，就要先克隆它，并修改这个克隆体，然后再把这个克隆体传给 next.handle()。 可以用一步操作中完成对请求的克隆和修改，例子如下：
+```typescript
+// 克隆请求并同时用'https：//'替换'http：//'
+const secureReq = req.clone({
+  url: req.url.replace('http://', 'https://')
+});
+// 将克隆的“安全”请求发送到下一个处理程序。
+return next.handle(secureReq);
+```
+  这个 clone() 方法的哈希型参数允许你在复制出克隆体的同时改变该请求的某些特定属性。
+##### 7.3.7 请求体
+  readonly 这种赋值保护，无法防范深修改（修改子对象的属性），也不能防范我修改请求体对象中的属性。
+```typescript
+req.body.name = req.body.name.trim(); // 不好不好
+```
+  如果必须修改请求体，那么就要先复制它，然后修改这个复本，clone() 这个请求，然后把这个请求体的复本作为新的请求体，例子如下：
+```typescript
+//复制正文并从name属性修剪空白
+const newBody = { ...body, name: body.name.trim() };
+//克隆请求并设置其正文
+const newReq = req.clone({ body: newBody });
+//发送克隆请求到下一个处理程序
+return next.handle(newReq);
+```
+##### 7.3.8 清空请求体
+  有时需要清空请求体，而不是替换它。 如果把克隆后的请求体设置成 undefined，Angular 会认为是想让这个请求体保持原样。 这显然不是想要的。 但如果把克隆后的请求体设置成 null，那 Angular 就知道是想清空这个请求体了。
+```typescript
+newReq = req.clone({ ... }); //请求体没有被提到 => 保存原有的请求体
+newReq = req.clone({ body: undefined }); // 保存原有的请求体
+newReq = req.clone({ body: null }); //清空请求体
+```
+##### 7.3.9 设置默认请求头
+  应用通常会使用拦截器来设置外发请求的默认请求头。该范例应用具有一个 AuthService，它会生成一个认证令牌。 在这里，AuthInterceptor 会注入该服务以获取令牌，并对每一个外发的请求添加一个带有该令牌的认证头：
+```typescript
+import { AuthService } from '../auth.service';
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(private auth: AuthService) {}
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    // 从服务中拿到auth token
+    const authToken = this.auth.getAuthorizationToken();
+    // 克隆请求并用克隆的头文件替换原始头文件，并使用授权进行更新。
+    const authReq = req.clone({
+      headers: req.headers.set('Authorization', authToken)
+    });
+    // 带着请求头发送请求到下一个程序
+    return next.handle(authReq);
+  }
+}
+```
+  这种在克隆请求的同时设置新请求头的操作太常见了，因此它还有一个快捷方式 setHeaders：
+```typescript
+//克隆请求并一步设置新的头文件
+const authReq = req.clone({ setHeaders: { Authorization: authToken } });
+```
+  这种可以修改头的拦截器可以用于很多不同的操作，比如：
+  - 认证/授权
+  - 控制缓存行为，比如If-Modified-Since
+  - XSRF防护
+##### 7.3.10 记日志
+  因为拦截器可以同时处理请求和响应，所以它们也可以对整个 HTTP 操作进行计时和记录日志。考虑下面这个 LoggingInterceptor，它捕获请求的发起时间、响应的接收时间，并使用注入的 MessageService 来发送总共花费的时间。
+```typescript
+import { finalize, tap } from 'rxjs/operators';
+import { MessageService } from '../message.service';
+@Injectable()
+export class LoggingInterceptor implements HttpInterceptor {
+  constructor(private messenger: MessageService) {}
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const started = Date.now();
+    let ok: string;
+    // 通过日志记录扩展服务器响应
+    return next.handle(req)
+      .pipe(
+        tap(
+          // 有回应时成功; 忽略其他事件
+          event => ok = event instanceof HttpResponse ? 'succeeded' : '',
+          // 操作失败，错误是一个HttpErrorResponse
+          error => ok = 'failed'
+        ),
+        // 记录响应观察完成或错误
+        finalize(() => {
+          const elapsed = Date.now() - started;
+          const msg = `${req.method} "${req.urlWithParams}"
+             ${ok} in ${elapsed} ms.`;
+          this.messenger.add(msg);
+        })
+      );
+  }
+}
+```
+  RxJS 的 tap 操作符会捕获请求成功了还是失败了。 RxJS 的 finalize 操作符无论在响应成功还是失败时都会调用（这是必须的），然后把结果汇报给 MessageService。在这个可观察对象的流中，无论是 tap 还是 finalize 接触过的值，都会照常发送给调用者。
+##### 7.3.11 缓存
+  拦截器还可以自行处理这些请求，而不用转发给 next.handle()。比如，我可能会想缓存某些请求和响应，以便提升性能。 可以把这种缓存操作委托给某个拦截器，而不破坏现有的各个数据服务。
+  CachingInterceptor 演示了这种方式。
+```typescript
+@Injectable()
+export class CachingInterceptor implements HttpInterceptor {
+  constructor(private cache: RequestCache) {}
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    //不能缓存就继续
+    if (!isCachable(req)) { return next.handle(req); }
+    const cachedResponse = this.cache.get(req);
+    return cachedResponse ?
+      of(cachedResponse) : sendRequest(req, next, this.cache);
+  }
+}
+```
+  isCachable() 函数用于决定该请求是否允许缓存。 在这个例子中，只有发到 npm 包搜索 API 的 GET 请求才是可以缓存的。如果该请求是不可缓存的，该拦截器只会把该请求转发给链表中的下一个处理器。如果可缓存的请求在缓存中找到了，该拦截器就会通过 of() 函数返回一个已缓存的响应体的可观察对象，然后把它传给 next 处理器（以及所有其它下游拦截器）。如果可缓存的请求在缓存中没找到，代码就会调用 sendRequest。
+```typescript
+//通过向`next（）`发送请求来获得服务器响应。在离开的时候会将响应添加到缓存中。
+function sendRequest(
+  req: HttpRequest<any>,
+  next: HttpHandler,
+  cache: RequestCache): Observable<HttpEvent<any>> {
+  //在npm搜索请求中不允许请求头
+  const noHeaderReq = req.clone({ headers: new HttpHeaders() });
+  return next.handle(noHeaderReq).pipe(
+    tap(event => {
+      //在响应之外或许有其他事件
+      if (event instanceof HttpResponse) {
+        cache.put(req, event); // 更细缓存
+      }
+    })
+  );
+}
+```
+  sendRequest 函数创建了一个不带请求头的请求克隆体，因为 npm API 不会接受它们。它会把这个请求转发给 next.handle()，它最终会调用服务器，并且返回服务器的响应。注意 sendRequest 是如何在发回给应用之前拦截这个响应的。 它会通过 tap() 操作符对响应进行管道处理，并在其回调中把响应加到缓存中。然后，原始的响应会通过这些拦截器链，原封不动的回到服务器的调用者那里。数据服务，比如 PackageSearchService，并不知道它们收到的某些 HttpClient 请求实际上是从缓存的请求中返回来的。
+##### 7.3.12 返回多值可观察对象
+  HttpClient.get() 方法正常情况下只会返回一个可观察对象，它或者发出数据，或者发出错误。 有些人说它是“一次性完成”的可观察对象。但是拦截器也可以把这个修改成发出多个值的可观察对象。修改后的 CachingInterceptor 版本可以返回一个立即发出缓存的响应，然后仍然把请求发送到 npm 的 Web API，然后再把修改过的搜索结果重新发出一次。
+```typescript
+//缓存然后刷新
+if (req.headers.get('x-refresh')) {
+  const results$ = sendRequest(req, next, this.cache);
+  return cachedResponse ?
+    results$.pipe( startWith(cachedResponse) ) :
+    results$;
+}
+// 缓存或者抓取
+return cachedResponse ?
+  of(cachedResponse) : sendRequest(req, next, this.cache);
+```
+  这种缓存并刷新的选项是由自定义的 x-refresh 头触发的。
+  PackageSearchComponent 中的一个检查框会切换 withRefresh 标识， 它是 PackageSearchService.search() 的参数之一。 search() 方法创建了自定义的 x-refresh 头，并在调用 HttpClient.get() 前把它添加到请求里。
+  修改后的 CachingInterceptor 会发起一个服务器请求，而不管有没有缓存的值。 就像 前面 的 sendRequest() 方法一样进行订阅。 在订阅 results$ 可观察对象时，就会发起这个请求。如果没有缓存的值，拦截器直接返回 result$。如果有缓存的值，这些代码就会把缓存的响应加入到 result$ 的管道中，使用重组后的可观察对象进行处理，并发出两次。 先立即发出一次缓存的响应体，然后发出来自服务器的响应。 订阅者将会看到一个包含这两个响应的序列。
+#### 7.4 监听事件进度
+  有时，应用会传输大量数据，并且这些传输可能会花费很长时间。 典型的例子是文件上传。 可以通过在传输过程中提供进度反馈，来提升用户体验。要想开启进度事件的响应，可以创建一个把reportProgress选项设置为true的HttpRequest实例，以开启进度跟踪事件。
+```typescript
+const req = new HttpRequest('POST', '/upload/file', file, {
+  reportProgress: true
+});
+//每个进度事件都会触发变更检测，所以，应该只有当确实希望在 UI 中报告进度时才打开这个选项。
+```
+  接下来，把这个请求对象传给 HttpClient.request() 方法，它返回一个 HttpEvents 的 Observable，同样也可以在拦截器中处理这些事件。
+```typescript
+//'HttpClient.request` API产生一个原始事件流，包括开始（发送），进度和响应事件。
+return this.http.request(req).pipe(
+  map(event => this.getEventMessage(event, file)),
+  tap(message => this.showProgress(message)),
+  last(), // 将最后（已完成）消息返回给caller
+  catchError(this.handleError(file))
+);
+```
+  getEventMessage 方法会解释事件流中的每一个 HttpEvent 类型。
+```typescript
+//为发送，上传进度和响应事件返回不同的消息
+private getEventMessage(event: HttpEvent<any>, file: File) {
+  switch (event.type) {
+    case HttpEventType.Sent:
+      return `Uploading file "${file.name}" of size ${file.size}.`;
+    case HttpEventType.UploadProgress:
+      //计算并显示完成了多少
+      const percentDone = Math.round(100 * event.loaded / event.total);
+      return `File "${file.name}" is ${percentDone}% uploaded.`;
+    case HttpEventType.Response:
+      return `File "${file.name}" was completely uploaded!`;
+    default:
+      return `File "${file.name}" surprising upload event: ${event.type}.`;
+  }
+}
+//这个范例应用中并没有一个用来接收上传的文件的真实的服务器。 app/http-interceptors/upload-interceptor.ts 中的 UploadInterceptor 会拦截并短路掉上传请求，改为返回一个带有各个模拟事件的可观察对象。
+```
+### 8.安全：XSRF防护
+  跨站请求伪造（XSRF）是一个攻击技术，它能让攻击者假冒一个已认证的用户在我的网站上执行未知的操作。HttpClient 支持一种通用的机制来防范 XSRF 攻击。当执行 HTTP 请求时，一个拦截器会从 cookie 中读取 XSRF 令牌（默认名字为 XSRF-TOKEN），并且把它设置为一个 HTTP 头 X-XSRF-TOKEN，由于只有运行在我自己的域名下的代码才能读取这个 cookie，因此后端可以确认这个 HTTP 请求真的来自我的客户端应用，而不是攻击者。
+  默认情况下，拦截器会在所有的修改型请求中（比如 POST 等）把这个 cookie 发送给使用相对 URL 的请求。但不会在 GET/HEAD 请求中发送，也不会发送给使用绝对 URL 的请求。
+  要获得这种优点，我的服务器需要在页面加载或首个 GET 请求中把一个名叫 XSRF-TOKEN 的令牌写入可被 JavaScript 读到的会话 cookie 中。 而在后续的请求中，服务器可以验证这个 cookie 是否与 HTTP 头 X-XSRF-TOKEN 的值一致，以确保只有运行在我自己域名下的代码才能发起这个请求。这个令牌必须对每个用户都是唯一的，并且必须能被服务器验证，因此不能由客户端自己生成令牌。把这个令牌设置为我的站点认证信息并且加了盐（salt）的摘要，以提升安全性。
+  为了防止多个 Angular 应用共享同一个域名或子域时出现冲突，要给每个应用分配一个唯一的 cookie 名称
+```txt
+	注意，HttpClient 支持的只是 XSRF 防护方案的客户端这一半。 后端服务必须配置为给页面设置 cookie ，并且要验证请求头，以确保全都是合法的请求。否则，Angular 默认的这种防护措施就会失效。
+```
+#### 8.1 配置自定义cookie/header名称
+  如果我的后端服务中对 XSRF 令牌的 cookie 或 头使用了不一样的名字，就要使用 HttpClientXsrfModule.withConfig() 来覆盖掉默认值。
+```typescript
+imports: [
+  HttpClientModule,
+  HttpClientXsrfModule.withOptions({
+    cookieName: 'My-Xsrf-Cookie',
+    headerName: 'My-Xsrf-Header',
+  }),
+],
+```
+### 9.测试HTTP请求
+  如同所有的外部依赖一样，HTTP 后端也需要在良好的测试实践中被 Mock 掉。@angular/common/http 提供了一个测试库 @angular/common/http/testing，它让你可以直截了当的进行这种 Mock 。
+#### 9.1 Mock方法论
+  Angular 的 HTTP 测试库是专为其中的测试模式而设计的。在这种模式下，会首先在应用中执行代码并发起请求。然后，每个测试会期待发起或未发起过某个请求，对这些请求进行断言， 最终对每个所预期的请求进行刷新（flush）来对这些请求提供响应。最终，测试可能会验证这个应用不曾发起过非预期的请求。
+#### 9.2 环境设置
+  要开始测试那些通过 HttpClient 发起的请求，就要导入 HttpClientTestingModule 模块，并把它加到我的 TestBed 设置里去，代码如下：
+```typescript
+// Http测试模块和模拟控制器
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+//其它的引入
+import { TestBed } from '@angular/core/testing';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+```
+  然后把 HTTPClientTestingModule 添加到 TestBed 中，并继续设置被测服务：
+```typescript
+describe('HttpClient testing', () => {
+  let httpClient: HttpClient;
+  let httpTestingController: HttpTestingController;
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ HttpClientTestingModule ]
+    });
+    //为每个测试注入http服务和测试控制器
+    httpClient = TestBed.get(HttpClient);
+    httpTestingController = TestBed.get(HttpTestingController);
+  });
+  /// 测试开始///
+  /*
+  现在，在测试中发起的这些请求将会被这些测试后端（testing backend）处理，而不是标准的后端。这种设置还会调用 TestBed.get()，来获取注入的 HttpClient 服务和模拟对象的控制器 HttpTestingController，以便在测试期间引用它们。
+  */
+});
+```
+#### 9.4 期待并回复请求
+  现在可以编写测试，等待GET请求并给出模拟响应：
+```typescript
+it('can test HttpClient.get', () => {
+  const testData: Data = {name: 'Test Data'};
+  //发起HTTP GET请求
+  httpClient.get<Data>(testUrl)
+    .subscribe(data =>
+      //当可观察结果解决时，结果应该与测试数据匹配
+      expect(data).toEqual(testData)
+    );
+
+  //下面的`expectOne（）`将匹配请求的URL。如果没有请求或多个请求匹配那个URL`expectOne（）`会抛出。
+  const req = httpTestingController.expectOne('/data');
+  // 断言请求是GET
+  expect(req.request.method).toEqual('GET');
+  // 回应模拟数据，导致Observable解决。订阅回调断言返回了正确的数据。
+  req.flush(testData);
+  //最后，断言没有未完成的请求。
+  httpTestingController.verify();
+});
+```
+  最后一步，验证没有发起过预期之外的请求，足够通用，因此你可以把它移到 afterEach() 中：
+```typescript
+afterEach(() => {
+  //每次测试后，断言没有更多未决请求。
+  httpTestingController.verify();
+});
+```
+#### 9.5 自定义对请求的预期
+  如果仅根据URL匹配还不够，还可以自行实现匹配函数，比如可以验证外发的请求是否带有某个认证头：
+```typescript
+// 期待一个认证头的请求
+const req = httpTestingController.expectOne(
+  req => req.headers.has('Authorization')
+);
+```
+  和前面根据 URL 进行测试时一样，如果零或两个以上的请求匹配上了这个期待，它就会抛出异常。
+#### 9.6 处理一个以上的请求
+  如果需要在测试中对重复的请求进行响应，可以使用 match() API 来代替 expectOne()，它的参数不变，但会返回一个与这些请求相匹配的数组。一旦返回，这些请求就会从将来要匹配的列表中移除，那就要自己验证和刷新它。
+```typescript
+//获取与给定URL匹配的所有未决请求
+const requests = httpTestingController.match(testUrl);
+expect(requests.length).toEqual(3);
+// 以不同的结果回应每个请求
+requests[0].flush([]);
+requests[1].flush([testData[0]]);
+requests[2].flush(testData);
+```
+#### 9.7 测试对错误的预期
+  此外还要测试应用对于HTTP请求失败时的防护，那就调用 request.error()，并给它传入一个 ErrorEvent，而不是 request.flush()。例子如下：
+```typescript
+it('can test for 404 error', () => {
+  const emsg = 'deliberate 404 error';
+  httpClient.get<Data[]>(testUrl).subscribe(
+    data => fail('should have failed with the 404 error'),
+    (error: HttpErrorResponse) => {
+      expect(error.status).toEqual(404, 'status');
+      expect(error.error).toEqual(emsg, 'message');
+    }
+  );
+  const req = httpTestingController.expectOne(testUrl);
+  // 响应模拟错误
+  req.flush(emsg, { status: 404, statusText: 'Not Found' });
+});
+```
 
 
 
@@ -118,17 +425,3 @@ providers:[httpInterceptorProviders]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
