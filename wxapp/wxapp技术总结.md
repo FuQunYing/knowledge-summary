@@ -97,6 +97,88 @@ App()必须在aoo.js中注册，且不能注册多个
 通过getApp()获取实例之后，不要私自调用声明周期函数
 */
 ```
+### 2.app.json
+  app.json文件用来对微信小程序进行全局配置，决定页面文件的路径、窗口表现，设置网络超时时间，设置多tab等，下面是一个包含所有配置选项的app.json:
+```json
+{
+    "pages":[
+        "pages/index/index",
+        "pages/logs/index"
+    ],
+    "window":{
+        "navigationBarTitleText":"Demo"
+    },
+    "tabBar":{
+        "list":[{
+            "pagePath":"pages/index/index",
+            "text":"首页"
+        },{
+            "pagePath":"pages/logs/logs",
+            "text":"日志"
+        }]
+    },
+    "networkTimeout":{
+        "request":10000,
+        "downloadFile":10000
+    },
+    "debug":true
+}
+```
+#### 2.1 app.json的配置项列表：
+属性 | 类型 | 必填 | 描述
+- | - | - | - 
+pages | String Array | 是 | 设置页面路径
+window | Object | 否 | 设置默认页面的窗口表现
+tabBar | Object | 否 | 设置底部tab的表现
+networkTimeout | Object | 否 | 设置网络超时时间
+debug | Boolean | 否 | 设置是否开启debug模式
+##### 2.1.1 pages
+  接受一个数组，每一项都是字符串，来指定小程序由哪些页面组成，每一项代表对应页面的[路径+文件名]信息，数组的第一项代表小程序的初始页面，小程序中新增或者减少页面，都需要对pages数组进行修改，文件名不需要写文件后缀，框架会自动去寻找路径下.json .js .wxml .wxss四个文件进行整合。
+##### 2.1.2 window
+  用于设置小程序的状态栏、导航条、标题、窗口背景颜色：
+属性 | 类型 | 默认值 | 描述 | 最低版本
+- | - | - | - | - 
+navigationBarBackgroundColor | HexColor | #000000 | 导航栏背景颜色，比如"#000" | 
+navigationBarTextStyle | String | white | 导航栏标题颜色，仅支持black/white | 
+navigationBarTitleText | String | | 导航栏标题文字内容 | 
+navigationStyle | Style | default | 导航栏样式，仅支持default和custom，custom模式可自定义导航栏，只保留右上角胶囊装的按钮 | 微信版本 6.6.0
+backgroundColor | HexColor | #ffffff | 窗口的背景色 | 
+backgroundTextStyle | String | dark | 下拉loading的样式，仅支持dark和light | 
+backgroundColorTop | String | #ffffff | 顶部窗口的背景色，仅iOS支持 | 微信版本 6.5.16
+backgroundColorBottom | String | #ffffff | 底部窗口的背景色，仅iOS支持 | 微信版本 6.5.16
+enablePullDownRefresh | Boolean | false | 是否开启下拉刷新 | 
+onReachBottomDistance | Number | 50 | 页面上拉触底事件触发时距页面底部的距离，单位为px | 
+  比如app.json:
+```json
+{
+    "window":{
+        "navigationBarBackgroundColor":"#ffffff",
+        "navigationBarTextStyle":"black",
+        "navigationBarTitleText":"微信接口功能演示",
+        "backgroundColor":"#eee",
+        "backgroundTextStyle":"light"
+    }
+}
+```
+  然后，页面就长这样：
+  ![图片](config.jpg)
+##### 2.1.3 tabBar
+  如果小程序是一个多tab的应用，可以通过tabBar配置项来指定tab栏的表现，以及tab切换时显示的对应页面。
+  注意：
+  - 当设置position为top时，将不会显示icon
+  - tabBar中的list是一个数组，只能配置最少2个，最多5个tab，tab按数组的顺序排列
+  **属性说明**
+属性 | 类型 | 必填 | 默认值 | 描述
+color | HexColor | 是 | | tab上的文字默认颜色
+selectedColor | HexColor | 是 |  | tab上的文字选中时的颜色
+backgroundColor | HexColor | 是 |  | tab的背景色
+borderStyle | String | 否 | black | tabbar上边框的颜色，仅支持black/white
+list | Array | 是 |  | tab的列表
+position | String | 否 | bottom | 可选值不bottom top
+  **其中list接受一个数组，数组中的每个项都是一个对象，属性值如下：**
+属性 | 类型 | 必填 | 说明
+pagePath | String | 是 | 页面路径， 必须在pages数组中先定义
+
 
 
 
