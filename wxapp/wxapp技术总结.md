@@ -167,8 +167,9 @@ onReachBottomDistance | Number | 50 | 页面上拉触底事件触发时距页面
   注意：
   - 当设置position为top时，将不会显示icon
   - tabBar中的list是一个数组，只能配置最少2个，最多5个tab，tab按数组的顺序排列
-  **属性说明**
+    **属性说明**
 属性 | 类型 | 必填 | 默认值 | 描述
+- | - | - | - | - 
 color | HexColor | 是 | | tab上的文字默认颜色
 selectedColor | HexColor | 是 |  | tab上的文字选中时的颜色
 backgroundColor | HexColor | 是 |  | tab的背景色
@@ -177,9 +178,77 @@ list | Array | 是 |  | tab的列表
 position | String | 否 | bottom | 可选值不bottom top
   **其中list接受一个数组，数组中的每个项都是一个对象，属性值如下：**
 属性 | 类型 | 必填 | 说明
+- | - | - | -
 pagePath | String | 是 | 页面路径， 必须在pages数组中先定义
-
-
+text | String | 是 | tab上按钮的名字
+iconPath | String | 否 | 图片路径，icon大小限制为40kb，建议尺寸为 81px * 81px，当 postion 为 top 时，此参数无效，不支持网络图片
+selectedIconPath | String | 否 | 图片路径，icon大小限制为40kb，建议尺寸为 81px * 81px，当 postion 为 top 时，此参数无效，不支持网络图片
+  ![图片](tabbar.png)
+##### 2.1.4 networkTimeout
+  用来设置各种网络请求的超时时间：
+属性 | 类型 | 必填 | 说明
+- | - | - | -
+request | Number | 否 | wx.request的超时时间，单位毫秒，默认为：60000
+connectSocket | Number | 否 | wx.connectSocket的超时时间，单位毫秒，默认为：60000
+uploadFile | Number | 否 | wx.uploadFile的超时时间，单位毫秒，默认为：60000
+downloadFile | Number | 否 | wx.downloadFile的超时时间，单位毫秒，默认为：60000
+##### 2.1.5 debug
+  可以在开发者工具中开启 debug 模式，在开发者工具的控制台面板，调试信息以 info 的形式给出，其信息有Page的注册，页面路由，数据更新，事件触发 。 可以帮助开发者快速定位一些常见的问题。
+#### 2.2 page.json
+  每一个小程序页面也可以使用.json文件来对本页面的窗口表现进行配置。 页面的配置比app.json全局配置简单得多，只是设置 app.json 中的 window 配置项的内容，页面中配置项会覆盖 app.json 的 window 中相同的配置项。
+  页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键，如：
+属性 | 类型 | 默认值 | 描述
+- | - | - | -
+navigationBarBackgroundColor | HexColor | #000000 | 导航栏背景颜色
+navigationBarTextStyle | String | white | 导航栏标题颜色，仅支持 black/white
+navigationBarTitleText | String |  | 导航栏标题文字内容
+backgroundColor | HexColor | #fffffff | 窗口的背景色
+backgroundTextStyle | String | dark | 下拉loading的样式，仅支持dark/light
+enablePullDownRefresh | Boolean | false | 是否开启下拉刷新
+disableScroll | Boolean | false | 设置为true则页面整体不能上下滚动，只在page.json中有效，无法在app.json中设置该项
+onReachBottomDistance | Number | 50 | 页面上拉触底时间触发时距页面底部距离，单位为px
+### 3.app.wxss
+  就是普通网页的css样式一样，wxss和css的特性大部分都一样，也大部分都能用，但是wxss扩展了尺寸单位和样式导入
+#### 3.1 尺寸单位
+  rpx（responsive pixel）: 可以根据屏幕宽度进行自适应。规定屏幕宽为750rpx。如在 iPhone6 上，屏幕宽度为375px，共有750个物理像素，则750rpx = 375px = 750物理像素，1rpx = 0.5px = 1物理像素。
+设备 | rpx换算px（屏幕宽度/750） | px换算rpx（750/屏幕宽度）
+- | - | -
+iPhone5 | 1rpx=0.42px | 1px=2.34rpx
+iPhone6 | 1rpx=0.5px | 1px=2rpx
+iPhone6Plus | 1rpx=0.552rpx | 1px=1.81rpx
+#### 3.2 样式导入
+  使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的相对路径，用 ；表示语句结束
+  比如：
+```css
+/*common.wxss*/
+.small-p{padding:5px}
+```
+```css
+/*app.wxss*/
+@import "common.wxss";
+.middle-p{padding:10px}
+```
+#### 3.3 内联样式
+  框架组件上支持使用style ，class属性来控制组件的样式：
+  - style：静态的样式统一写到 class 中。style 接收动态的样式，在运行时会进行解析，请尽量避免将静态的样式写进 style 中，以免影响渲染速度。
+```html
+<view style="color:{{color}};" />
+```
+  - class：用于指定样式规则，其属性值是样式规则中类选择器名(样式类名)的集合，样式类名不需要带上.，样式类名之间用空格分隔。
+```html
+<view class="normal_view" />
+```
+#### 3.4 选择器
+选择器 | 示例 | 示例描述
+- | - | -
+.class | .intro | 选择所有拥有 class="intro" 的组件
+\#id | #firstname | 选择拥有 id="firstname" 的组件
+element | view | 选择所有的view组件
+element, element | view, checkbox | 选择所有文档的 view 组件和所有的 checkbox 组件
+::after | view::after | 在 view 组件后边插入内容
+::before | view::before | 在 view 组件前边插入内容
+#### 3.5 全局样式与局部样式
+  定义在 app.wxss 中的样式为全局样式，作用于每一个页面。在 page 的 wxss 文件中定义的样式为局部样式，只作用在对应的页面，并会覆盖 app.wxss 中相同的选择器。
 
 
 
