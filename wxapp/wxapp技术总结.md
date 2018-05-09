@@ -250,7 +250,7 @@ element, element | view, checkbox | 选择所有文档的 view 组件和所有�
 #### 3.5 全局样式与局部样式
   定义在 app.wxss 中的样式为全局样式，作用于每一个页面。在 page 的 wxss 文件中定义的样式为局部样式，只作用在对应的页面，并会覆盖 app.wxss 中相同的选择器。
 
-
+### 4.JS - Page
 
 
 
