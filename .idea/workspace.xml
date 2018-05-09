@@ -16,49 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="es6.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/JS/es6.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="160">
-                <caret line="1894" column="10" selection-start-line="1894" selection-start-column="10" selection-end-line="1894" selection-end-column="10" />
-                <folding>
-                  <element signature="e#0#15#0" />
-                  <element signature="e#3514#3533#0" />
-                  <element signature="e#5286#5298#0" />
-                  <element signature="e#6571#6584#0" />
-                  <element signature="e#7098#7111#0" />
-                  <element signature="e#8224#8236#0" />
-                  <element signature="e#16283#16294#0" />
-                  <element signature="e#29636#29646#0" />
-                  <element signature="e#34969#34979#0" />
-                  <element signature="e#34976#34992#0" />
-                  <element signature="e#35398#35436#0" />
-                  <element signature="e#36500#36543#0" />
-                  <element signature="e#36883#36907#0" />
-                  <element signature="e#37826#37846#0" />
-                  <element signature="e#38911#38944#0" />
-                  <element signature="e#41107#41122#0" />
-                  <element signature="e#47052#47063#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="es6总结0508.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor />
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -160,16 +118,15 @@
       <workItem from="1524102094962" duration="2913000" />
       <workItem from="1525402110473" duration="1341000" />
       <workItem from="1525655134917" duration="1197000" />
-      <workItem from="1525761753871" duration="452000" />
+      <workItem from="1525761753871" duration="1060000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="11282000" />
+    <option name="totallyTimeSpent" value="11890000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -663,14 +620,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor />
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/JS/es6总结0507.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -683,6 +632,14 @@
               <element signature="e#9234#9245#0" />
             </folding>
           </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
           <second_editor />
         </state>
       </provider>
