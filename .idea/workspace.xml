@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6.md" afterDir="false" />
-    </list>
+    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -16,79 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="es6.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/JS/es6.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="462">
-                <caret line="2748" column="10" selection-start-line="2748" selection-start-column="10" selection-end-line="2748" selection-end-column="10" />
-                <folding>
-                  <element signature="e#0#15#0" />
-                  <element signature="e#3514#3533#0" />
-                  <element signature="e#5286#5298#0" />
-                  <element signature="e#6571#6584#0" />
-                  <element signature="e#7098#7111#0" />
-                  <element signature="e#29639#29649#0" />
-                  <element signature="e#34969#34979#0" />
-                  <element signature="e#36883#36907#0" />
-                  <element signature="e#37826#37846#0" />
-                  <element signature="e#38911#38944#0" />
-                  <element signature="e#41107#41122#0" />
-                  <element signature="e#47052#47063#0" />
-                  <element signature="e#47398#47408#0" />
-                  <element signature="e#47409#47423#0" />
-                  <element signature="e#53658#53670#0" />
-                  <element signature="e#54633#54643#0" />
-                  <element signature="e#55772#55784#0" />
-                  <element signature="e#56469#56479#0" />
-                  <element signature="e#61911#61923#0" />
-                  <element signature="e#62724#62735#0" />
-                  <element signature="e#68139#68153#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="es6总结0508.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/es6总结0508.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="27">
-                <caret line="2" selection-start-line="2" selection-end-line="374" />
-                <folding>
-                  <element signature="e#19#33#0" />
-                  <element signature="e#6268#6280#0" />
-                  <element signature="e#7243#7253#0" />
-                  <element signature="e#8382#8394#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="es6总结0509.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/es6总结0509.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="16">
-                <caret line="1" selection-start-line="1" selection-end-line="481" />
-                <folding>
-                  <element signature="e#8#18#0" />
-                  <element signature="e#5450#5462#0" />
-                  <element signature="e#6263#6274#0" />
-                  <element signature="e#11678#11692#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -115,7 +40,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1873" />
@@ -191,25 +116,24 @@
       <workItem from="1525402110473" duration="1341000" />
       <workItem from="1525655134917" duration="1197000" />
       <workItem from="1525761753871" duration="1060000" />
-      <workItem from="1525827265134" duration="1349000" />
+      <workItem from="1525827265134" duration="2705000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13239000" />
+    <option name="totallyTimeSpent" value="14595000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.367049" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.367049" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
