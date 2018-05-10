@@ -251,9 +251,191 @@ element, element | view, checkbox | 选择所有文档的 view 组件和所有�
   定义在 app.wxss 中的样式为全局样式，作用于每一个页面。在 page 的 wxss 文件中定义的样式为局部样式，只作用在对应的页面，并会覆盖 app.wxss 中相同的选择器。
 
 ### 4.JS - Page
-
-
-
+  Page()函数用来注册一个页面，接受一个Object参数，指定页面的初始数据，生命周期函数，事件处理函数等
+  **object参数说明**
+属性 | 类型 | 描述
+- | - | -
+data | Object | 页面的初始数据
+onLoad | Function | 生命周期函数--监听页面加载
+onReady | Function | 生命周期函数--监听页面初次渲染完成
+onShow | Function | 生命周期函数--监听页面显示
+onHide | Function | 生命周期函数--监听页面隐藏
+onUnload | Function | 生命周期函数--监听页面卸载
+onPullDownRefresh | Function | 页面相关事件处理函数--监听用户下拉动作
+onReachBottom | Function | 页面上拉触底事件的处理函数
+onShareAppMessage | Function | 用户点击右上角转发
+onPageScroll | Function | 页面滚动触发事件的处理函数
+onTabItemTap | Function | 当前是tab页时，点击tab时触发
+其他 | Any | 开发者可以添加任意的函数或数据到Object参数中，在页面的函数中用this可以访问
+  ps：object内容在页面加载时会进行一次深拷贝，需要考虑数据大小对页面加载的开销
+  实例代码：
+```javascript
+//index.js
+Page({
+    data:{
+        text:'page data'
+    },
+    onLoad:function(options){//页面加载的时候做点啥},
+    onReady:function(){//页面初次渲染完成做点啥},
+    onShow:function(){//页面显示了做点啥},
+    onHide:function(){//监听页面隐藏},
+    onUnload:function(){//页面关闭要做的事},
+    onPullDownRefresh:function(){//页面下拉的时候，代码},
+    onReachBottom:function(){//触底的时候，代码},
+    onShareAppMessage:function(){//当用户分享的时候，返回用户分享数据},
+    onPageScroll:function(){//页面滚动的时候你想干啥},
+    onTabItemTap(item){
+        console.log(item.index)
+        console.log(item.pagePath)
+        console.log(item.text)
+    },
+    //事件处理
+    viewTap:function(){
+        this.setData({
+            text:'更新页面的数据'
+        },function(){
+            //setData 的回调
+        })
+    },
+    customData:{
+        hi:'MINA'
+    }
+})
+```
+#### 4.1 初始化数据
+  初始化数据将作为页面的第一次渲染，data将会以JSON的形式由逻辑层传到渲染层，所以其数据必须是可以转成JSON的格式：字符串、数字、布尔值、对象、数组。
+  渲染层可以通过WXML对数据进行绑定：
+```html
+<view>{{text}}</view>
+<view>{{array[0].msg}}</view>
+```
+```javascript
+Page({
+    data:{
+        text:'init data',
+        array:[{msg:'1'},{msg:'2'}]
+    }
+})
+```
+#### 4.2 生命周期函数
+  - onLoad: 页面加载。
+    - 一个页面只会调用一次，可以在 onLoad 中获取打开当前页面所调用的 query 参数。
+  - onShow: 页面显示。
+    - 每次打开页面都会调用一次。
+  - onReady: 页面初次渲染完成。
+    - 一个页面只会调用一次，代表页面已经准备妥当，可以和视图层进行交互。
+    - 对界面的设置如wx.setNavigationBarTitle要在onReady之后设置
+  - onHide: 页面隐藏。
+    - 当navigateTo或底部tab切换时调用。
+  - onUnload: 页面卸载。
+    - 当redirectTo或navigateBack的时候调用。
+#### 4.3 页面相关事件处理函数
+  - onPullDownRefresh：下拉刷新
+    - 监听用户下拉刷新事件
+    - 需要在app.json的window选项中或页面配置中开启enablePullDownRefresh
+    - 当处理完数据刷新后，wx.stopPullDownRefresh可以停止当前页面的下拉刷新
+  - onReachBottom：上拉触底
+    - 监听用户上拉触底事件
+    - 可以在app.json的window选项中或页面配置中设置触发距离onReachBottomDistance。
+    - 在触发距离内滑动期间，本事件只会被触发一次。
+  - onPageScroll：页面滚动
+    - 监听用户滑动页面事件
+    - 参数为Object，包含以下字段
+    字段 | 类型 | 说明
+    - | - | -
+    scrollTop | Number | 页面在垂直方向已滚动的距离，单位是px
+  - onShareAppMessage: 用户转发
+    - 只有定义了此事件处理函数，右上角菜单才会显示“转发”按钮
+    - 用户点击转发按钮的时候会调用
+    - 此事件需要 return 一个 Object，用于自定义转发内容
+    **自定义转发字段**
+    字段 | 说明 | 默认值
+    - | - | -
+    title | 转发标题 | 当前小程序名称
+    path | 转发路径 | 当前页面path，必须是以/开头的完整路径
+#### 4.4 事件处理函数
+  除了初始化数据和生命周期函数，Page 中还可以定义一些特殊的函数：事件处理函数。在渲染层可以在组件中加入事件绑定，当达到触发事件时，就会执行 Page 中定义的事件处理函数。
+  比如：
+```html
+<view bindtap='viewTap'>click me</view>
+```
+```javascript
+Page({
+    viewTap:function(){
+        console.log('bulabula')
+    }
+})
+```
+#### 4.5 Page.prototype.route
+  基础库1.2.0开始支持，route字段可以获取到当前页面的路径
+#### 4.6 Page.prototype.setData()
+  setData函数用于将数据从逻辑层发送到视图层，同时改变对应的this.data的值
+  setData的参数格式
+  字段 | 类型 | 必填 | 描述 | 最低版本
+  - | - | - | - |-
+  data | Object | 是 | 这次要改变的数据 | 
+  callback | Function | 否 | 回调函数 | 1.5.0
+  
+  object 以 key，value 的形式表示将 this.data 中的 key 对应的值改变成 value。 callback 是一个回调函数，在这次setData对界面渲染完毕后调用。其中 key 可以非常灵活，以数据路径的形式给出，如 array[2].message，a.b.c.d，并且不需要在 this.data 中预先定义。
+  注意：
+  - 直接修改this.data而不调用this.setData是无法改变页面的状态的，还会造成数据不一致
+  - 单次设置的数据不能超过1024KB，尽量避免一次设置过多的数据
+  - 不要把data中的任何一项的value设为undefined，否则这一项将不被设置并可能遗留一些潜在问题
+  **示例代码**
+```html
+<view>{{text}}</view>
+<button bindtap="changeText"> Change normal data </button>
+<view>{{num}}</view>
+<button bindtap="changeNum"> Change normal num </button>
+<view>{{array[0].text}}</view>
+<button bindtap="changeItemInArray"> Change Array data </button>
+<view>{{object.text}}</view>
+<button bindtap="changeItemInObject"> Change Object data </button>
+<view>{{newField.text}}</view>
+<button bindtap="addNewField"> Add new data </button>
+```
+```javascript
+Page({
+    data:{
+        text:'init data',
+        num:0,
+        array:[{text:'init data'}],
+        object:{
+            text:'init data'
+        }
+    },
+    changeText:function(){
+        //this.data.text='changed data '//这样写是不会生效的
+        this.setData({
+            text:'changed data'
+        })
+    },
+    changeNum:function(){
+        this.data.num=1
+        this.setData({
+            num:this.data.num
+        })
+    },
+    changeItemInArray:function(){
+        //可以用这种方法修改danamic数据路径
+        this.setData({
+            'array[0].text':'changed data'
+        })
+    },
+    changeItemInObject:function(){
+        this.setData({
+            'object.text':'changed data'
+        })
+    },
+    addNewField:function(){
+        this.setData({
+            'newField.text':'new data'
+        })
+    }
+})
+```
+#### 4.7 生命周期
+![图片](mina-lifecycle.png)
 
 
 
