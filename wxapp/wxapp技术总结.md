@@ -461,7 +461,36 @@ Page({
 })
 ```
 #### 5.3 条件渲染
+```html
+<view wx:if="{{view=='ANGULAR'}}">Angular</view>
+<view wx:elif="{{view=='VUE'}}">Vue</view>
+<view wx:else="{{view=='REACT}}">React</view>
+```
+```javascript
+Page({
+    data:{
+        view:'React'
+    }
+})
+```
+#### 5.4 模板
+```html
+<template name='staffName'>
+	<view>
+		FirstName:{{firstName}},LastName:{{lastName}}
+	</view>
+</template>
 
+```
+```javascript
+Page({
+    data:{
+        staffA:{firstName:'Sherlock',lastName:'Holmes'},
+        staffB:{firstName:'Jhon',lastName:'Watson'},
+        staffC:{firstName:'Mike',lastName:'Holmes'}
+    }
+})
+```
 
 
 
