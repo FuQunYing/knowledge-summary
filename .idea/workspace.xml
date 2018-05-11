@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="" />
+    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/angular-summary/angular技术总结0509.md" beforeDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -117,14 +120,15 @@
       <workItem from="1525655134917" duration="1197000" />
       <workItem from="1525761753871" duration="1060000" />
       <workItem from="1525827265134" duration="2705000" />
+      <workItem from="1525916101725" duration="597000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14595000" />
+    <option name="totallyTimeSpent" value="15192000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
+    <frame x="-8" y="-8" width="1873" height="1096" extended-state="7" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -157,29 +161,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="23184">
             <caret line="1449" selection-start-line="1449" selection-end-line="1449" />
-            <folding>
-              <element signature="e#0#15#0" />
-              <element signature="e#3514#3533#0" />
-              <element signature="e#5286#5298#0" />
-              <element signature="e#6571#6584#0" />
-              <element signature="e#7098#7111#0" />
-              <element signature="e#29639#29649#0" />
-              <element signature="e#34969#34979#0" />
-              <element signature="e#36883#36907#0" />
-              <element signature="e#37826#37846#0" />
-              <element signature="e#38911#38944#0" />
-              <element signature="e#41107#41122#0" />
-              <element signature="e#47052#47063#0" />
-              <element signature="e#47398#47408#0" />
-              <element signature="e#47409#47423#0" />
-              <element signature="e#53658#53670#0" />
-              <element signature="e#54633#54643#0" />
-              <element signature="e#55772#55784#0" />
-              <element signature="e#56469#56479#0" />
-              <element signature="e#61911#61923#0" />
-              <element signature="e#62724#62735#0" />
-              <element signature="e#68139#68153#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -190,29 +171,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="23184">
             <caret line="1449" lean-forward="true" selection-start-line="1449" selection-end-line="1449" />
-            <folding>
-              <element signature="e#0#15#0" />
-              <element signature="e#3514#3533#0" />
-              <element signature="e#5286#5298#0" />
-              <element signature="e#6571#6584#0" />
-              <element signature="e#7098#7111#0" />
-              <element signature="e#29639#29649#0" />
-              <element signature="e#34969#34979#0" />
-              <element signature="e#36883#36907#0" />
-              <element signature="e#37826#37846#0" />
-              <element signature="e#38911#38944#0" />
-              <element signature="e#41107#41122#0" />
-              <element signature="e#47052#47063#0" />
-              <element signature="e#47398#47408#0" />
-              <element signature="e#47409#47423#0" />
-              <element signature="e#53658#53670#0" />
-              <element signature="e#54633#54643#0" />
-              <element signature="e#55772#55784#0" />
-              <element signature="e#56469#56479#0" />
-              <element signature="e#61911#61923#0" />
-              <element signature="e#62724#62735#0" />
-              <element signature="e#68139#68153#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -572,12 +530,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="481" />
-            <folding>
-              <element signature="e#8#18#0" />
-              <element signature="e#5450#5462#0" />
-              <element signature="e#6263#6274#0" />
-              <element signature="e#11678#11692#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -588,12 +540,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="27">
             <caret line="2" selection-start-line="2" selection-end-line="374" />
-            <folding>
-              <element signature="e#19#33#0" />
-              <element signature="e#6268#6280#0" />
-              <element signature="e#7243#7253#0" />
-              <element signature="e#8382#8394#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -604,29 +550,6 @@
         <state split_layout="FIRST">
           <first_editor relative-caret-position="462">
             <caret line="2748" column="10" selection-start-line="2748" selection-start-column="10" selection-end-line="2748" selection-end-column="10" />
-            <folding>
-              <element signature="e#0#15#0" />
-              <element signature="e#3514#3533#0" />
-              <element signature="e#5286#5298#0" />
-              <element signature="e#6571#6584#0" />
-              <element signature="e#7098#7111#0" />
-              <element signature="e#29639#29649#0" />
-              <element signature="e#34969#34979#0" />
-              <element signature="e#36883#36907#0" />
-              <element signature="e#37826#37846#0" />
-              <element signature="e#38911#38944#0" />
-              <element signature="e#41107#41122#0" />
-              <element signature="e#47052#47063#0" />
-              <element signature="e#47398#47408#0" />
-              <element signature="e#47409#47423#0" />
-              <element signature="e#53658#53670#0" />
-              <element signature="e#54633#54643#0" />
-              <element signature="e#55772#55784#0" />
-              <element signature="e#56469#56479#0" />
-              <element signature="e#61911#61923#0" />
-              <element signature="e#62724#62735#0" />
-              <element signature="e#68139#68153#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
