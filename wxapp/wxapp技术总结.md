@@ -375,13 +375,13 @@ Page({
   - | - | - | - |-
   data | Object | 是 | 这次要改变的数据 | 
   callback | Function | 否 | 回调函数 | 1.5.0
-  
+
   object 以 key，value 的形式表示将 this.data 中的 key 对应的值改变成 value。 callback 是一个回调函数，在这次setData对界面渲染完毕后调用。其中 key 可以非常灵活，以数据路径的形式给出，如 array[2].message，a.b.c.d，并且不需要在 this.data 中预先定义。
   注意：
   - 直接修改this.data而不调用this.setData是无法改变页面的状态的，还会造成数据不一致
   - 单次设置的数据不能超过1024KB，尽量避免一次设置过多的数据
   - 不要把data中的任何一项的value设为undefined，否则这一项将不被设置并可能遗留一些潜在问题
-  **示例代码**
+    **示例代码**
 ```html
 <view>{{text}}</view>
 <button bindtap="changeText"> Change normal data </button>
@@ -436,7 +436,31 @@ Page({
 ```
 #### 4.7 生命周期
 ![图片](mina-lifecycle.png)
-
+### 5.WXML
+  WXML是框架设计的一套标签语言，结合基础组件、事件系统，可以构建出页面的结构。
+#### 5.1 数据绑定
+```html
+<view>{{msg}}</view>
+```
+```javascript
+Page({
+    data:{
+        msg:'数据绑定'
+    }
+})
+```
+#### 5.2 列表渲染
+```html
+<view wx:for='{{arr}}'>{{item}}</view>
+```
+```javascript
+Page({
+    data:{
+        arr:[1,2,3,4]
+    }
+})
+```
+#### 5.3 条件渲染
 
 
 
