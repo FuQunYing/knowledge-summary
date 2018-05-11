@@ -480,7 +480,9 @@ Page({
 		FirstName:{{firstName}},LastName:{{lastName}}
 	</view>
 </template>
-
+<template is="staffName" data="{{...staffA}}"></template>
+<template is="staffName" data="{{...staffB}}"></template>
+<template is="staffName" data="{{...staffC}}"></template>
 ```
 ```javascript
 Page({
@@ -488,6 +490,22 @@ Page({
         staffA:{firstName:'Sherlock',lastName:'Holmes'},
         staffB:{firstName:'Jhon',lastName:'Watson'},
         staffC:{firstName:'Mike',lastName:'Holmes'}
+    }
+})
+```
+#### 5.5 事件
+```html
+<view bindtap='add'>{{count}}</view>
+```
+```javascript
+Page({
+    data:{
+        count:1
+    },
+    add:function(e){
+        this.setData({
+            count:this.data.count+1
+        })
     }
 })
 ```
