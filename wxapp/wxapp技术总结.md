@@ -509,6 +509,16 @@ Page({
     }
 })
 ```
+## 二、逻辑层（App Service）
+  小程序开发框架的逻辑层由JavaScript编写。
+  逻辑层将数据进行处理后发送给视图层，同时接受视图层的事件反馈。
+  在JavaScript的基础上，有一些修改，方便开发小程序：
+  - 增加App和Page方法，进行程序和页面的注册
+  - 增加getApp和getCurrentPage方法，分别用来获取App实例，和当前页面栈
+  - 提供丰富的Api，如微信用户数据，扫一扫，支付等微信特有的能力
+  - 每个页面有独立的作用域，并提供模块化能力
+  - 由于框架并非运行在浏览器中，所以JavaScript在web中的一些能力无法使用，比如document，window等
+  - 开发者写的所有代码最终将会打包成一份JavaScript，并在小程序启动的时候运行，直到小程序销魂，类似ServiceWorker，所以逻辑层也称之为App Service
 
 
 
