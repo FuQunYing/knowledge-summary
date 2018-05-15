@@ -522,7 +522,79 @@ Page({
 ### 1. 注册程序
 #### 1.1 App()
   App()函数用来注册一个小程序，接受一个Object参数，其指定小程序的生命周期函数等
-
+  **object参数说明**
+属性 | 类型 | 描述 | 触发时机
+- | - | - | -
+onLaunch | Function |生命周期函数 -- 监听小程序初始化 | 当小程序初始化完成时，会触发一次onLaunch，全局只触发一次
+onShow | Function | 生命周期函数 -- 监听小程序显示 | 当小程序启动，或从后台进入前台显示，会触发onShow
+onHide | Function | 生命周期函数 -- 监听小程序隐藏 | 当小程序从前台进入后台，会触发onHide
+onError | Function | 错误监听函数 | 当小程序发生脚本错误，或者api调用失败时，会触发onError并带上错误信息
+onPageNotFound | Function | 页面不存在监听函数 | 当小程序出现要打开的页面不存在的情况，会带上页面信息回调该函数
+其它 | Any |  | 开发者可以添加任意的函数或者数据到Object参数中，用this可以访问
+```txt
+	前后台的定义：当用户点击左上角关闭，或者按了设备home键离开微信，小程序并没有直接销毁，而是进入了后台，当再次进入微信或再次打开小程序，又会从后台进入前台，只有当小程序进入后台一定时间，或者系统资源占用过高，才会被真正的销毁。
+```
+#### 1.2 onLaunch，onShow参数
+字段 | 类型 | 说明
+- | - | -
+path | String | 打开小程序的路径
+query | Object | 打开小程序的query
+scene | Number | 打开小程序的场景值
+shareTicket | String | 获取更多转发信息
+referrerInfo | Object | 当场景为由另一个小程序或公众号或App打开时，返回此字段
+referrerInfo.appId | String | 来源小程序或公众号或App的appId
+referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=10337或1038时支持
+  **以下场景值返回referrerInfo.appId**
+场景值 | 场景 | appId信息含义
+- | - | -
+1020 | 公众号profile页相关小程序列表 | 返回来源公众号appId
+1035 | 公众号自定义菜单 | 返回来源公众号appId
+1036 | App分享消息卡片 | 返回来源应用appId
+1037 | 小程序打开小程序 | 返回来源小程序appId
+1038 | 从另一个小程序返回 | 返回来源小程序appId
+1043 | 公众号模板消息 | 返回来源公众号appId
+#### 1.3 onPageNotFound
+  当要打开的页面并不存在时，会回调这个监听器，并带上以下信息：
+字段 | 类型 | 说明
+- | - | -
+path | String | 不存在的页面路径
+query | Objec |  打开不存在页面的query
+isEntryPage|Boolean | 是否是本次启动的首个页面
+  开发者可以在onPageNotFound回调中进行重定向处理，但是必须是在回调中同步处理，异步处处理无效：
+```javascript
+App({
+    onPageNotFound(res){
+        wx.refdirectedTo}{
+            url:'pages/.....'
+            //如果是tabbar页面，使用wx.switchTab
+        }
+    }
+})
+/*
+	如果开发者没有添加onPageNotFound监听，当跳转页面不存在时，将推入微信客户端原生的页面不存在提示页面
+	如果onPageNotFound回调中又重定向到另一个不存在的页面，将推入微信客户端原生的页面不存在提示页面，并且不再回调onPageNotFound
+*/
+```
+#### 1.4 getApp()
+  全局的getApp()函数可以用来获取到小程序实例：
+```javascript
+// other.js
+var appInstance = getApp()
+console.log(appInstance.globalData) // I am global data
+```
+  **注意：**
+  - App()必须在app.js中注册，且不能注册多个
+  - 不要在定义于App()内的函数中调用getApp()，使用this就可以拿到app实例
+  - 不要在onLaunch的时候调用getCurrentPages(),此时page还没有生成
+  - 通用getApp()获取实例之后，不要私自调用生命周期函数
+### 2.场景值
+  当前支持的场景值
+场景值ID | 说明
+- | -
+1001 | 发现栏小程序主入口
+1005 | 顶部搜索框的搜索结果页
+1006 | 发现栏小程序入口搜索框的搜索结果页
+1007 | 单人聊天会话中的小程序消息卡片
 
 
 
