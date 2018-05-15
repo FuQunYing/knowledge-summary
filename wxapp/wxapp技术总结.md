@@ -652,6 +652,30 @@ console.log(appInstance.globalData) // I am global data
   page()函数用来注册一个页面，接受一个object参数，其指定页面的初始数据、生命周期函数、事件处理函数等
   **object参数说明**
 属性 | 类型 | 描述
+- | - | -
+data | Object | 页面的初始数据
+onLoad | Function | 生命周期函数 -- 监听页面加载
+onReady | Function | 生命周期函数 -- 监听页面初次渲染完成
+onShow | Function | 生命周期函数 --监听页面显示
+onHide | Function | 生命周期函数 -- 监听页面隐藏
+onUnload | Function | 生命周期函数 -- 监听页面卸载
+onPullDownRefresh | Function | 页面相关事件处理函数--监听用户下拉动作
+onReachBottom | Function | 页面上拉触底事件的处理函数
+onShareAppMessage | Function | 用户点击右上角转发
+onPageScroll | Function | 页面滚动触发事件的处理函数
+onTabItemTap | Function | 当前是tab页时，点击tab时触发
+其它 | any |  | 开发者可以添加任意的函数或者数据到Object参数中，在页面的函数中用this可以访问
+  Object 内容在页面加载时会进行一次深拷贝，需要考虑数据大小对页面加载的开销。
+#### 3.2 初始化数据
+  初始化数据将作为页面的第一次渲染，data将会以JSON形式由逻辑层传至渲染层，所以其数据必须是可以转成JSON的格式：字符串、数字、布尔值、对象、数组。
+  渲染层可以通过WXML对数据进行绑定：
+  实例代码，前面写过了，翻回去看。
+  
+  卧槽，才意识到，这一节前面都写过了mmp。
+### 4.页面路由
+  在小程序中所有的路由全部由框架进行管理。
+#### 4.1 页面栈
+  框架以栈的形式维护了
 
 
 
