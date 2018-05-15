@@ -670,12 +670,52 @@ onTabItemTap | Function | 当前是tab页时，点击tab时触发
   初始化数据将作为页面的第一次渲染，data将会以JSON形式由逻辑层传至渲染层，所以其数据必须是可以转成JSON的格式：字符串、数字、布尔值、对象、数组。
   渲染层可以通过WXML对数据进行绑定：
   实例代码，前面写过了，翻回去看。
-  
+
   卧槽，才意识到，这一节前面都写过了mmp。
 ### 4.页面路由
   在小程序中所有的路由全部由框架进行管理。
 #### 4.1 页面栈
-  框架以栈的形式维护了
+  框架以栈的形式维护了当前的所有页面，当发生路由切换的时候，页面栈的表现如下：
+路由方式 | 页面栈表现
+- | -
+初始化 | 新页面入栈
+打开新页面 | 新页面入栈
+页面重定向 | 当前页面出栈，新页面入栈
+页面返回 | 页面不断出栈，直到目标返回页，新页面入栈
+Tab切换 | 页面全部出栈，只留下新的Tab页面
+重加载 | 页面全部出栈，只留下新的页面
+#### 4.2 getCurrentPages()
+  getCurrentPages()函数用于获取当前页面栈的实例，以数组形式按栈的顺序给出，第一个元素为首页，最后一个元素为当前页面。
+  **ps：**
+  不要尝试修改页面栈，会导致路由以及页面状态错误
+#### 4.3 路由方式
+  对于路由的触发方式以及页面生命周期函数如下：
+路由方式 | 触发时机 | 路由前页面 | 路由后页面
+- | - | - | - 
+初始化 | 小程序打开的第一个页面 |  | onLoad，onShow
+打开新页面 | 调用 API wx.navigateTo 或使用组件 <navigator open-type="navigateTo"/> | onHide | onLoad，onShow
+页面重定向 | 调用 API wx.redirectTo 或使用组件 <navigator open-type="redirectTo"/> | onUnload |  onLoad，onShow
+页面返回 | 调用 API wx.navigateBack 或使用组件<navigator open-type="navigateBack">或用户按左上角返回按钮 | onUnload | onShow
+Tab切换 | 调用 API wx.switchTab 或使用组件 <navigator open-type="switchTab"/> 或用户切换 Tab |  | 情况参考下表
+重启动 | 调用APIwx.reLaunch 或使用组件 <navigator open-type="reLaunch"/> | onUnload| onLoad，onShow
+  Tab切换对应的生命周期（以A、B页面为Tabbar页面，C是从A页面打开的页面，D是从C页面打开的页面为例）
+当前页面 | 路由后页面 | 触发的生命周期（按顺序）
+- | - | -
+A | A | 啥也没发生
+A | B | A.onHide(),B.onLoad(),B.onShow()
+A | B （再次打开） | A.onHide(),B.onShow()
+C | A | C.onUnload(),A.onShow()
+C | B | C.onUnload(),B.onLoad(),B.onShow()
+D | B | D.onUnload(),C.onUnload(),B.onLoad(),B.onShow()
+D（从转发进入） | A | D.onUnload(),A.onLoad(),A.onShow()
+D（从转发进入） | B | D.onUnload(), B.onLoad(), B.onShow()
+  **PS：**
+  - navigateTo, redirectTo 只能打开非 tabBar 页面。
+  - switchTab 只能打开 tabBar 页面。
+  - reLaunch 可以打开任意页面。
+  - 页面底部的 tabBar 由页面决定，即只要是定义为 tabBar 的页面，底部都有 tabBar。
+  - 调用页面路由带的参数可以在目标页面的onLoad中获取
+
 
 
 
