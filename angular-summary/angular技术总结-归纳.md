@@ -3315,6 +3315,7 @@ template: `
   这些回调接收一个AnimationTranslationEvent参数，包括一些属性比如：fromState，toState，totalTime。不管动画是否执行，回调函数总会被触发。
   
   
+  
 #核心知识——表单
 ##一、用户输入
 ### 1.绑定到用户输入事件。
@@ -5476,6 +5477,7 @@ declarations:[
 ### 4.bootstrap数组
   应用是通过引导根模块AppModule来启动的，根模块还引用了entryComponent，此外，引导过程还会创建bootstrap数组中列出的组件，并把它们逐个插入到浏览器的DOM中。每个被引导的组件都是它自己的组件树的根，插入一个被引导的组件通常触发一系列组件的创建并形成组件树，肃然也可以在宿主页面放多个组件，但是大多数应用只有一个组件树，并且只从一个根组件开始引导。就是AppComponent啦，放在bootstrap数组里面。
   
+  
 #核心知识- Angular模块
 ## 一、Angular模块（NgModule）
   NgModules用于配置注入器和编译器，并帮助组织起来相关的东西。NgModule是一个带有@NgModule装饰器的类，@NgModule的参数是一个元数据对象，用于描述如何编译组件的模板，以及在运行时如何创建注入器，它会标出还模块自己的组件、指令和管道。通过exports属性公开其中的一部分，以便外部组件使用它们，NgModule还能把一些服务提供商添加到应用的依赖注入器中。
@@ -6851,6 +6853,7 @@ export class PersonContactComponent{
   注意一下上面@Host()函数是personCache属性的装饰器，确保从其父组件PersonBioComponent得到一个缓存服务。如果该父组件不存在这个服务，Angular就会 抛出错误，即使组件树里的再上级有某个组件拥有这个服务，Angular也会抛出错误。
   另一个@Host()函数是属性loggerService的装饰器，在本应用程序中只有一个在AppComponent级提供的LoggerService实例。该宿主PersonBioComponent没有自己的LoggerService提供商。如果没有同时使用@Optional()装饰器的话，Angular就会抛出错误。但是还好有@Optional()，Angular把loggerService设置为null，并继续执行组件而不会抛出错误。
   如果注释掉@Host()装饰器，Angular就会沿着注入器树往上走，直到在AppComponent中找到该日志服务，日志服务的逻辑加入进来，更新了英雄的显示信息，这表明了确实 找到了日志服务。另一方面，如果恢复@Host()装饰器，注释掉@Optional，应用程序就会运行失败，因为它在宿主组件级别找不到需要的日志服务。
+  
   
   
 # 核心知识-HttpClient
