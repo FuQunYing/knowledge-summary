@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="" />
+    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/JS/es6.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6.md" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -13,7 +15,82 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf>
+      <file leaf-file-name="es6.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/JS/es6.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="624">
+                <caret line="11939" lean-forward="true" selection-start-line="11939" selection-end-line="11939" />
+                <folding>
+                  <element signature="e#0#15#0" />
+                  <element signature="e#8225#8237#0" />
+                  <element signature="e#16285#16296#0" />
+                  <element signature="e#29639#29649#0" />
+                  <element signature="e#34969#34979#0" />
+                  <element signature="e#47398#47408#0" />
+                  <element signature="e#68139#68153#0" />
+                  <element signature="e#68652#68663#0" />
+                  <element signature="e#82718#82727#0" />
+                  <element signature="e#93644#93684#0" />
+                  <element signature="e#96723#96792#0" />
+                  <element signature="e#100186#100200#0" />
+                  <element signature="e#101230#101283#0" />
+                  <element signature="e#104004#104019#0" />
+                  <element signature="e#107613#107624#0" />
+                  <element signature="e#123738#123754#0" />
+                  <element signature="e#130817#130826#0" />
+                  <element signature="e#138547#138560#0" />
+                  <element signature="e#142855#142866#0" />
+                  <element signature="e#164555#164568#0" />
+                  <element signature="e#175478#175493#0" />
+                  <element signature="e#195775#195799#0" />
+                  <element signature="e#211251#211271#0" />
+                  <element signature="e#220031#220064#0" />
+                  <element signature="e#224224#224258#0" />
+                  <element signature="e#225295#225328#0" />
+                  <element signature="e#226021#226037#0" />
+                  <element signature="e#230401#230425#0" />
+                  <element signature="e#230638#230660#0" />
+                  <element signature="e#232424#232433#0" />
+                  <element signature="e#234530#234539#0" />
+                  <element signature="e#239244#239266#0" />
+                  <element signature="e#243358#243372#0" />
+                  <element signature="e#248459#248469#0" />
+                  <element signature="e#253448#253461#0" />
+                  <element signature="e#264967#264978#0" />
+                  <element signature="e#274393#274409#0" />
+                  <element signature="e#288529#288543#0" />
+                  <element signature="e#300526#300546#0" />
+                  <element signature="e#313256#313271#0" />
+                  <element signature="e#326477#326495#0" />
+                  <element signature="e#341335#341346#0" />
+                  <element signature="e#348987#349008#0" />
+                  <element signature="e#354574#354592#0" />
+                  <element signature="n#!!doc" expanded="true" />
+                </folding>
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="es6总结0612.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JS/es6总结0612.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="16">
+                <caret line="1" selection-start-line="1" selection-end-line="878" />
+                <folding>
+                  <element signature="e#9#27#0" />
+                </folding>
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -58,6 +135,11 @@
             <path>
               <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
               <item name="工作总结" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
+              <item name="工作总结" type="462c0819:PsiDirectoryNode" />
+              <item name="JS" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -111,25 +193,27 @@
       <workItem from="1526000549782" duration="1083000" />
       <workItem from="1526456449667" duration="118000" />
       <workItem from="1528704063416" duration="883000" />
+      <workItem from="1528799010134" duration="63000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17276000" />
+    <option name="totallyTimeSpent" value="17339000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.367049" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -146,16 +230,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0320.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="144">
-            <caret line="8" column="31" selection-end-line="93" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0321.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -430,9 +504,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="529" />
-            <folding>
-              <element signature="e#8#19#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -443,9 +514,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="461" selection-end-column="2" />
-            <folding>
-              <element signature="e#8#17#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -456,13 +524,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="546" />
-            <folding>
-              <element signature="e#8#48#0" />
-              <element signature="e#3087#3156#0" />
-              <element signature="e#6550#6564#0" />
-              <element signature="e#7594#7647#0" />
-              <element signature="e#10368#10383#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -473,9 +534,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="591" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#19#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -486,9 +544,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="261" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#24#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -499,10 +554,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="479" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#17#0" />
-              <element signature="e#7738#7751#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -513,9 +564,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="797" />
-            <folding>
-              <element signature="e#8#19#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -526,9 +574,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="359" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#21#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -539,9 +584,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="654" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#23#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -552,9 +594,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="589" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#32#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -565,9 +604,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="276" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#28#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -578,16 +614,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="761" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#41#0" />
-              <element signature="e#4201#4235#0" />
-              <element signature="e#5272#5305#0" />
-              <element signature="e#5998#6014#0" />
-              <element signature="e#10378#10402#0" />
-              <element signature="e#10615#10637#0" />
-              <element signature="e#12401#12410#0" />
-              <element signature="e#14507#14516#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -598,9 +624,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="123" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#30#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -611,10 +634,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="365" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#22#0" />
-              <element signature="e#5109#5119#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -625,9 +644,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="436" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#21#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -638,9 +654,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="292" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#19#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -651,9 +664,6 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="635" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#24#0" />
-            </folding>
           </first_editor>
           <second_editor />
         </state>
@@ -664,8 +674,58 @@
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
             <caret line="1" selection-start-line="1" selection-end-line="541" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0605.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="488" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0607.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="506" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0608.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="535" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0611.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="521" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0612.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="878" />
             <folding>
-              <element signature="e#8#28#0" />
+              <element signature="e#9#27#0" />
             </folding>
           </first_editor>
           <second_editor />
@@ -675,8 +735,8 @@
     <entry file="file://$PROJECT_DIR$/JS/es6.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
-          <first_editor relative-caret-position="192">
-            <caret line="3275" column="3" lean-forward="true" selection-start-line="3275" selection-start-column="3" selection-end-line="3275" selection-end-column="3" />
+          <first_editor relative-caret-position="624">
+            <caret line="11939" lean-forward="true" selection-start-line="11939" selection-end-line="11939" />
             <folding>
               <element signature="e#0#15#0" />
               <element signature="e#8225#8237#0" />
@@ -718,64 +778,11 @@
               <element signature="e#288529#288543#0" />
               <element signature="e#300526#300546#0" />
               <element signature="e#313256#313271#0" />
-              <element signature="e#0#15#0" expanded="true" />
               <element signature="e#326477#326495#0" />
-              <element signature="e#0#36#0" expanded="true" />
               <element signature="e#341335#341346#0" />
-              <element signature="e#348985#349006#0" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0605.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="488" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#22#0" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0607.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="506" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#23#0" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0608.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="535" selection-end-column="3" />
-            <folding>
-              <element signature="e#8#26#0" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0611.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="521" selection-end-column="3" />
-            <folding>
-              <element signature="e#9#20#0" />
-              <element signature="e#7659#7680#0" />
+              <element signature="e#348987#349008#0" />
+              <element signature="e#354574#354592#0" />
+              <element signature="n#!!doc" expanded="true" />
             </folding>
           </first_editor>
           <second_editor />
