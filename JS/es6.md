@@ -13353,6 +13353,7 @@ greet()
  
  
  
+ 
 ## 二十四、读懂ECMAScript规格
 ### 1.术语
   查看规格是解决语法问题的最可靠、最权威的终极方法，是解决问题的最后一招。有一些术语，帮助理解规格：
@@ -14384,3 +14385,522 @@ Atomics.xor(sharedArray, index, value)
   - Atomics.exchange(sharedArray, index, value)：设置sharedArray[index]的值，返回旧的值。
   - Atomics.isLockFree(size)：返回一个布尔值，表示Atomics对象是否可以处理某个size的内存锁定。如果返回false，应用程序就需要自己来实现锁定。
   Atomics.compareExchange的一个用途是，从 SharedArrayBuffer 读取一个值，然后对该值进行某个操作，操作结束以后，检查一下 SharedArrayBuffer 里面原来那个值是否发生变化（即被其他线程改写过）。如果没有改写过，就将它写回原来的位置，否则读取新的值，再重头进行一次操作。
+
+## 二十六、最新提案
+### 1.do表达式
+  本质上，块级作用域是一个语句，将多个操作封装在一起，没有返回值：
+```json
+{
+    let t=f()
+    t=t*t+1
+}
+//在这里，块级作用域将两个语句封装在一起，但是，在块级作用域以外，没有办法得到t的值，因为块级作用域不返回值，除非t是全局变量。
+```
+  现在有一个提案，使得块级作用语言可以变为表达式，也就是说可以返回值，办法就是在块级作用域之前加上do，使它变为do表达式，然后就会返回内部最后执行的表达式的值：
+```javascript
+let x=do{
+    let t=f()
+    t*t+1
+}
+//变量x会得到整个块级作用域的返回值(t*t+1)
+```
+  do表达式的逻辑非常简单：封装的是什么，就会返回什么：
+```javascript
+//等同于<表达式>
+do {<表达式>}
+//等同于<语句>
+do{<语句>}
+```
+  do表达式的好处是可以封装多个语句，让程序更加模块化：
+```javascript
+let x=do{
+    if(foo()){f()}
+    else if (bar()){g()}
+    else {h()}
+}
+//这里代码的本质就是根据函数foo的执行结果，调用不同的函数，将返回结果赋给变量x，使用do表达式，就将这个操作的意图表达的非常简洁清晰。而且，do块级作用域提供了单独的作用域，内部操作可以与全局作用域隔绝
+```
+  do表达式在JSX语法中非常好用：
+```javascript
+return (
+	<nav>
+		<Home/>
+		{
+            do {
+                if(loggedIn){
+                    <LogoutButton/>
+                }else{
+                    LoginButton/>
+                }
+            }
+		}
+	</nav>
+)
+//如果不使用do表达式，就只能用三元运算符。那如果判断逻辑复杂的话，代码就会变得很不易读。
+```
+### 2.throw表达式
+  JavaScript语法规定throw是一个命令，用来抛出错误，不能用于表达式之中：
+```javascript
+//报错
+consolee.log(throw new Error())//console.log参数必须是一个表达式，如果是一个throw语句就会报错
+```
+  现在有一个提案，允许throw用于表达式：
+```javascript
+//参数的默认值
+function save(filename=throw new TypeError('Argument requirred')){}
+//箭头函数的返回值
+lint(ast,{
+    with: () => throw new Error('避免使用 with 语句')
+})
+//条件表达式
+function getEncoder(encoding){
+    const encoder=encoding ==='utf8'?
+      new UTF*Encoder():
+      encoding==='utf16le'?
+        new UTF16Encoder(false):
+        encodiing ==='utf16be'?
+          new UTF16Encoder(true):
+          throw new Error('不支持的编码')
+}
+// 逻辑表达式
+class Product {
+  get id() {
+    return this._id;
+  }
+  set id(value) {
+    this._id = value || throw new Error("Invalid value");
+  }
+}
+//上面代码中，throw都出现在表达式里面
+```
+  语法上，throw表达式里面的throw不再是一个命令，而是一个运算符。为了避免与throw命令混淆，规定throw出现在行首，一律解释为throw语句，而不是throw表达式。
+### 3.链式判断运算符
+  编程实务中，如果读取对象内部的某个属性，往往需要判断一下该对象是否存在，比如，要读取message.body.user.firstName，安全的写法是写成这样：
+```javascript
+const firstName=(message && message.body && message.body.user && message.body.user.firstName) || 'default';
+```
+  这样的层层判断非常麻烦，因此现在有一个提案，引入了链判断运算符?.，简化上面的写法：
+```javascript
+const firstName = message?.body?.user?.firstName || 'default';
+```
+  上面代码有三个?.运算符，直接在链式调用的时候判断，左侧的对象是否为null或undefined。如果是的，就不再往下运算，而是返回undefined。
+  链判断运算符有三种写法：
+  - obj?.prop // 读取对象属性
+  - obj?.[expr] // 同上
+  - func?.(...args) // 函数或对象方法的调用
+  判断是否存在：
+```javascript
+iterator.return?.()//iterator.return如果有定义，就会调用该方法，否则直接返回undefined。
+```
+  一袋栗子：
+```javascript
+a?.b
+//等同于
+a==null?undefined:a.b
+
+a?.[x]
+// 等同于
+a == null ? undefined : a[x]
+
+a?.b()
+// 等同于
+a == null ? undefined : a.b()
+
+a?.()
+// 等同于
+a == null ? undefined : a()
+```
+  使用这个运算符，有几个注意点：
+  - 短路机制
+```javascript
+a?.[++x]
+//等同于
+a==null?undefined:a[++x]//如果a是undefined或null，那么x不会进行递增运算。也就是说，链判断运算符一旦为真，右侧的表达式就不再求值
+```
+  - delete运算符
+```javascript
+delete a?.b
+//等同于
+a==null?undefined:delete a.b//如果a是undefined或null，会直接返回undefined，而不会进行delete运算。
+```
+  - 报错场合
+```javascript
+//以下写法禁止，会报错
+// 构造函数判断
+new a?.()
+
+// 运算符右侧是模板字符串
+a?.`{b}`
+
+// 链判断运算符前后有构造函数或模板字符串
+new a?.b()
+a?.b`{c}`
+
+// 链运算符用于赋值运算符左侧
+a?.b = c
+```
+  - 右侧不得为十进制数值
+```txt
+	为了保证兼容以前的代码，允许foo?.3:0被解析成foo ? .3 : 0，因此规定如果?.后面紧跟一个十进制数字，那么?.不再被看成是一个完整的运算符，而会按照三元运算符进行处理，也就是说，那个小数点会归属于后面的十进制数字，形成一个小数。
+```
+### 4.直接输入 U+2028 和 U+2029
+  JavaScript 字符串允许直接输入字符，以及输入字符的转义形式。举例来说，“中”的 Unicode 码点是 U+4e2d，你可以直接在字符串里面输入这个汉字，也可以输入它的转义形式\u4e2d，两者是等价的。
+```javascript
+'中' === '\u4e2d' // true
+```
+  但是，JavaScript 规定有5个字符，不能在字符串里面直接使用，只能使用转义形式。
+  - U+005C：反斜杠（reverse solidus)
+  - U+000D：回车（carriage return）
+  - U+2028：行分隔符（line separator）
+  - U+2029：段分隔符（paragraph separator）
+  - U+000A：换行符（line feed）
+  举例来说，字符串里面不能直接包含反斜杠，一定要转义写成\\或者\u005c。
+  这个规定本身没有问题，麻烦在于JSON格式允许字符串里面直接使用U+2028（行分隔符）和U+2029（段分隔符），这样一来，服务器输出的JSON被JSON.parse解析，就有可能直接报错。
+  JSON格式已经冻结（RFC7159），没法修改了。为了消除这个报错，现在有一个提案，允许JavaScript字符串直接输入U+2028（行分隔符）和U+2029（段分隔符）
+```javascript
+const PS=eval("'\u2029")//根据提案，这个代码不会报错。
+```
+  注意，模板字符串现在就允许直接输入这两个字符。另外，正则表达式依然不允许直接输入这两个字符，这是没有问题的，因为JSON本身就不允许直接包含正则表达式。
+### 5.函数的部分执行
+#### 5.1 语法
+  多参数的函数有时候需要绑定其中的一个或多个参数，然后返回一个新的函数：
+```javascript
+function add(x,y){return x+y}
+function add7(x){return x+y}
+//add7函数其实是add函数的一个特殊版本，通过将一个参数绑定为7，就可以从add得到add7
+```
+```javascript
+//bind方法
+const add7=add.bind(null,7)
+//箭头函数
+const add7=x=>add(x,7)
+//这两种写法有些冗余，其中bind方法的局限更加明显，它必须提供this，并且只能从前到后一个个绑定参数，无法只绑定非头部的参数
+```
+  现在有一个提案，使得绑定参数并返回一个新函数更加容易。，这叫做函数的部分执行：
+```javascript
+const add=(x,y)=>x+y
+const addOne=add(1,?)
+const maxGreaterThanZero=Math.max(0,...)
+```
+  根据新提案，？是单个参数的占位符，...是多个参数的占位符。以下的形式都属于函数的部分执行：
+```javascript
+f(x, ?)
+f(x, ...)
+f(?, x)
+f(..., x)
+f(?, x, ?)
+f(..., x, ...)
+```
+  ?和...只能出现在函数的调用之中，并且会返回一个新函数。
+```javascript
+const g = f(?, 1, ...);
+// 等同于
+const g = (x, ...y) => f(x, 1, ...y);
+```
+  函数的部分执行，也可以用于对象的方法。
+```javascript
+let obj = {
+  f(x, y) { return x + y; },
+};
+
+const g = obj.f(?, 3);
+g(1) // 4
+```
+#### 5.2 注意点
+  函数的部分执行有一些特别注意的地方
+  - 函数的部分执行是基于原函数的，如果原函数发生变化，部分执行生成的新函数也会立即反映这种变化
+```javascript
+let f = (x, y) => x + y;
+
+const g = f(?, 3);
+g(1); // 4
+
+// 替换函数 f
+f = (x, y) => x * y;
+
+g(1); // 3
+//上面代码中，定义了函数的部分执行以后，更换原函数会立即影响到新函数。
+```
+  - 如果预先提供的那个值是一个表达式，那么这个表达式并不会在定义时求值，而是在每次调用时求值。
+```javascript
+let a=3;
+const f=(x,y)=>x+y
+const g=f(?,a)
+g(1)//4
+
+//改变a的值
+a=10;
+g(1)//11
+//这里预先提供的参数是变量a，那么每次调用函数g的时候，才会对a进行求值
+```
+  - 如果新函数的参数多于占位符的数量，anemia多于的参数将被忽略
+```javascript
+const f=(x,...y)=>[x,...y]
+const g=f(?,1)
+g(2,3,4)//[2,1]
+//函数g只有一个占位符，也就意味着它只能接受一个参数，多余的参数都会被忽略。
+```
+  写成下面这样，多余的参数就没有问题：
+```javascript
+const f=(x,...y)=>[x,...y]
+const g=f(?,...)
+g(2,3,4)//[2,1,3,4]
+```
+  - ...只会被采集一次，如果函数的部分执行使用了多个...，那么每个...的值都将相同
+```javascript
+const f=(...x)=>x
+const g=f(...,9,...)
+g(1,2,3)//[1,2,3,9,1,2,3]
+//g定义了两个...占位符，真正执行的时候，它们是一样的
+```
+### 6.管道运算符
+  Unix 操作系统有一个管道机制（pipeline），可以把前一个操作的值传给后一个操作。这个机制非常有用，使得简单的操作可以组合成为复杂的操作。许多语言都有管道的实现，现在有一个提案，让 JavaScript 也拥有管道机制。JavaScript 的管道是一个运算符，写作|>。它的左边是一个表达式，右边是一个函数。管道运算符把左边表达式的值，传入右边的函数进行求值。
+```javascript
+x |> f
+// 等同于
+f(x)
+```
+  管道运算符最大的好处，就是可以把嵌套的函数，写成从左到右的链式表达式。
+```javascript
+function doubleSay (str) {
+  return str + ", " + str;
+}
+
+function capitalize (str) {
+  return str[0].toUpperCase() + str.substring(1);
+}
+
+function exclaim (str) {
+  return str + '!';
+}
+
+//上面是三个简单的函数。如果要嵌套执行，传统的写法和管道的写法分别如下:
+
+// 传统的写法
+exclaim(capitalize(doubleSay('hello')))
+// "Hello, hello!"
+
+// 管道的写法
+'hello'
+  |> doubleSay
+  |> capitalize
+  |> exclaim
+// "Hello, hello!"
+```
+  管道运算符只能传递一个值，这意味着它右边的函数必须是一个单参数函数。如果是多参数函数，就必须进行柯里化，改成单参数的版本。
+```javascript
+function double (x) { return x + x; }
+function add (x, y) { return x + y; }
+
+let person = { score: 25 };
+person.score
+  |> double
+  |> (_ => add(7, _))
+// 57
+//，add函数需要两个参数。但是，管道运算符只能传入一个值，因此需要事先提供另一个参数，并将其改成单参数的箭头函数_ => add(7, _)。这个函数里面的下划线并没有特别的含义，可以用其他符号代替，使用下划线只是因为，它能够形象地表示这里是占位符。
+```
+管道运算符对于await函数也适用。
+```javascript
+x |> await f
+// 等同于
+await f(x)
+
+const userAge = userId |> await fetchUserById |> getAgeFromUser;
+// 等同于
+const userAge = getAgeFromUser(await fetchUserById(userId));
+```
+### 7.数值分隔符
+  欧美语言中，较长的数值允许每三位添加一个分隔符（通常是一个逗号），增加数值的可读性。比如，1000可以写作1,000。现在有一个提案，允许 JavaScript 的数值使用下划线（\_）作为分隔符。
+```javascript
+let budget = 1_000_000_000_000;
+budget === 10 ** 12 // true
+```
+  JavaScript 的数值分隔符没有指定间隔的位数，也就是说，可以每三位添加一个分隔符，也可以每一位、每两位、每四位添加一个。
+```javascript
+123_00 === 12_300 // true
+
+12345_00 === 123_4500 // true
+12345_00 === 1_234_500 // true
+```
+  小数和科学计数法也可以使用数值分隔符。
+```javascript
+// 小数
+0.000_001
+// 科学计数法
+1e10_000
+```
+  数值分隔符有几个使用注意点。
+  - 不能在数值的最前面（leading）或最后面（triling）
+  - 不能两个或两个以上的分隔符连在一起
+  - 小数点的前后不能有分隔符
+  - 科学计数法里面，表示指数的e或E前后不能有分隔符
+  下面的写法都活报错：
+```javascript
+// 全部报错
+3_.141
+3._141
+1_e12
+1e_12
+123__456
+_1464301
+1464301_
+```
+  除了十进制，其他进制的数值也可以使用分隔符。
+```javascript
+// 二进制
+0b1010_0001_1000_0101
+// 十六进制
+0xA0_B0_C0
+```
+  注意，分隔符不能紧跟着进制的前缀0b、0B、0o、0O、0x、0X。
+```javascript
+// 报错
+0_b111111000
+0b_111111000
+```
+  下面三个将字符串转成数值的函数，不支持数值分隔符。主要原因是提案的设计者认为，数值分隔符主要是为了编码时书写数值的方便，而不是为了处理外部输入的数据
+  - Number()
+  - parseInt()
+  - parseFloat()
+```javascript
+Number('123_456')//NaN
+parseInt('123_456')//123
+```
+### 8.BigInt数据类型
+#### 8.1 简介
+  JavaScript所有数字都保存成64位浮点数，这给数值的表示带来了两大限制。一是数值的精度只能到53个二进制位（相当于16个十进制位），大于这个范围的整数，JavaScript是无法精确表示的，这使得JavaScript不适合进行科学和金融方面的精确计算。二是大于或等于2的1024次方的数值，JavaScript无法表示，会返回Infinite：
+```javascript
+// 超过 53 个二进制位的数值，无法保持精度
+Math.pow(2, 53) === Math.pow(2, 53) + 1 // true
+
+// 超过 2 的 1024 次方的数值，无法表示
+Math.pow(2, 1024) // Infinity
+```
+  现在有一个提案，引入了一种新的数据类型BigInt（大整数），来解决这个问题。BigInt只用来表示整数，没有位数限制，任何位数的整数都可以精确表示：
+```javascript
+const a = 2172141653n;
+const b = 15346349309n;
+a * b // 33334444555566667777n
+Number(a) * Number(b) // 33334444555566670000
+```
+  为了与 Number 类型区别，BigInt 类型的数据必须使用后缀n表示。
+```javascript
+1234n
+1n + 2n // 3n
+```
+  BigInt 同样可以使用各种进制表示，都要加上后缀n。
+```javascript
+0b1101n // 二进制
+0o777n // 八进制
+0xFFn // 十六进制
+```
+  typeof运算符对于 BigInt 类型的数据返回bigint。
+```javascript
+typeof 123n // 'bigint'
+```
+#### 8.2 BigInt对象
+  JavaScript原生提供BigInt对象，可以用作构造函数生成BitInt类型的数值。转换规则基本与Number()一致，将别的类型的值转为BigInt：
+```javascript
+BigInt(123)//123n
+BigInt('123') // 123n
+BitInt(false) // 0n
+BitInt(true) // 1n
+```
+  BitInt构造函数必须有参数，而且参数必须可以正常转为数值，下面的用法都会报错。
+```javascript
+new BitInt() // TypeError
+BigInt(undefined) //TypeError
+BigInt(null) // TypeError
+BigInt('123n') // SyntaxError
+BigInt('abc') // SyntaxError
+```
+  上面代码中，尤其值得注意字符串123n无法解析成 Number 类型，所以会报错。
+  BigInt 对象继承了 Object 提供的实例方法。
+  - BigInt.prototype.toLocalString()
+  - BigInt.prototype.toString()
+  - BigInt.prototype.valueOf()
+  此外，还提供了三个静态方法：
+  - BigInt.asUintN(width, BigInt)： 对给定的大整数，返回 0 到 2width - 1 之间的大整数形式。
+  - BigInt.asIntN(width, BigInt)：对给定的大整数，返回 -2width - 1 到 2width - 1 - 1 之间的大整数形式。
+  - BigInt.parseInt(string[, radix])：近似于Number.parseInt，将一个字符串转换成指定进制的大整数。
+```javascript
+// 将一个大整数转为 64 位整数的形式
+const int64a = BigInt.asUintN(64, 12345n);
+
+// Number.parseInt 与 BigInt.parseInt 的对比
+Number.parseInt('9007199254740993', 10)// 9007199254740992
+BigInt.parseInt('9007199254740993', 10)// 9007199254740993n
+//由于有效数字超出了最大限度，Number.parseInt方法返回的结果是不精确的，而BigInt.parseInt方法正确返回了对应的大整数。
+```
+  对于二进制数组，BigInt 新增了两个类型BigUint64Array和BigInt64Array，这两种数据类型返回的都是大整数。DataView对象的实例方法DataView.prototype.getBigInt64和DataView.prototype.getBigUint64，返回的也是大整数。
+#### 8.3 运算
+  数学运算方面，BigInt类型+、-、\*和\*\*这四个二元运算符，与Number类型的行为一致。除法运算/会舍去小数部分，返回一个整数：
+```javascript
+9n/5n //1n
+```
+  几乎所有的 Number 运算符都可以用在 BigInt，但是有两个除外：不带符号的右移位运算符>>>和一元的求正运算符+，使用时会报错。前者是因为>>>运算符是不带符号的，但是 BigInt 总是带有符号的，导致该运算无意义，完全等同于右移运算符>>。后者是因为一元运算符+在 asm.js 里面总是返回 Number 类型，为了不破坏 asm.js 就规定+1n会报错。
+
+Integer 类型不能与 Number 类型进行混合运算。
+```javascript
+1n + 1.3 // 报错,无论返回的是 BigInt 或 Number，都会导致丢失信息。比如(2n**53n + 1n) + 0.5这个表达式，如果返回 BigInt 类型，0.5这个小数部分会丢失；如果返回 Number 类型，有效精度只能保持 53 位，导致精度下降。
+```
+  同样的原因，如果一个标准库函数的参数预期是 Number 类型，但是得到的是一个 BigInt，就会报错。
+```javascript
+// 错误的写法
+Math.sqrt(4n) // 报错
+
+// 正确的写法
+Math.sqrt(Number(4n)) // 2
+//Math.sqrt的参数预期是 Number 类型，如果是 BigInt 就会报错，必须先用Number方法转一下类型，才能进行计算。
+```
+  asm.js 里面，|0跟在一个数值的后面会返回一个32位整数。根据不能与 Number 类型混合运算的规则，BigInt 如果与|0进行运算会报错。
+```javascript
+1n | 0 // 报错
+```
+  比较运算符（比如>）和相等运算符（==）允许 BigInt 与其他类型的值混合计算，因为这样做不会损失精度。
+```javascript
+0n < 1 // true
+0n < true // true
+0n == 0 // true
+0n == false // true
+```
+  同理，精确相等运算符（===）也可以混合使用：
+```javascript
+0n===0//false,因为0n与0的数据类型不同
+```
+  大整数可以转为其它数据类型：
+```javascript
+Boolean(0n) // false
+Boolean(1n) // true
+Number(1n)  // 1
+String(1n)  // "1"
+
+!0n // true
+!1n // false
+```
+```javascript
+//大整数也可以与字符串混合运算。
+'' + 123n // "123"
+```
+### 9.Math.signbit()
+  Math.sign()用来判断一个值的正负，但是如果参数是-0，它会返回-0：
+```javascript
+Math.sign(-0)//-0
+```
+  这导致对于判断符号位的正负，Math.sign()不是很有用，JavaScript内部使用64位浮点数表示数值，IEEE 754 规定第一位是符号位，0表示正数，1表示负数。所以会有两种零，+0是符号位为0时的零值，-0是符号位为1时的零值。实际编程中，判断一个值是+0还是-0非常麻烦，因为它们是相等的。
+```javascript
++0 === -0 // true
+```
+  目前，有一个提案，引入了Math.signbit()方法判断一个数的符号位是否设置了。
+```javascript
+Math.signbit(2) //false
+Math.signbit(-2) //true
+Math.signbit(0) //false
+Math.signbit(-0) //true
+```
+  可以看到，该方法正确返回了-0的符号位是设置了的。该方法的算法如下。
+  - 如果参数是NaN，返回false
+  - 如果参数是-0，返回true
+  - 如果参数是负值，返回true
+  - 其他情况返回false
+  
