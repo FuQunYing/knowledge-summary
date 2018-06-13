@@ -1,4 +1,3 @@
-# Day 33
 ## 二十五、ArrayBuffer
 ### 1.ArrayBuffer对象
 #### 1.1 概述
