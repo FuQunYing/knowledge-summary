@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/JS/es6.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -15,13 +16,13 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="es6.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/JS/es6.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
-              <first_editor relative-caret-position="624">
-                <caret line="11939" lean-forward="true" selection-start-line="11939" selection-end-line="11939" />
+              <first_editor relative-caret-position="750">
+                <caret line="13354" column="1" selection-start-line="13354" selection-start-column="1" selection-end-line="13354" selection-end-column="1" />
                 <folding>
                   <element signature="e#0#15#0" />
                   <element signature="e#8225#8237#0" />
@@ -64,10 +65,8 @@
                   <element signature="e#300526#300546#0" />
                   <element signature="e#313256#313271#0" />
                   <element signature="e#326477#326495#0" />
-                  <element signature="e#341335#341346#0" />
-                  <element signature="e#348987#349008#0" />
-                  <element signature="e#354574#354592#0" />
-                  <element signature="n#!!doc" expanded="true" />
+                  <element signature="e#348991#349012#0" />
+                  <element signature="e#354576#354594#0" />
                 </folding>
               </first_editor>
               <second_editor />
@@ -117,11 +116,10 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1873" />
-    <option name="height" value="1096" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="-7" />
+    <option name="width" value="942" />
+    <option name="height" value="1087" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -193,27 +191,28 @@
       <workItem from="1526000549782" duration="1083000" />
       <workItem from="1526456449667" duration="118000" />
       <workItem from="1528704063416" duration="883000" />
-      <workItem from="1528799010134" duration="63000" />
+      <workItem from="1528799010134" duration="667000" />
+      <workItem from="1528851227287" duration="616000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17339000" />
+    <option name="totallyTimeSpent" value="18559000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
+    <frame x="-8" y="-8" width="1873" height="1096" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.367049" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -485,17 +484,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结-归纳.md">
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+        </state>
+      </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="814">
             <caret line="7524" selection-start-line="7524" selection-end-line="7524" />
           </first_editor>
           <second_editor />
-        </state>
-      </provider>
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -735,8 +734,8 @@
     <entry file="file://$PROJECT_DIR$/JS/es6.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
-          <first_editor relative-caret-position="624">
-            <caret line="11939" lean-forward="true" selection-start-line="11939" selection-end-line="11939" />
+          <first_editor relative-caret-position="750">
+            <caret line="13354" column="1" selection-start-line="13354" selection-start-column="1" selection-end-line="13354" selection-end-column="1" />
             <folding>
               <element signature="e#0#15#0" />
               <element signature="e#8225#8237#0" />
@@ -779,10 +778,8 @@
               <element signature="e#300526#300546#0" />
               <element signature="e#313256#313271#0" />
               <element signature="e#326477#326495#0" />
-              <element signature="e#341335#341346#0" />
-              <element signature="e#348987#349008#0" />
-              <element signature="e#354574#354592#0" />
-              <element signature="n#!!doc" expanded="true" />
+              <element signature="e#348991#349012#0" />
+              <element signature="e#354576#354594#0" />
             </folding>
           </first_editor>
           <second_editor />
