@@ -1,4 +1,3 @@
-# Day19
 ## 十二、Reflect
 ### 1.概述
   Reflect对象与Proxy对象一样，也是es6为了操作对象而提供的新的api，Reflect对象的设计目的是这样的：

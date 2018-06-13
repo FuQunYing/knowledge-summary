@@ -2,11 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/JS/07-对象扩展.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/07-对象扩展.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0514.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0515.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/08-Symbol.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0516.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/09-Set和Map数据结构.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0517.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6总结0517.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/08-Symbol.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/08-Symbol.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/09-Set和Map数据结构.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/09-Set和Map数据结构.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/10-Proxy.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/10-Proxy.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/11-Reflect.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/11-Reflect.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/12-Promise对象.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/12-Promise对象.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6总结0524.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/13-Iterator和for of 循环.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6总结0525.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/14-Generator函数的语法.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6总结0528.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6总结0529.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/15-Generator函数的异步应用.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JS/es6总结0530.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/es6总结0530.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -20,24 +25,36 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="07-对象扩展.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/07-对象扩展.md">
+      <file leaf-file-name="13-Iterator和for of 循环.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JS/13-Iterator和for of 循环.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="288">
-                <caret line="1012" lean-forward="true" selection-start-line="1012" selection-end-line="1012" />
+              <first_editor relative-caret-position="32">
+                <caret line="2" column="33" selection-start-line="2" selection-start-column="33" selection-end-line="2" selection-end-column="33" />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="14-Generator函数的语法.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JS/14-Generator函数的语法.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="240">
+                <caret line="1040" lean-forward="true" selection-start-line="1040" selection-end-line="1040" />
                 <folding>
-                  <element signature="e#10#24#0" />
-                  <element signature="e#1647#1659#0" />
-                  <element signature="e#2772#2787#0" />
-                  <element signature="e#3765#3782#0" />
-                  <element signature="e#4512#4533#0" />
-                  <element signature="e#9016#9032#0" />
-                  <element signature="e#10930#10970#0" />
-                  <element signature="e#14009#14078#0" />
-                  <element signature="e#17472#17486#0" />
-                  <element signature="e#18516#18569#0" />
-                  <element signature="e#21290#21305#0" />
+                  <element signature="e#29#37#0" />
+                  <element signature="e#4781#4796#0" />
+                  <element signature="e#6944#6960#0" />
+                  <element signature="e#8780#8813#0" />
+                  <element signature="e#12973#13007#0" />
+                  <element signature="e#14044#14077#0" />
+                  <element signature="e#14770#14786#0" />
+                  <element signature="e#19150#19174#0" />
+                  <element signature="e#19387#19409#0" />
+                  <element signature="e#21173#21182#0" />
+                  <element signature="e#23279#23288#0" />
                 </folding>
               </first_editor>
               <second_editor />
@@ -45,29 +62,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="08-Symbol.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/08-Symbol.md">
+      <file leaf-file-name="15-Generator函数的异步应用.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/JS/15-Generator函数的异步应用.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="16">
-                <caret line="1" selection-start-line="1" selection-end-line="591" selection-end-column="3" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="09-Set和Map数据结构.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/JS/09-Set和Map数据结构.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="160">
-                <caret line="745" lean-forward="true" selection-start-line="745" selection-end-line="745" />
+              <first_editor relative-caret-position="192">
+                <caret line="490" lean-forward="true" selection-start-line="490" selection-end-line="490" />
                 <folding>
-                  <element signature="e#25#34#0" />
-                  <element signature="e#4711#4724#0" />
-                  <element signature="e#7087#7096#0" />
-                  <element signature="e#14817#14830#0" />
+                  <element signature="e#97#107#0" />
+                  <element signature="e#1666#1683#0" />
+                  <element signature="e#4114#4128#0" />
+                  <element signature="e#9215#9225#0" />
                 </folding>
               </first_editor>
               <second_editor />
@@ -75,8 +80,8 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="es6总结0517.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/es6总结0517.md">
+      <file leaf-file-name="es6总结0530.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JS/es6总结0530.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
               <first_editor relative-caret-position="16">
@@ -117,6 +122,17 @@
         <option value="$PROJECT_DIR$/JS/07-对象扩展.md" />
         <option value="$PROJECT_DIR$/JS/es6总结0517.md" />
         <option value="$PROJECT_DIR$/JS/09-Set和Map数据结构.md" />
+        <option value="$PROJECT_DIR$/JS/08-Symbol.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0521.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0522.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0523.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0524.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0525.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0528.md" />
+        <option value="$PROJECT_DIR$/JS/14-Generator函数的语法.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0529.md" />
+        <option value="$PROJECT_DIR$/JS/es6总结0530.md" />
+        <option value="$PROJECT_DIR$/JS/15-Generator函数的异步应用.md" />
       </list>
     </option>
   </component>
@@ -209,12 +225,12 @@
       <workItem from="1528704063416" duration="883000" />
       <workItem from="1528799010134" duration="667000" />
       <workItem from="1528851227287" duration="616000" />
-      <workItem from="1528875692058" duration="1200000" />
+      <workItem from="1528875692058" duration="1515000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19759000" />
+    <option name="totallyTimeSpent" value="20074000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
@@ -380,86 +396,6 @@
         <state split_layout="FIRST">
           <first_editor relative-caret-position="814">
             <caret line="7524" selection-start-line="7524" selection-end-line="7524" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0521.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="797" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0522.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="359" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0523.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="654" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0524.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="589" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0525.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="276" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0528.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="761" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0529.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="123" selection-end-column="3" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0530.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="365" selection-end-column="3" />
           </first_editor>
           <second_editor />
         </state>
@@ -787,6 +723,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0517.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="1" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/12-Promise对象.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" column="16" lean-forward="true" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/11-Reflect.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/10-Proxy.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/09-Set和Map数据结构.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor>
+            <folding>
+              <element signature="e#25#34#0" />
+              <element signature="e#4711#4724#0" />
+              <element signature="e#7087#7096#0" />
+              <element signature="e#14817#14830#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/08-Symbol.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/JS/07-对象扩展.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -810,17 +805,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/08-Symbol.md">
+    <entry file="file://$PROJECT_DIR$/JS/13-Iterator和for of 循环.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="16">
-            <caret line="1" selection-start-line="1" selection-end-line="591" selection-end-column="3" />
+          <first_editor relative-caret-position="32">
+            <caret line="2" column="33" selection-start-line="2" selection-start-column="33" selection-end-line="2" selection-end-column="33" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/es6总结0517.md">
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0528.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="16">
@@ -830,16 +825,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/09-Set和Map数据结构.md">
+    <entry file="file://$PROJECT_DIR$/JS/14-Generator函数的语法.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="160">
-            <caret line="745" lean-forward="true" selection-start-line="745" selection-end-line="745" />
+          <first_editor relative-caret-position="240">
+            <caret line="1040" lean-forward="true" selection-start-line="1040" selection-end-line="1040" />
             <folding>
-              <element signature="e#25#34#0" />
-              <element signature="e#4711#4724#0" />
-              <element signature="e#7087#7096#0" />
-              <element signature="e#14817#14830#0" />
+              <element signature="e#29#37#0" />
+              <element signature="e#4781#4796#0" />
+              <element signature="e#6944#6960#0" />
+              <element signature="e#8780#8813#0" />
+              <element signature="e#12973#13007#0" />
+              <element signature="e#14044#14077#0" />
+              <element signature="e#14770#14786#0" />
+              <element signature="e#19150#19174#0" />
+              <element signature="e#19387#19409#0" />
+              <element signature="e#21173#21182#0" />
+              <element signature="e#23279#23288#0" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/es6总结0530.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="16">
+            <caret line="1" selection-start-line="1" selection-end-line="1" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/15-Generator函数的异步应用.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="192">
+            <caret line="490" lean-forward="true" selection-start-line="490" selection-end-line="490" />
+            <folding>
+              <element signature="e#97#107#0" />
+              <element signature="e#1666#1683#0" />
+              <element signature="e#4114#4128#0" />
+              <element signature="e#9215#9225#0" />
             </folding>
           </first_editor>
           <second_editor />
