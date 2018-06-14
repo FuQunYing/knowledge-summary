@@ -4,7 +4,7 @@
  - 在地址栏输入URL，浏览器就会导航到响应的页面
  - 在页面中点击链接，浏览器就会导航到一个新的页面
  - 点击浏览器的前进和后退按钮，浏览器就会在我的浏览历史中向前或向后导航
-  Angular的Router借鉴了这个模型，他把浏览器中的URL看做一个操作指南，据此导航到一个客户端生成的视图，并可以把参数传给支撑视图的相应组件，帮它决定具体该展现哪些内容。我可以为页面中的链接绑定一个路由，这样，当用户点击链接时，就会导航到应用中相应的视图。当用户点击按钮、从下拉框中选取，或响应来自任何地方的事件时，我也可以在代码控制下进行导航。路由器还在浏览器的历史日志中记录下这些活动，这样浏览器的前进和后退按钮也能照常工作。
+    Angular的Router借鉴了这个模型，他把浏览器中的URL看做一个操作指南，据此导航到一个客户端生成的视图，并可以把参数传给支撑视图的相应组件，帮它决定具体该展现哪些内容。我可以为页面中的链接绑定一个路由，这样，当用户点击链接时，就会导航到应用中相应的视图。当用户点击按钮、从下拉框中选取，或响应来自任何地方的事件时，我也可以在代码控制下进行导航。路由器还在浏览器的历史日志中记录下这些活动，这样浏览器的前进和后退按钮也能照常工作。
 ## 二、基础知识
 ### 1.<base href> 元素
   大多数带路由的应用都要在index.html的<head>标签下先添加一个<base>元素，来告诉路由器该如何合成导航用的URL。如果app文件夹是该应用的根目录，那就把href的值设置为这样：
@@ -84,6 +84,7 @@ children | 包含当前路由下所有已激活的子路由
 ### 8.路由事件
   在每次导航中，Router都会通过Router.events属性发布一些导航事件。这些事件的范围涵盖了从开始导航到结束导航之间的很多时间点。下表中列出了全部导航事件：
 路由器事件 | 说明
+-- | --
 NavigationStart | 本事件会在导航开始时触发
 RoutesRecognized | 本事件会在路由器解析完URL，并识别出了响应的路由时触发
 RouteConfigLoadStart | 本事件会在Router对一个路由配置进行惰性加载之前触发
@@ -95,6 +96,7 @@ NavigationError | 这个事件会在导航由于意料之外的错误而失败�
 ### 9.总结一下
   该应用有一个配置过的路由器，外壳组件中有一个RouterOutlet，它能显示路由器所生成的视图。他还有一些RouterLink，用户可以点击，来通过路由器进行导航。下面是一些路由器中的关键词汇及其含义
 路由器部件 | 含义
+-- | --
 Router | 为激活的URL显示应用组件，管理从一个组件到另一个组件的导航
 RouterModule | 一个独立的Angular模块，用于提供所需的服务提供商，以及用来在应用视图之间进行导航的指令
 Routes（路由数组） | 定义了一个路由数组，每一个都会把一个URL路由映射到一个组件
@@ -106,7 +108,69 @@ ActivatedRoute（激活的路由） | 为每个路由组件提供提供的一个
 RouterState（路由器状态） | 路由器的当前状态包含了一棵由程序中激活的路由构成的树。它包含一些用于遍历路由树的快捷方法。
 链接参数数组  | 这个数组会被路由器解释成一个路由操作指南。你可以把一个RouterLink绑定到该数组，或者把它作为参数传给Router.navigate方法。
 路由组件  | 一个带有RouterOutlet的 Angular 组件，它根据路由器的导航来显示相应的视图。
+## 三、范例应用
+  现在要说的是如何开发一个带路由的多页面应用。接下来重点说它的设计决策，并描述路由的关键特性，如果：
+  - 把应用的各个特性组织成模块
+  - 导航到组件（Persons链接到 人物列表 组件）
+  - 包含一个路由参数（当路由到 人物详情 时，把该英雄的id传进去
+  - 子路由（危机中心特性有一组自己的路由）
+  - CanActivate守卫（检查路由的访问权限）
+  - CanActivateChild守卫（检查子路由的访问权限）
+  - CanDeactivate守卫（询问是否丢弃为保存的更改）
+  - Resolve守卫（预先获取路由数据）
+  - 惰性加载特性模块
+  - CanLoad守卫（在加载特性模块之前进行检查）
+## 四、从路由器开始
+### 1.设置<base href>
+  路由器使用浏览器的history.pushState进行导航。有了pushState，就能按所期望的样子来显示应用内部的URL路径，虽然我使用的全部是客户端合成的视图，但应用内部的这些URL看起来和来自服务器的没什么不同。
+  必须往本应用的index.html添加一个<base href>元素，这样pushState才能正常工作。当引用CSS文件、脚本和图片时，浏览器会用<base href>的值作为相对URL的前缀。把<base>元素添加到<head>元素中。如果app目录是应用的根目录，对于本应用，可以像这样设置index.html中的href值：
+```html
+<base href="/">
+```
+### 2.从路由库中导入
+  先从路由库导入一些符号，路由器在它自己的@angular/router包中。它不是Angular内核的一部分，该路由器是可选的服务，这是因为并不是所有应用都需要路由，并且，如果需要还可能需要另外的路由库。
+  通过一些路由来配置路由器，可以教路由器如何进行导航
+### 3.定义路由
+  路由器必须用路由定义的列表进行配置。第一个配置中定义了由两个路由构成的数组，它们分别通过path导航到了CrisisListComponent 和 PersonListComponent 组件。
+  每个定义都被翻译成了一个Route对象。该对象有一个path字段，表示该路由中的URL路径部分，和一个component字段，表示与该路由相关联的组件。当浏览器的URL变化时或在代码中告诉路由器导航到一个路径时，路由器就会翻出它用来保存这些路由定义的注册表。
+  直白的说，可以这样解释第一个路由：
+  - 当浏览器地址栏的URL变化时，如果它匹配上了路径部分/cirisis-center，路由器就会激活一个CrisisListComponent的实例，并显示它的视图
+  - 当应用程序请求导航到路径/crisis-center时，路由器激活一个CrisisListComponent实例，显示它的视图，并将该路径更新到浏览器地址栏和历史。
+  下面是第一个配置，把路由数组传递到RouterModule.forRoot方法，该方法返回一个包含已配置的Router服务提供商模块和一些其它路由包需要的服务提供商。应用启动时，Router将在当前浏览器URL的基础上进行初始导航：
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
 
+import { AppComponent }          from './app.component';
+import { CrisisListComponent }   from './crisis-list.component';
+import { PersonListComponent }     from './person-list.component';
+
+const appRoutes: Routes = [
+  { path: 'crisis-center', component: CrisisListComponent },
+  { path: 'persons', component: HeroListComponent },
+];
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true } // 调试用
+    )
+  ],
+  declarations: [
+    AppComponent,
+    PersonListComponent,
+    CrisisListComponent,
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+  在AppModule中提供RouterModule，让该路由器在应用的任何地方都能被使用。作为简单的路由配置，将添加配置好的RouterModule到AppModule中就足够了。随着应用的成长，需要将路由配置重构到单独的文件，并创建路由模块。
 
 
 
