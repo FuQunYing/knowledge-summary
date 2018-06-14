@@ -66,8 +66,46 @@ template:`
   RouterState中的每个ActivateRoute都提供了从任意激活路由开始向上或者向下遍历路由树的一种方式，以获得关于父、子、兄弟路由的信息。
 ### 7.激活的路由
   该路由的路径和参数可以通过注入进来的一个名叫ActivatedRoute的路由服务来获取。它有一大堆信息，包括：
-
-
+属性 | 说明
+-- | --
+url | 路由路径的Observable对象，是一个由路由路径中的各个部分组成的字符串数组
+data | 一个Observable，其中包含提供给路由的data对象，也包含由解析守卫解析而来的值
+paramMap | 一个Observable，其中包含一个由当前路由的必要参数和可选参数组成的map对象。用这个map可以获取来自同名参数的单一值或多重值
+queryParamMap | 一个Observable，其中包含一个对所有路由都有效的查询参数组成的map对象，用这个map可以获取来自查询参数的单一值或多重值
+fragment | 一个适用于所有路由的URL的fragment的Observable
+outlet | 要把该路由渲染到的RouterOutlet的名字，对于无名路由，它的路由名是primary，而不是空串
+routeConfig | 用于该路由的路由配置信息，其中包含原始路径
+parent | 当该路由是一个子路由时，表示该路由的父级ActivatedRoute
+firstChild | 包含该路由的子路由列表中的第一个ActivatedRoute
+children | 包含当前路由下所有已激活的子路由
+  有两个旧式属性仍然是有效的，但它们不如其替代品那样强力，建议不再使用，将来也有可能被废弃：
+  - params -- 一个Observable对象，其中包含当前路由的必要参数和可选参数，改用paramMap
+  - queryParams --一个Observable对象，其中包含对所有路由都有效的查询参数，改用queryParamMap
+### 8.路由事件
+  在每次导航中，Router都会通过Router.events属性发布一些导航事件。这些事件的范围涵盖了从开始导航到结束导航之间的很多时间点。下表中列出了全部导航事件：
+路由器事件 | 说明
+NavigationStart | 本事件会在导航开始时触发
+RoutesRecognized | 本事件会在路由器解析完URL，并识别出了响应的路由时触发
+RouteConfigLoadStart | 本事件会在Router对一个路由配置进行惰性加载之前触发
+RouteConfigLoadEnd | 本事件会在路由被惰性加载之后触发
+NavigationEnd | 本事件会在导航成功结束之后触发
+NavigationCancel | 本事件会在导航被取消之后触发，这可能是因为在导航期间某个路由守卫返回了false
+NavigationError | 这个事件会在导航由于意料之外的错误而失败时触发
+  当打开了enableTracing选项时，这些事件也同时会记录到控制台中，由于这些事件是以Observable的形式提供的，所以我可以对自己感兴趣的事件进行filter()，并subscribe()它们，以便根据导航过程中的事假顺序做出决策。
+### 9.总结一下
+  该应用有一个配置过的路由器，外壳组件中有一个RouterOutlet，它能显示路由器所生成的视图。他还有一些RouterLink，用户可以点击，来通过路由器进行导航。下面是一些路由器中的关键词汇及其含义
+路由器部件 | 含义
+Router | 为激活的URL显示应用组件，管理从一个组件到另一个组件的导航
+RouterModule | 一个独立的Angular模块，用于提供所需的服务提供商，以及用来在应用视图之间进行导航的指令
+Routes（路由数组） | 定义了一个路由数组，每一个都会把一个URL路由映射到一个组件
+Route（路由） | 定义路由器该如何根据URL模式来导航到组件。大多数路由都是由路径和组件类构成
+RouterOutlet（路由出口） | 该指令用来标记出路由器应该在哪里显示视图
+RouterLink（路由链接） | 这个指令把可点击的HTML元素绑定到某个路由，点击带有routerLink指令（绑定到字符串或链接参数数组）的元素时就会触发一次导航
+RouterLinkActive（活动路由链接） | 当 HTML 元素上或元素内的routerLink变为激活或非激活状态时，该指令为这个 HTML 元素添加或移除 CSS 类。
+ActivatedRoute（激活的路由） | 为每个路由组件提供提供的一个服务，它包含特定于路由的信息，比如路由参数、静态数据、解析数据、全局查询参数和全局碎片（fragment）。
+RouterState（路由器状态） | 路由器的当前状态包含了一棵由程序中激活的路由构成的树。它包含一些用于遍历路由树的快捷方法。
+链接参数数组  | 这个数组会被路由器解释成一个路由操作指南。你可以把一个RouterLink绑定到该数组，或者把它作为参数传给Router.navigate方法。
+路由组件  | 一个带有RouterOutlet的 Angular 组件，它根据路由器的导航来显示相应的视图。
 
 
 
