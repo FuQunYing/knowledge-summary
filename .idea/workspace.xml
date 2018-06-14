@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/JS/23-读懂规格.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/16-async函数.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/16-async函数.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0601.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0604.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/17-Class的基本语法.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0605.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/18-Class的继承.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0606.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/19-Decorator（修饰器）.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0607.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/20-Module语法.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0608.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/21-Module的加载实现.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JS/es6总结0611.md" beforeDir="false" afterPath="$PROJECT_DIR$/JS/22-编程风格.md" afterDir="false" />
-    </list>
+    <list default="true" id="4b43469e-e85a-45bb-a9e9-0ba7aee34374" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -24,107 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="19-Decorator（修饰器）.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/19-Decorator（修饰器）.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor>
-                <caret column="20" selection-start-column="20" selection-end-column="20" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ArrayBuffer.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/ArrayBuffer.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="128">
-                <caret line="884" selection-start-line="884" selection-end-line="884" />
-                <folding>
-                  <element signature="e#9#27#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="20-Module语法.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/20-Module语法.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor>
-                <folding>
-                  <element signature="e#0#15#0" expanded="true" />
-                  <element signature="e#0#29#0" expanded="true" />
-                  <element signature="e#353#397#0" expanded="true" />
-                  <element signature="e#10#45#0" expanded="true" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="21-Module的加载实现.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/21-Module的加载实现.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor>
-                <folding>
-                  <element signature="e#90#102#0" expanded="true" />
-                  <element signature="e#0#12#0" expanded="true" />
-                  <element signature="e#0#36#0" expanded="true" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="22-编程风格.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/22-编程风格.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor>
-                <caret line="367" column="83" selection-start-line="367" selection-start-column="83" selection-end-line="367" selection-end-column="83" />
-                <folding>
-                  <element signature="e#9#20#0" />
-                </folding>
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="最新提案.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JS/最新提案.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="9039">
-                <caret line="532" selection-start-line="532" selection-end-line="532" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="23-读懂规格.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/JS/23-读懂规格.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="13">
-                <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -176,6 +65,8 @@
         <option value="$PROJECT_DIR$/JS/es6总结0611.md" />
         <option value="$PROJECT_DIR$/JS/22-编程风格.md" />
         <option value="$PROJECT_DIR$/JS/23-读懂规格.md" />
+        <option value="$PROJECT_DIR$/JS/ArrayBuffer.md" />
+        <option value="$PROJECT_DIR$/JS/25最新提案.md" />
       </list>
     </option>
   </component>
@@ -213,6 +104,11 @@
               <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
               <item name="工作总结" type="462c0819:PsiDirectoryNode" />
               <item name="JS" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="工作总结" type="b2602c69:ProjectViewProjectNode" />
+              <item name="工作总结" type="462c0819:PsiDirectoryNode" />
+              <item name="wxapp" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -268,16 +164,15 @@
       <workItem from="1528704063416" duration="883000" />
       <workItem from="1528799010134" duration="667000" />
       <workItem from="1528851227287" duration="616000" />
-      <workItem from="1528875692058" duration="1935000" />
+      <workItem from="1528875692058" duration="2106000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20494000" />
+    <option name="totallyTimeSpent" value="20665000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1873" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17403165" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -305,16 +200,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0327.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="1072">
-            <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/angular-summary/angular技术总结0404.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -522,7 +407,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/ES6.md">
+    <entry file="file://$PROJECT_DIR$/JS/26-归总.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="17632">
@@ -846,25 +731,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/19-Decorator（修饰器）.md">
+    <entry file="file://$PROJECT_DIR$/JS/25-最新提案.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor>
-            <caret column="20" selection-start-column="20" selection-end-column="20" />
+          <first_editor relative-caret-position="48">
+            <caret line="3" column="7" lean-forward="true" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/20-Module语法.md">
+    <entry file="file://$PROJECT_DIR$/JS/22-编程风格.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor>
+          <first_editor relative-caret-position="48">
+            <caret line="370" lean-forward="true" selection-start-line="370" selection-end-line="370" />
             <folding>
-              <element signature="e#0#15#0" expanded="true" />
-              <element signature="e#0#29#0" expanded="true" />
-              <element signature="e#353#397#0" expanded="true" />
-              <element signature="e#10#45#0" expanded="true" />
+              <element signature="e#9#20#0" />
             </folding>
           </first_editor>
           <second_editor />
@@ -885,37 +768,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/JS/最新提案.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="9039">
-            <caret line="532" selection-start-line="532" selection-end-line="532" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/ArrayBuffer.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="128">
-            <caret line="884" selection-start-line="884" selection-end-line="884" />
-            <folding>
-              <element signature="e#9#27#0" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JS/22-编程风格.md">
+    <entry file="file://$PROJECT_DIR$/JS/20-Module语法.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor>
-            <caret line="367" column="83" selection-start-line="367" selection-start-column="83" selection-end-line="367" selection-end-column="83" />
             <folding>
-              <element signature="e#9#20#0" />
+              <element signature="e#0#15#0" expanded="true" />
+              <element signature="e#0#29#0" expanded="true" />
+              <element signature="e#353#397#0" expanded="true" />
+              <element signature="e#10#45#0" expanded="true" />
             </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/24-ArrayBuffer.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor>
+            <folding>
+              <element signature="n#!!doc" expanded="true" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JS/19-Decorator（修饰器）.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor>
+            <caret column="20" selection-start-column="20" selection-end-column="20" />
           </first_editor>
           <second_editor />
         </state>
@@ -930,6 +814,9 @@
           <second_editor />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wxapp/config.jpg">
+      <provider selected="true" editor-type-id="images" />
     </entry>
   </component>
   <component name="masterDetails">
