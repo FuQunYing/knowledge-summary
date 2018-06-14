@@ -130,7 +130,7 @@ RouterState（路由器状态） | 路由器的当前状态包含了一棵由程
 ### 2.从路由库中导入
   先从路由库导入一些符号，路由器在它自己的@angular/router包中。它不是Angular内核的一部分，该路由器是可选的服务，这是因为并不是所有应用都需要路由，并且，如果需要还可能需要另外的路由库。
   通过一些路由来配置路由器，可以教路由器如何进行导航
-### 3.定义路由
+#### 2.1 定义路由
   路由器必须用路由定义的列表进行配置。第一个配置中定义了由两个路由构成的数组，它们分别通过path导航到了CrisisListComponent 和 PersonListComponent 组件。
   每个定义都被翻译成了一个Route对象。该对象有一个path字段，表示该路由中的URL路径部分，和一个component字段，表示与该路由相关联的组件。当浏览器的URL变化时或在代码中告诉路由器导航到一个路径时，路由器就会翻出它用来保存这些路由定义的注册表。
   直白的说，可以这样解释第一个路由：
@@ -171,6 +171,25 @@ const appRoutes: Routes = [
 export class AppModule { }
 ```
   在AppModule中提供RouterModule，让该路由器在应用的任何地方都能被使用。作为简单的路由配置，将添加配置好的RouterModule到AppModule中就足够了。随着应用的成长，需要将路由配置重构到单独的文件，并创建路由模块。
+### 3.AppComponent外壳组件
+  根组件AppComponent是本应用的外壳。它在顶部有一个标题、一个带两个链接的导航条，在底部有一个路由器出口，路由器会在它所指定的位置上把视图切入或调出页面。
+  该组件所对应的模板是这样的：
+```typescript
+template: `
+  <h1>Angular Router</h1>
+  <nav>
+    <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
+    <a routerLink="/persons" routerLinkActive="active">Persons</a>
+  </nav>
+  <router-outlet></router-outlet>
+`
+```
+### 4.路由出口
+  RouterOutlet是一个来自路由库的组件，路由器会在<router-outlet>标签中显示视图。(路由器会把router-outlet元素添加到了DOM中，紧接着立即在这个之后插入导航到的视图元素)
+### 5.routerLink绑定
+  每个A标签还有一个到RouterLinkActive指令的属性绑定，就像routerLinkActive="..."。等号右边的模板表达式包含用空格分割的一些CSS类。当路由激活时路由器就会把它们添加到此链接上（反之则移除）。还可以把RouterLinkActive指令绑定到一个CSS类组成的数组，如果[routerLinkActive]="['....']"。
+  RouterLinkActive指令会基于当前的RouterState对象来为激活的ROuterLink切换CSS类。这会一直沿着路由树往下进行级联处理，所以父路由链接和子路由链接可能会同时激活。要改变这种行为，可以把[routerLinkActiveOpttions]绑定到{exact:true}表达式，如果使用了{exact:true}，那么只有在其URL与当前URL精确匹配时才会激活指定的RouterLink。
+### 6.路由器指令采集
 
 
 
