@@ -260,7 +260,77 @@ const appRoutes: Routes = [
 	默认路由应该只有在整个URL 等于 '' 时才重定向到 HeroListComponent，别忘了把重定向路由设置为 pathMatch = 'full'。
 ```
 ## 五、路由模块
+  在原始的路由配置中，听过了仅有两个路由的简单配置来设置应用的路由。对于简单的路由，没有问题，但是随着应用的成长，需要用到更多的路由器特性，比如守卫、解析器和子路由等，这就需要重构路由了。建议是将路由信息移到一个单独的特殊用途的模块，叫做路由模块。
+  路由模块有一系列特性：
+  - 把路由这个关注点从其它应用类关注点中分离出去
+  - 测试特性模块时，可以替换或移除路由模块
+  - 为路由服务提供商（包括守卫和解析等）提供一个共同的地方
+  - 不要声明组件
+### 1.将路由配置重构为路由模块
+  在/app目录下创建一个名叫app-routing.module.ts的文件，以包含这个路由模块。
+  导入CrisisListComponent和PersonListComponent组件，就像app.module.ts中一样，然后把Router的导入语句和路由配置以及RouterModule.forRoot移入这个路由模块中。遵循规约，添加一个AppRoutingModule类并导出它，以便稍后在AppModule中导入它。最后可以通过把它添加到该模块的exports数组中来再次导出RouterModule，通过在AppModule中导入AppRoutingModule并再次导出RouterModule，那些声明在AppModule中的组件就可以访问路由指令了，比如RouterLink和RouterOutlet。
+  完事儿之后，文件就是这样的：
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { CrisisListComponent } from './crisis-list.component';
+import { PersonListComponent } from './person-list.component';
+import { PageNotFoundComponent } from './not-found.component';
 
+const appRoutes: Routes = [
+  { path: 'crisis-center', component: CrisisListComponent },
+  { path: 'persons',        component: PersonListComponent },
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true } //仅供调试
+    )
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AppRoutingModule {}
+```
+  接下来，修改 app.module.ts 文件，首先从 app-routing.module.ts 中导入新创建的 AppRoutingModule， 然后把 imports 数组中的 RouterModule.forRoot 替换为 AppRoutingModule。
+```typescript
+import { NgModule }       from '@angular/core';
+import { BrowserModule }  from '@angular/platform-browser';
+import { FormsModule }    from '@angular/forms';
+
+import { AppComponent }     from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+
+import { CrisisListComponent }   from './crisis-list.component';
+import { PersonListComponent }     from './person-list.component';
+import { PageNotFoundComponent } from './not-found.component';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    AppRoutingModule
+  ],
+  declarations: [
+    AppComponent,
+    PersonListComponent,
+    CrisisListComponent,
+    PageNotFoundComponent
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+### 2.是否需要路由模块
+  路由模块在根模块或者特性模块替换了路由配置，在路由模块或者模块内部配置路由，但不要同时在两处都配置。路由模块是设计选择，它的价值在配置很复杂，并包含专门守卫和解析器服务时尤其明显。在配置很简单时，它可能就是多余的了。
+  在配置很简答时，一些开发者跳过路由模块，并将路由配置直接混合在关联模块中。
+  从中选择一种模式，并坚持模式的一致性。大多数开发者都应该采用路由模块，以保持一致性，它在配饰复杂时，能确保代码干净，它让测试特性模块更加容易，它的存在让人一眼就能看出这个模块是带路由的。开发者可以很自然的从路由模块中查找和扩展路由配置。
+## 六、人物特征区
 
 
 
