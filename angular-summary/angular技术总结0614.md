@@ -672,7 +672,56 @@ template: `
 `
 ```
 ### 15.为路由组件添加动画
+  这个人物的特性模块就要完成了，但这个特性还没有平滑的转场效果。所以需要添加一些动画。首先导入 BrowserAnimationsModule：
+```typescript
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+@NgModule({
+  imports: [
+    BrowserAnimationsModule
+```
+  在根目录src/app/下创建一个animations.ts，内容如下：
+```typescript
+import { animate, state, style, transition, trigger } from '@angular/animations';
+
+// Component transition animations
+export const slideInDownAnimation =
+  trigger('routeAnimation', [
+    state('*',
+      style({
+        opacity: 1,
+        transform: 'translateX(0)'
+      })
+    ),
+    transition(':enter', [
+      style({
+        opacity: 0,
+        transform: 'translateX(-100%)'
+      }),
+      animate('0.2s ease-in')
+    ]),
+    transition(':leave', [
+      animate('0.5s ease-out', style({
+        opacity: 0,
+        transform: 'translateY(100%)'
+      }))
+    ])
+  ]);
+```
+  这个文件做了以下工作
+  - 导入动画符号以构建动画触发器、控制状态并管理状态之间的过渡
+  - 导出了一个名叫slideInDownAnimation的常量，并把它设置为一个名叫routerAnimation的动画触发器，带动画的组件将会引用这个名字
+  - 指定了一个通配符状态  ，它匹配该路由组价存在时的任何动画状态
+  - 定义两个过渡效果，其中一个（：enter）在组件进入应用视图时让它从屏幕左侧欢动进入，另一个（：leave）在组件离开应用视图时让它向下飞出。
+  可以为其它路由组件用不同的转场效果创建更多的触发器，现在这个触发器先用着。
+  返回PersonDetailComponent，从'./animatiions.ts'中导入slideInDownAnimation，从@angular/core中导入HostBinding装饰器，把一个包含slideInDownAnimation的animations数组添加到@Component的元数据中。
+  然后把三个@HostBinding属性添加到类中以设置这个路由组件元素的动画和样式。
+```typescript
+@HostBinding('@routeAnimation') routeAnimation = true;
+@HostBinding('style.display')   display = 'block';
+@HostBinding('style.position')  position = 'absolute';
+```
+  传给了第一个 @HostBinding 的 '@routeAnimation' 匹配了 slideInDownAnimation触发器的名字 routeAnimation。 把 routeAnimation 属性设置为 true，因为你只关心 :enter 和 :leave 这两个状态。另外两个 @HostBinding 属性指定组件的外观和位置。当进入该路由时，HeroDetailComponent 将会从左侧缓动进入屏幕，而离开路由时，将会向下划出。
 
 
 
