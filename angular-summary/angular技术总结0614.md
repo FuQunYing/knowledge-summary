@@ -136,7 +136,7 @@ RouterState（路由器状态） | 路由器的当前状态包含了一棵由程
   直白的说，可以这样解释第一个路由：
   - 当浏览器地址栏的URL变化时，如果它匹配上了路径部分/cirisis-center，路由器就会激活一个CrisisListComponent的实例，并显示它的视图
   - 当应用程序请求导航到路径/crisis-center时，路由器激活一个CrisisListComponent实例，显示它的视图，并将该路径更新到浏览器地址栏和历史。
-  下面是第一个配置，把路由数组传递到RouterModule.forRoot方法，该方法返回一个包含已配置的Router服务提供商模块和一些其它路由包需要的服务提供商。应用启动时，Router将在当前浏览器URL的基础上进行初始导航：
+    下面是第一个配置，把路由数组传递到RouterModule.forRoot方法，该方法返回一个包含已配置的Router服务提供商模块和一些其它路由包需要的服务提供商。应用启动时，Router将在当前浏览器URL的基础上进行初始导航：
 ```typescript
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -190,6 +190,56 @@ template: `
   每个A标签还有一个到RouterLinkActive指令的属性绑定，就像routerLinkActive="..."。等号右边的模板表达式包含用空格分割的一些CSS类。当路由激活时路由器就会把它们添加到此链接上（反之则移除）。还可以把RouterLinkActive指令绑定到一个CSS类组成的数组，如果[routerLinkActive]="['....']"。
   RouterLinkActive指令会基于当前的RouterState对象来为激活的ROuterLink切换CSS类。这会一直沿着路由树往下进行级联处理，所以父路由链接和子路由链接可能会同时激活。要改变这种行为，可以把[routerLinkActiveOpttions]绑定到{exact:true}表达式，如果使用了{exact:true}，那么只有在其URL与当前URL精确匹配时才会激活指定的RouterLink。
 ### 6.路由器指令采集
+  RouterLink、RouterLinkActivate和RouterOutlet是由RouterModule包提供的指令。现在可以把他用在模板中了。
+```typescript
+//app.component.ts
+import (Component) from '@angular/core'
+@Component({
+    selector: 'app-root',
+    template: `
+    	 <nav>
+      <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
+      <a routerLink="/persons" routerLinkActive="active">Persons</a>
+    </nav>
+    <router-outlet></router-outlet>
+    `
+})
+export class AppComponent{}
+```
+### 7.通配符路由
+  之前在应用中创建过两个路由，一个是/crisis-center，另一是/persons。所有其它URL都会导致路由器抛出错误，并让应用崩溃。
+  可恶意添加一个通配符来拦截所有无效的URL，并优雅的处理它们。通配符路由的path是两个星号，它会匹配任何URL。当路由器匹配不上以前定义的那些路由时，它就会选择这个路由。通配符路由可以导航到自定义的 404 notfound这种组件上去，也可以重定向到一个现有路由。
+  **路由器使用先匹配者优先的策略来选择路由，通配符路由是路由配置中最没有特定性的那个，因此务必确保它是配置中的最后一个路由**
+  检验这个特性，可以在PersonListComponent的模板中添加一个带有RouterLink的按钮，并且把链接设置为'/sidekinks'
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template: `
+    <h2>HEROES</h2>
+    <p>Get your heroes here</p>
+
+    <button routerLink="/sidekicks">Go to sidekicks</button>
+  `
+})
+export class PersonListComponent { }
+```
+  当用户点击该按钮的时候，应用就会失败，因为没有定义过sidekicks路由。不添加 /sidekicks路由，定义一个通配符路由，让它直接导航到PageNotFoundComponent组件：
+```typescript
+{ path: '**', component: PageNotFoundComponent }
+```
+  创建PageNotFoundComponent，以便在用户访问无效网址时显示它：
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template: '<h2>Page not found</h2>'
+})
+export class PageNotFoundComponent {}
+```
+  像其它组件一样，把PageNotFoundComponent添加到AppModule的声明中。现在当用户访问/sidekicks或任何无效的URL时，浏览器就会显示 Page not found了。浏览器的地址栏扔指向无效的URL。
+### 8.把默认路由设置为人物列表
+  
 
 
 
