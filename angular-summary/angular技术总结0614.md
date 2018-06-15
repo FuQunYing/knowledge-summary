@@ -149,7 +149,7 @@ import { PersonListComponent }     from './person-list.component';
 
 const appRoutes: Routes = [
   { path: 'crisis-center', component: CrisisListComponent },
-  { path: 'persons', component: HeroListComponent },
+  { path: 'persons', component: PersonListComponent },
 ];
 
 @NgModule({
@@ -216,8 +216,8 @@ import { Component } from '@angular/core';
 
 @Component({
   template: `
-    <h2>HEROES</h2>
-    <p>Get your heroes here</p>
+    <h2>PersonES</h2>
+    <p>Get your Persones here</p>
 
     <button routerLink="/sidekicks">Go to sidekicks</button>
   `
@@ -256,8 +256,8 @@ const appRoutes: Routes = [
 	从技术角度说，pathMatch = 'full' 导致 URL 中剩下的、未匹配的部分必须等于 ''。 在这个例子中，跳转路由在一个顶级路由中，因此剩下的URL 和完整的URL 是一样的。
 	pathMatch 的另一个可能的值是 'prefix'，它会告诉路由器：当剩下的URL 以这个跳转路由中的 prefix 值开头时，就会匹配上这个跳转路由。
 	在这里不能这么做！如果 pathMatch 的值是 'prefix'，那么每个URL 都会匹配上 ''。
-	尝试把它设置为 'prefix'，然后点击 Go to sidekicks 按钮。别忘了，它是一个无效 URL，本应显示“Page not found”页。 但是，你仍然在“英雄列表”页中。在地址栏中输入一个无效的 URL，你又被路由到了 /heroes。 每一个 URL，无论有效与否，都会匹配上这个路由定义。
-	默认路由应该只有在整个URL 等于 '' 时才重定向到 HeroListComponent，别忘了把重定向路由设置为 pathMatch = 'full'。
+	尝试把它设置为 'prefix'，然后点击 Go to sidekicks 按钮。别忘了，它是一个无效 URL，本应显示“Page not found”页。 但是，你仍然在“英雄列表”页中。在地址栏中输入一个无效的 URL，你又被路由到了 /Persones。 每一个 URL，无论有效与否，都会匹配上这个路由定义。
+	默认路由应该只有在整个URL 等于 '' 时才重定向到 PersonListComponent，别忘了把重定向路由设置为 pathMatch = 'full'。
 ```
 ## 五、路由模块
   在原始的路由配置中，听过了仅有两个路由的简单配置来设置应用的路由。对于简单的路由，没有问题，但是随着应用的成长，需要用到更多的路由器特性，比如守卫、解析器和子路由等，这就需要重构路由了。建议是将路由信息移到一个单独的特殊用途的模块，叫做路由模块。
@@ -331,7 +331,51 @@ export class AppModule { }
   在配置很简答时，一些开发者跳过路由模块，并将路由配置直接混合在关联模块中。
   从中选择一种模式，并坚持模式的一致性。大多数开发者都应该采用路由模块，以保持一致性，它在配饰复杂时，能确保代码干净，它让测试特性模块更加容易，它的存在让人一眼就能看出这个模块是带路由的。开发者可以很自然的从路由模块中查找和扩展路由配置。
 ## 六、人物特征区
+  知道了如何用RouterLink指令进行导航，接下来要：
+  - 用模块把应用和路由组织为一些特性区
+  - 命令式的从一个组件导航到另一个
+  - 通过路由传递必要的信息和可选信息
+  典型的应用具有多个特性区，每个特性区都专注于特定的业务用途。虽然可以把文件都放在src/app目录下，但是这并不现实，后期很难维护，大部分开发人员更喜欢把每个特性区都放在它自己的目录下。
+  现在我准备把应用拆分成多个不同的特性模块，每个特有模块都有自己的关注点，然后，我就可以把它们导入到主模块中，并且在它们之间导航。
+### 1.添加人物管理功能
+  按照下面的步骤：
+  - 创建src/app/persons文件夹
+  - 在 app 目录下删除占位用的 person-list.component.ts 文件。
+  - 在 src/app/persons 目录下创建新的 person-list.component.ts 文件。
+  - 把部分代码复制到 app.component.ts 中。
+  - 做一些微小但必要的修改：
+   1.删除 selector（路由组件不需要它们）。
+   2.删除 <h1>。
+   3.给 <h2> 加文字，改成 <h2>PERSONS</h2>。
+   4.删除模板底部的 <person-detail>。
+   5.把 AppComponent 类改名为 PersonListComponent。
+  - 把 person-detail.component.ts 和 person.service.ts 复制到 Persones 子目录下。
+  - 在 persons 子目录下（不带路由）的 persons.module.ts 文件，内容如下：
+```typescript
+import { NgModule }       from '@angular/core';
+import { CommonModule }   from '@angular/common';
+import { FormsModule }    from '@angular/forms';
 
+import { PersonListComponent }    from './person-list.component';
+import { PersonDetailComponent }  from './person-detail.component';
+
+import { PersonService } from './person.service';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+  ],
+  declarations: [
+    PersonListComponent,
+    PersonDetailComponent
+  ],
+  providers: [ PersonService ]
+})
+export class PersonesModule {}
+```
+### 2.英雄特性区的路由需求
+  
 
 
 
