@@ -239,8 +239,27 @@ export class PageNotFoundComponent {}
 ```
   像其它组件一样，把PageNotFoundComponent添加到AppModule的声明中。现在当用户访问/sidekicks或任何无效的URL时，浏览器就会显示 Page not found了。浏览器的地址栏扔指向无效的URL。
 ### 8.把默认路由设置为人物列表
-  
-
+  应用启动的时候，浏览器地址栏中的初始URL是这样的：localhost:4200，它不能匹配上任何具体的路由，于是就会走到通配符路由中去，并且显示PageNotFoundComponent。
+  这个应用需要有一个有效的默认路由，在这里用人物列表作为默认页，当用户点击Persons链接的时候，它应该就导航到列表页
+### 9. 重定向路由
+  首选方案是添加一个redirect路由来把最初的相对路径（' '）转换成期望的默认路径（/persons），浏览器地址栏会显示.../persons，就像直接导航到那里的一样。在通配符路由上方添加一个默认路由：
+```typescript
+const appRoutes: Routes = [
+  { path: 'crisis-center', component: CrisisListComponent },
+  { path: 'persons',        component: PersonListComponent },
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+```
+  重定向路由需要一个pathMatch属性，来告诉路由器如何用URL去匹配路由的路径，否则路由器就会报错。在本应用中，路由器应该是有在完整的URL等于 ' ' 的时候才选择PersonListComponent组件，因此要把pathMatch设置为‘full‘
+```txt
+	从技术角度说，pathMatch = 'full' 导致 URL 中剩下的、未匹配的部分必须等于 ''。 在这个例子中，跳转路由在一个顶级路由中，因此剩下的URL 和完整的URL 是一样的。
+	pathMatch 的另一个可能的值是 'prefix'，它会告诉路由器：当剩下的URL 以这个跳转路由中的 prefix 值开头时，就会匹配上这个跳转路由。
+	在这里不能这么做！如果 pathMatch 的值是 'prefix'，那么每个URL 都会匹配上 ''。
+	尝试把它设置为 'prefix'，然后点击 Go to sidekicks 按钮。别忘了，它是一个无效 URL，本应显示“Page not found”页。 但是，你仍然在“英雄列表”页中。在地址栏中输入一个无效的 URL，你又被路由到了 /heroes。 每一个 URL，无论有效与否，都会匹配上这个路由定义。
+	默认路由应该只有在整个URL 等于 '' 时才重定向到 HeroListComponent，别忘了把重定向路由设置为 pathMatch = 'full'。
+```
+## 五、路由模块
 
 
 
