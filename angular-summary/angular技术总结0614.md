@@ -499,11 +499,179 @@ import { PageNotFoundComponent } from './not-found.component';
 export class AppModule { }
 ```
 ### 7.导入模块的顺序很重要
-  
+  看看该模块的imports数组。注意，AppRoutingModule是最后一个，最重要的是，它位于PersonsModule之后。
+```ttypescript
+imports: [
+  BrowserModule,
+  FormsModule,
+  PersonsModule,
+  AppRoutingModule
+],
+```
+  路由配置的顺序很重要，路由器会接受第一个匹配上导航所要求的路径的那个路由。当所有路由都在同一个AppRoutingModule时，要把默认路由和通配符路由放在最后，这样路由器才有机会匹配到/persons路由，否则他就会先遇到并匹配上该通配符路由，并导航到 not found。这些路由不再位于单一文件中，他们分布在两个不同的模块中：AppRoutingModule和PersonsRoutingModule。
+  每个路由模块都会根据导入的顺序把自己的路由配置追加进去。如果先列出了AppRoutingModule，那么通配符路由就会被注册在 人物管理 路由之前。通配符路由将会拦截住每一个到 人物管理 路由的导航，因此事实上屏蔽了所有人物管理路由。
+### 8.带参数的路由定义
+  回到PersonsRoutingModule并再次检查这些路由定义，PersonDetailComponent的路由有点特殊有没有：
+```typescript
+{ path: 'person/:id', component: PersonDetailComponent }
+```
+  注意 :id，它为路由参数在路径中创建一个 空位，在这里，路由器把人物的id插入到那个空位中。如果要告诉路由器导航到详情组件，并让它显示 Sherlock，那么就希望地址栏是这样显示的：localhost:4200/person/01。
+  如果用户把这个URL输入到地址栏，路由器就会识别这种模式，同样进入 Sherlock的详情视图
+### 9.在列表视图中设置路由参数
+  然后导航到 PersonDetailComponent 组件。在那里期望看到所选人物的详情，这需要两部分信息：导航目标和该人物的 id。因此，这个链接参数数组中有两个条目：目标路由的path（路径），和一个用来指定所选人物 id 的路由参数。
+```typescript
+['/hero', hero.id] // { 15 }
+```
+  路由器从该数组中组合出了目标URL：localhost:4200/person/01
+### 10.Activated Route实战
+  从路由器包中导入Router、ActivatedRoute和Params类：
+```typescript
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+```
+  这里导入switchMap操作符是因为稍后将会处理路由参数的可观察对象Observable：
+```typescript
+import {switchMap} from 'rxjs/operators'
+```
+  通常直接写一个构造函数，让Angular把组件所需的服务注入进来，自动定义同名的私有变量，并把它们存进去：
+```typescript
+constructor(
+  private route: ActivatedRoute,
+  private router: Router,
+  private service: PersonService
+) {}
+```
+  然后在ngOnInit方法中，用ActivatedRoute服务来接收路由的参数，从参数中取得该英雄的id，并接收此英雄用于显示：
+```typescript
+ngOnInit() {
+  this.hero$ = this.route.paramMap.pipe(
+    switchMap((params: ParamMap) =>
+      this.service.getHero(params.get('id')))
+  );
+}
+```
+  paramMap 的处理过程有点稍复杂。当这个 map 的值变化时，你可以从变化之后的参数中 get() 到其 id 参数。然后，让 PersonService 去获取一个具有此 id 的人物，并返回这个 PersonService 请求的结果。想使用 RxJS 的 map 操作符，但 PersonService 返回的是一个 Observable<Person>。 所以要改用 switchMap 操作符来打平这个 Observable。
+  switchMap 操作符还会取消以前未完成的在途请求。如果用户使用新的 id 再次导航到该路由，而 PersonService 仍在接受老 id 对应的人物，那么 switchMap 就会抛弃老的请求，并返回这个新 id 的人物信息。
+  这个可观察对象的 Subscription（订阅）将会由 AsyncPipe 处理，并且组件的 person属性将会设置为刚刚接收到的这个人物。
+  **ParamMap API**
+  ParamMap API是参照URLSearchParams接口来设计的，它提供了一些方法来处理对路由参数和查询参数的参数访问：
+成员 | 说明
+has(name) | 如果这个参数名位于参数列表中，就返回true
+get(name) | 如果这个 map 中有参数名对应的参数值（字符串），就返回它，否则返回 null。如果参数值实际上是一个数组，就返回它的第一个元素
+getAll(name) | 如果这个 map 中有参数名对应的值，就返回一个字符串数组，否则返回空数组。当一个参数名可能对应多个值的时候，请使用 getAll。
+keys | 返回这个map中的所有参数名组成的字符串数组
+  **参数的可观察对象与组件复用**
+  在这个例子中，接收了路由参数的Observable对象，这种写法暗示着这些路由参数在该组件的生存期内可能会变化。确实如此，默认情况下，如果它没有访问过其它组件就导航到了同一个组件实例，那么路由器倾向于复用组件实例。如果复用，这些参数可以变化。假设父组件的导航栏有“前进”和“后退”按钮，用来轮流显示英雄列表中中英雄的详情。 每次点击都会强制导航到带前一个或后一个 id 的 HeroDetailComponent 组件。
+  你不希望路由器仅仅从 DOM 中移除当前的 HeroDetailComponent 实例，并且用下一个 id 重新创建它。 那可能导致界面抖动。 更好的方式是复用同一个组件实例，并更新这些参数。
+  不幸的是，ngOnInit 对每个实例只调用一次。 你需要一种方式来检测在同一个实例中路由参数什么时候发生了变化。 而 params 属性这个可观察对象（Observable）干净漂亮的处理了这种情况。
+  **Snapshot（快照）：当不需要 Observable 时的替代品**
+  本应用不需要复用 HeroDetailComponent。 用户总是会先返回英雄列表，再选择另一位英雄。 所以，不存在从一个英雄详情导航到另一个而不用经过英雄列表的情况。 这意味着路由器每次都会创建一个全新的 HeroDetailComponent 实例。
+  假如你很确定这个 HeroDetailComponent 组件的实例永远、永远不会被复用，那就可以使用快照来简化这段代码。
+  route.snapshot 提供了路由参数的初始值。 你可以通过它来直接访问参数，而不用订阅或者添加 Observable 的操作符。 这样在读写时就会更简单：
+```typescript
+ngOnInit() {
+  let id = this.route.snapshot.paramMap.get('id');
+  this.hero$ = this.service.getHero(id);
+}
+```
+### 11.导航回列表组件
+  HeroDetailComponent 组件有一个“Back”按钮，关联到它的 gotoHeroes 方法，该方法会导航回 HeroListComponent 组件。路由的 navigate 方法同样接受一个单条目的链接参数数组，你也可以把它绑定到 [routerLink] 指令上。 它保存着到 HeroListComponent 组件的路径：
+```typescript
+gotoHeroes() {
+  this.router.navigate(['/heroes']);
+}
+```
+### 12.路由参数是否必选
+  如果想导航到 HeroDetailComponent 以对 id 为 01 的英雄进行查看并编辑，就要在路由的 URL 中使用路由参数来指定必要参数值 localhost:4200/person/01
+  当从 HeroDetailComponent 返回时，你很快就会通过把正在查看的英雄的 id 作为可选参数包含在 URL 中来实现这个特性。
+  可选信息有很多种形式。搜索条件通常就不是严格结构化的，比如 name='wind\*'；有多个值也很常见，如 after='12/31/2015'&before='1/1/2017'； 而且顺序无关，如 before='1/1/2017'&after='12/31/2015'，还可能有很多种变体格式，如 during='currentYear'。
+  这么多种参数要放在 URL 的路径中可不容易。即使你能制定出一个合适的 URL 方案，实现起来也太复杂了，得通过模式匹配才能把 URL 翻译成命名路由。
+  可选参数是在导航期间传送任意复杂信息的理想载体。 可选参数不涉及到模式匹配并在表达上提供了巨大的灵活性。
+  和必要参数一样，路由器也支持通过可选参数导航。 在你定义完必要参数之后，再通过一个独立的对象来定义可选参数。
+  通常，对于强制性的值（比如用于区分两个路由路径的）使用必备参数；当这个值是可选的、复杂的或多值的时，使用可选参数。
+### 13.人物列表：选定一个人物（也可以不选）
+  当导航到 HeroDetailComponent 时，你可以在路由参数中指定一个所要编辑的英雄 id，只要把它作为链接参数数组中的第二个条目就可以了。
+```typescript
+['/hero', hero.id] // { 15 }
+```
+  路由器在导航 URL 中内嵌了 id 的值，这是因为你把它用一个 :id 占位符当做路由参数定义在了路由的 path 中：
+```typescript
+{ path: 'hero/:id', component: HeroDetailComponent }
+```
+  当用户点击后退按钮时，HeroDetailComponent 构造了另一个链接参数数组，可以用它导航回 HeroListComponent。
+```typescript
+gotoHeroes() {
+  this.router.navigate(['/heroes']);
+}
+```
+  该数组缺少一个路由参数，这是因为你那时没有理由往 HeroListComponent 发送信息。
+  但现在有了。你要在导航请求中同时发送当前英雄的 id，以便 HeroListComponent 可以在列表中高亮这个英雄。 这是一个有更好，没有也无所谓的特性，就算没有它，列表照样能显示得很完美。
+  传送一个包含可选id 参数的对象。 为了演示，这里还在对象中定义了一个没用的额外参数（foo），HeroListComponent 应该忽略它。 下面是修改过的导航语
+```typescript
+gotoHeroes(hero: Hero) {
+  let heroId = hero ? hero.id : null;
+  // Pass along the hero id if available
+  // so that the HeroList component can select that hero.
+  // Include a junk 'foo' property for fun.
+  this.router.navigate(['/heroes', { id: heroId, foo: 'foo' }]);
+}
+```
+  该应用仍然能工作，点击back按钮返回英雄列表视图。注意浏览器的地址栏，它应该是这样的，不过也取决于在哪里运行：localhost:4200/person:id=01;foo=foo
+  d 的值像这样出现在 URL 中（;id=15;foo=foo），但不在 URL 的路径部分。 “Heroes”路由的路径部分并没有定义 :id。
+  可选的路由参数没有使用“？”和“&”符号分隔，因为它们将用在 URL 查询字符串中。 它们是用“;”分隔的。 这是矩阵 URL标记法.
+### 14.ActivatedRoute服务中的路由参数
+  英雄列表仍然没有改变，没有那个人物被加亮显示。
+  HeroListComponent 还完全不需要任何参数，也不知道该怎么处理它们。你可以改变这一点。
+  以前，当从 HeroListComponent 导航到 HeroDetailComponent 时，你通过 ActivatedRoute 服务订阅了路由参数这个 Observable，并让它能用在 HeroDetailComponent 中。 你把该服务注入到了 HeroDetailComponent 的构造函数中。
+  这次，你要进行反向导航，从 HeroDetailComponent 到 HeroListComponent。
+  首先，你扩展该路由的导入语句，以包含进 ActivatedRoute 服务的类：
+```typescript
+import { ActivatedRoute, ParamMap } from '@angular/router';
+```
+  导入switchMap操作符，在路由参数的Observable对象上执行操作:
+```typescript
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+```
+  接着注入ActivatedRoute到PersonListComponent的构造函数中：
+```typescript
+export class HeroListComponent implements OnInit {
+  heroes$: Observable<Hero[]>;
 
+  private selectedId: number;
 
+  constructor(
+    private service: HeroService,
+    private route: ActivatedRoute
+  ) {}
 
-
+  ngOnInit() {
+    this.heroes$ = this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        // (+) before `params.get()` turns the string into a number
+        this.selectedId = +params.get('id');
+        return this.service.getHeroes();
+      })
+    );
+  }
+}
+```
+  ActivatedRoute.paramMap属性是一个路由参数的可观察对象，当用户导航到这个组件时，paramMap会发射一个新值，其中包含一个id，在ngOnInit中，订阅这些值，设置到selectedId，并获取人物数据。
+  用css类绑定更新模板，把它绑定到isSelected方法上。如果该方法返回true，此绑定就会添加CSS类selected，否则就移除它，在<li>标记中找到它，就像这样：
+```typescript
+template: `
+  <h2>HEROES</h2>
+  <ul class="items">
+    <li *ngFor="let hero of heroes$ | async"
+      [class.selected]="hero.id === selectedId">
+      <a [routerLink]="['/hero', hero.id]">
+        <span class="badge">{{ hero.id }}</span>{{ hero.name }}
+      </a>
+    </li>
+  </ul>
+  <button routerLink="/sidekicks">Go to sidekicks</button>
+`
+```
+### 15.为路由组件添加动画
 
 
 
