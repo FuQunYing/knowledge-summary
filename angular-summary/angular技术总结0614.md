@@ -374,8 +374,66 @@ import { PersonService } from './person.service';
 })
 export class PersonesModule {}
 ```
-### 2.英雄特性区的路由需求
-  
+### 2.人物特性区的路由需求
+  人物 特性有两个相互协作的组件，列表和详情。列表视图是自给自足的，我导航到它，它会自行获取人物列表并显示它们。
+  详情视图就不同了，它要显示一个特定的人物，但是它本身无法知道是哪一个人，这个信息必须来自外部。
+  当用户从列表中选择了一个人物时，，应用就导航到详情页去显示那个人物。通过把所选人物id编码进路由的URL中，就能告诉详情视图应该显示谁。
+### 3.人物特性区路由配置
+  在persons目录下创建一个新的persons-routing.module.ts文件，使用的技术和以前创建AppRoutingModule时一样：
+```typescript
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { PersonListComponent }    from './Person-list.component';
+import { PersonDetailComponent }  from './Person-detail.component';
+
+const PersonesRoutes: Routes = [
+  { path: 'persones',  component: PersonListComponent },
+  { path: 'person/:id', component: PersonDetailComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(PersonesRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class PersonRoutingModule { }
+```
+  从新位置src/app/persons/目录中导入人物相关的组件，定义两个 人物管理 路由，并导出PersonRoutingModule类。现在有了Persons模块的路由，还得在RouterModule中把它们注册给路由器，和AppRoutingModule中的做法几乎完全一样。这里有少量但是关键的不同点。在AppRoutingModule中，使用了静态的RouterModule.forRoot方法来注册路由和完全应用级服务提供商。在特性模块中，要改用forChild方法。
+```txt
+	只在根模块AppRoutingModule中调用RouterModule.forRoot(如果在AppModule中注册应用的顶级路由，那就在AppModule中调用)。在其它模块中，就必须调用RouterModule.forChild方法来注册附属路由
+```
+### 4.把路由模块添加到PersonsModule中
+  把PersonRouterModule添加到PersonModule中，就像为AppModule添加 AppRoutingModule一样。
+```typescript
+import { NgModule }       from '@angular/core';
+import { CommonModule }   from '@angular/common';
+import { FormsModule }    from '@angular/forms';
+
+import { PersonListComponent }    from './Person-list.component';
+import { PersonDetailComponent }  from './Person-detail.component';
+
+import { PersonService } from './Person.service';
+
+import { PersonRoutingModule } from './Persones-routing.module';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    PersonRoutingModule
+  ],
+  declarations: [
+    PersonListComponent,
+    PersonDetailComponent
+  ],
+  providers: [ PersonService ]
+})
+export class PersonesModule {}
+```
 
 
 
