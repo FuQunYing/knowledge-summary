@@ -434,6 +434,72 @@ import { PersonRoutingModule } from './Persones-routing.module';
 })
 export class PersonesModule {}
 ```
+### 5.移除重复的 人物管理 路由
+  人物 类的路由目前定义在两个地方：PersonsRoutingModule中（并最终给PersonsModule）和AppRoutingModule中。由特性模块提供的路由会被路由器再组合上它们所导入的模块的路由。这让我可以继续定义特性路由模块中的路由，而不是修改主路由配置。
+  但是都不希望把同一个路由定义两次，那就移除PersonListComponent的导入和来自app-routing.module.ts中的/persons路由。
+  保留默认路由和通配符路由。它们是应用程序顶层该自己处理的关注点：
+```typescript
+import { NgModule }              from '@angular/core';
+import { RouterModule, Routes }  from '@angular/router';
+
+import { CrisisListComponent }   from './crisis-list.component';
+// import { PersonListComponent }  from './Person-list.component';  // <-- delete this line
+import { PageNotFoundComponent } from './not-found.component';
+
+const appRoutes: Routes = [
+  { path: 'crisis-center', component: CrisisListComponent },
+  // { path: 'persons',     component: PersonListComponent }, // <-- delete this line
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true } // 仅供调试
+    )
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AppRoutingModule {}
+```
+### 6.把 人物管理 模块导入到AppModule
+  人物这个特性模块已经准备好了，但是应用仍然不知道PersonsModule的存在，打开app.module.ts按照下面的步骤进行修改。
+  导入PersonsModule并且把它加到根模块AppModule的@NgModule元数据中的imports数组中。
+  从AppModule的declarations中移除PersonListComponent，因为它现在已经改由PersonsModule提供了。这一步很重要，因为一个组件只能声明在一个属主模块中。这个例子中Persons模块就是Persons组件的属主模块，而AppModule要通过导入PersonsModule才能使用这些组件。
+  最终AppModule不再了解那些特定于 人物 特性的知识，比如它的组件、路由细节等。我可以让人物特性独立演化，添加更多的组件或各种各样的路由。这就是为每个特性区创建独立模块后获得的核心优势
+  现在AppModule变这样：
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { PersonesModule } from './persones/persones.module';
+import { CrisisListComponent } from './crisis-list.component';
+import { PageNotFoundComponent } from './not-found.component';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    PersonesModule,
+    AppRoutingModule
+  ],
+  declarations: [
+    AppComponent,
+    CrisisListComponent,
+    PageNotFoundComponent
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+### 7.导入模块的顺序很重要
+  
 
 
 
