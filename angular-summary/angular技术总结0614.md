@@ -1160,6 +1160,37 @@ import { Component } from '@angular/core';
 export class ManageHeroesComponent { }
 ```
   由于 AdminModule 中 AdminComponent 中的 RouterLink 是一个空路径的路由，所以它会匹配到管理特性区的任何路由。 但只有在访问 Dashboard 路由时才希望该链接被激活。 往 Dashboard 这个 routerLink 上添加另一个绑定 [routerLinkActiveOptions]="{ exact: true }"， 这样就只有当用户导航到 /admin 这个 URL 时才会激活它，而不会在导航到它的某个子路由时。
+  最初的管理路由配置如下：
+```typescript
+const adminRoutes: Routes = [
+  {
+    path: 'admin',
+    component: AdminComponent,
+    children: [
+      {
+        path: '',
+        children: [
+          { path: 'crises', component: ManageCrisesComponent },
+          { path: 'persons', component: ManagePersonsComponent },
+          { path: '', component: AdminDashboardComponent }
+        ]
+      }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(adminRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AdminRoutingModule {}
+```
+### 2.无组件路由：不借助组件对路由进行分组
+  
 
 
 
