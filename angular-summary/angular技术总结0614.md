@@ -1347,7 +1347,129 @@ export class AuthGuard implements CanActivate {
   注意，把 AuthService 和 Router 服务注入到构造函数中。 还没有提供 AuthService，这里要说明的是：可以往路由守卫中注入有用的服务。
   该守卫返回一个同步的布尔值。如果用户已经登录，它就返回 true，导航会继续。这个 ActivatedRouteSnapshot 包含了即将被激活的路由，而 RouterStateSnapshot 包含了该应用即将到达的状态。 你应该通过守卫进行检查。如果用户还没有登录，就会用 RouterStateSnapshot.url 保存用户来自的 URL 并让路由器导航到登录页（你尚未创建该页）。 这间接导致路由器自动中止了这次导航，checkLogin() 返回 false 并不是必须的，但这样可以更清楚的表达意图。
 #### 2.3 添加LoginComponent
-  
+  现在需要一个LoginComponent来让用户登录进这个应用。在登录之后，就会跳转到前面保存的 URL，如果没有，就跳转到默认 URL。 该组件没有什么新内容，你把它放进路由配置的方式也没什么新意。
+  在 login-routing.module.ts 中注册一个 /login 路由，并把必要的提供商添加 providers 数组中。 在 app.module.ts 中，导入 LoginComponent 并把它加入根模块的 declarations 中。 同时在 AppModule 中导入并添加 LoginRoutingModule。
+  **app.module.ts**
+```typescript
+import { NgModule }       from '@angular/core';
+import { BrowserModule }  from '@angular/platform-browser';
+import { FormsModule }    from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { Router } from '@angular/router';
+
+import { AppComponent }            from './app.component';
+import { AppRoutingModule }        from './app-routing.module';
+
+import { PersonsModule }            from './heroes/heroes.module';
+import { ComposeMessageComponent } from './compose-message.component';
+import { LoginRoutingModule }      from './login-routing.module';
+import { LoginComponent }          from './login.component';
+import { PageNotFoundComponent }   from './not-found.component';
+
+import { DialogService }           from './dialog.service';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    PersonsModule,
+    LoginRoutingModule,
+    AppRoutingModule,
+    BrowserAnimationsModule
+  ],
+  declarations: [
+    AppComponent,
+    ComposeMessageComponent,
+    LoginComponent,
+    PageNotFoundComponent
+  ],
+  providers: [
+    DialogService
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {
+  // 仅诊断：检查路由器配置
+  constructor(router: Router) {
+    console.log('Routes: ', JSON.stringify(router.config, undefined, 2));
+  }
+}
+```
+**login.component.ts**
+```typescript
+import { Component }   from '@angular/core';
+import { Router }      from '@angular/router';
+import { AuthService } from './auth.service';
+
+@Component({
+  template: `
+    <h2>LOGIN</h2>
+    <p>{{message}}</p>
+    <p>
+      <button (click)="login()"  *ngIf="!authService.isLoggedIn">Login</button>
+      <button (click)="logout()" *ngIf="authService.isLoggedIn">Logout</button>
+    </p>`
+})
+export class LoginComponent {
+  message: string;
+
+  constructor(public authService: AuthService, public router: Router) {
+    this.setMessage();
+  }
+
+  setMessage() {
+    this.message = 'Logged ' + (this.authService.isLoggedIn ? 'in' : 'out');
+  }
+
+  login() {
+    this.message = 'Trying to log in ...';
+
+    this.authService.login().subscribe(() => {
+      this.setMessage();
+      if (this.authService.isLoggedIn) {
+        // 从我们的AUTH服务获得重定向URL，如果没有设置重定向，就使用默认值
+        let redirect = this.authService.redirectUrl ? this.authService.redirectUrl : '/crisis-center/admin';
+
+        //重定向用户
+        this.router.navigate([redirect]);
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.setMessage();
+  }
+}
+```
+**login-routing.module.ts**
+```typescript
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard }            from './auth-guard.service';
+import { AuthService }          from './auth.service';
+import { LoginComponent }       from './login.component';
+
+const loginRoutes: Routes = [
+  { path: 'login', component: LoginComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(loginRoutes)
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    AuthGuard,
+    AuthService
+  ]
+})
+export class LoginRoutingModule {}
+```
+### 3.CanActivateChild：保护子路由
 
 
 
