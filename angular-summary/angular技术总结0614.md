@@ -1470,11 +1470,297 @@ const loginRoutes: Routes = [
 export class LoginRoutingModule {}
 ```
 ### 3.CanActivateChild：保护子路由
+  还可以使用CanActivateChild守卫来保护子路由，CanActivateChild守卫和CanActivate守卫很像，它们的区别在于，CanActivateChild 会在任何子路由被激活之前运行。要保护管理特性模块，防止它被非授权访问，还要保护这个特性模块内部的那些子路由。
+  扩展 AuthGuard 以便在 admin 路由之间导航时提供保护。 打开 auth-guard.service.ts 并从路由库中导入 CanActivateChild 接口。接下来，实现 CanActivateChild 方法，它所接收的参数与 CanActivate 方法一样：一个 ActivatedRouteSnapshot 和一个 RouterStateSnapshot。 CanActivateChild 方法可以返回 Observable<boolean> 或 Promise<boolean> 来支持异步检查，或 boolean 来支持同步检查。 这里返回的是 boolean：
+```typescript
+import { Injectable }       from '@angular/core';
+import {
+  CanActivate, Router,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  CanActivateChild
+}                           from '@angular/router';
+import { AuthService }      from './auth.service';
 
+@Injectable()
+export class AuthGuard implements CanActivate, CanActivateChild {
+  constructor(private authService: AuthService, private router: Router) {}
 
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    let url: string = state.url;
 
+    return this.checkLogin(url);
+  }
 
+  canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    return this.canActivate(route, state);
+  }
 
+/* . . . */
+}
+```
+  同样把这个AuthGuard添加到无组件的管理路由，来同时保护它的所有子路由，而不是为每个路由单独添加这个AuthGuard：
+```typescript
+const adminRoutes: Routes = [
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        canActivateChild: [AuthGuard],
+        children: [
+          { path: 'crises', component: ManageCrisesComponent },
+          { path: 'heroes', component: ManageHeroesComponent },
+          { path: '', component: AdminDashboardComponent }
+        ]
+      }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(adminRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AdminRoutingModule {}
+```
+### 4.CanDeactivate：处理未保存的更改
+  回到 Persons 工作流，该应用立刻接受对人物的任何修改，不做任何校验。在现实世界中，得先把用户的改动积累起来。 可能不得不进行跨字段的校验，可能要找服务器进行校验，可能得把这些改动保存成一种待定状态，直到用户或者把这些改动作为一组进行确认或撤销所有改动。
+  当用户要导航到外面时，该怎么处理这些既没有审核通过又没有保存过的改动呢？ 不能马上离开，不在乎丢失这些改动的风险，这样的用户体验特别差。最好能暂停，并让用户决定该怎么做。 如果用户选择了取消，就留下来，并允许更多改动。 如果用户选择了确认，那就进行保存。
+  在保存成功之前，还可以继续推迟导航。如果让用户立即移到下一个界面，而保存却失败了（可能因为数据不符合有效性规则），就会丢失该错误的上下文环境。
+  在等待服务器的答复时，没法阻塞它 —— 这在浏览器中是不可能的。 只能用异步的方式在等待服务器答复之前先停止导航。这就需要 CanDeactivate 守卫。
+### 5.取消与保存
+  这个例子不与服务器通讯，但是有另一种方式来演示异步的路由器钩子。用户在CrisisDetailComponent中更新危机信息。与PersonDetailComponent不同，用户的改动不会 立即更新危机的实体对象，当用户按下save按钮的时候，应用就更新这个实体对象；如果选择了cancel，那就放弃更改。
+  这两个按钮都会在保存或取消之后导航回危机列表
+```typescript
+cancel() {
+  this.gotoCrises();
+}
+save() {
+  this.crisis.name = this.editName;
+  this.gotoCrises();
+}
+```
+  如果用户尝试不保存或撤销就导航到外面该怎么办？ 用户可以按浏览器的后退按钮，或点击英雄的链接。 这些操作都会触发导航。本应用应该自动保存或取消吗？都不行。应用应该弹出一个确认对话框来要求用户明确做出选择，该对话框会用异步的方式等用户做出选择。
+	也能用同步的方式等用户的答复，阻塞代码。但如果能用异步的方式等待用户的答复，应用就会响应性更好，也能同时做别的事。异步等待用户的答复和等待服务器的答复是类似的。
+  DialogService（为了在应用级使用，已经注入到了 AppModule）就可以做到这些。它返回promise，当用户最终决定了如何去做时，它就会被解析 —— 或者决定放弃更改直接导航离开（true），或者保留未完成的修改，留在危机编辑器中（false）。
+  创建了一个 Guard，它将检查这个（任意）组件中是否有 canDeactivate() 函数。 CrisisDetailComponent 就会有这个方法。 但是该守卫并不需要知道 CrisisDetailComponent 确认退出激活状态的详情。 它只需要检查该组件是否有一个 canDeactivate() 方法，并调用它。 这就让该守卫可以复用。
+```typescript
+import { Injectable }    from '@angular/core';
+import { CanDeactivate } from '@angular/router';
+import { Observable }    from 'rxjs';
+
+export interface CanComponentDeactivate {
+ canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
+}
+
+@Injectable()
+export class CanDeactivateGuard implements CanDeactivate<CanComponentDeactivate> {
+  canDeactivate(component: CanComponentDeactivate) {
+    return component.canDeactivate ? component.canDeactivate() : true;
+  }
+}
+```
+  另外，也可以为 CrisisDetailComponent 创建一个特定的 CanDeactivate 守卫。 在需要访问外部信息时，canDeactivate() 方法为你提供了组件、ActivatedRoute 和 RouterStateSnapshot 的当前实例。 如果只想为这个组件使用该守卫，并且需要获取该组件属性或确认路由器是否允许从该组件导航出去时，这会非常有用。
+```typescript
+import { Injectable }           from '@angular/core';
+import { Observable }           from 'rxjs';
+import { CanDeactivate,
+         ActivatedRouteSnapshot,
+         RouterStateSnapshot }  from '@angular/router';
+
+import { CrisisDetailComponent } from './crisis-center/crisis-detail.component';
+
+@Injectable()
+export class CanDeactivateGuard implements CanDeactivate<CrisisDetailComponent> {
+
+  canDeactivate(
+    component: CrisisDetailComponent,
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | boolean {
+    //拿到Crisis center 的id
+    console.log(route.paramMap.get('id'));
+
+    // 拿到当前路由
+    console.log(state.url);
+
+    // 如果没有crisis或crisis不变，允许同步导航（“真”）
+    if (!component.crisis || component.crisis.name === component.editName) {
+      return true;
+    }
+    // 否则，使用对话框服务向用户询问并返回其可观察到的结果，当用户决定时，其解析为真或假。
+    return component.dialogService.confirm('Discard changes?');
+  }
+}
+```
+  看看CrisisDetailComponent组件，它已经实现了对未保存的更改进行确认的工作流：
+```typescript
+canDeactivate(): Observable<boolean> | boolean {
+  if (!this.crisis || this.crisis.name === this.editName) {
+    return true;
+  }
+  return this.dialogService.confirm('Discard changes?');
+}
+```
+  注意，canDeactivate 方法可以同步返回，如果没有危机，或者没有未定的修改，它就立即返回 true。但是它也可以返回一个承诺（Promise）或可观察对象（Observable），路由器将等待它们被解析为真值（继续导航）或假值（留下）。往 crisis-center.routing.module.ts 的危机详情路由中用 canDeactivate 数组添加一个 Guard（守卫）。
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { CrisisCenterHomeComponent } from './crisis-center-home.component';
+import { CrisisListComponent } from './crisis-list.component';
+import { CrisisCenterComponent } from './crisis-center.component';
+import { CrisisDetailComponent } from './crisis-detail.component';
+import { CanDeactivateGuard } from '../can-deactivate-guard.service';
+
+const crisisCenterRoutes: Routes = [
+  {
+    path: '',
+    redirectTo: '/crisis-center',
+    pathMatch: 'full'
+  },
+  {
+    path: 'crisis-center',
+    component: CrisisCenterComponent,
+    children: [
+      {
+        path: '',
+        component: CrisisListComponent,
+        children: [
+          {
+            path: ':id',
+            component: CrisisDetailComponent,
+            canDeactivate: [CanDeactivateGuard]
+          },
+          {
+            path: '',
+            component: CrisisCenterHomeComponent
+          }
+        ]
+      }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(crisisCenterRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class CrisisCenterRoutingModule { }
+```
+  还要把这个 Guard 添加到 AppRoutingModule 的 providers 中去，以便 Router 可以在导航过程中注入它
+```typescript
+import { NgModule }              from '@angular/core';
+import { RouterModule, Routes }  from '@angular/router';
+import { ComposeMessageComponent } from './compose-message.component';
+import { CanDeactivateGuard }      from './can-deactivate-guard.service';
+import { PageNotFoundComponent }   from './not-found.component';
+
+const appRoutes: Routes = [
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'popup'
+  },
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true } //仅供调试
+    )
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    CanDeactivateGuard
+  ]
+})
+export class AppRoutingModule {}
+```
+### 6.Resolve：预先获取组价数据
+  在 Person Detail 和 Crisis Detail 中，它们等待路由读取完对应的英雄和危机。
+  这种方式没有问题，但是它们还有进步的空间。 如果你在使用真实 api，很有可能数据返回有延迟，导致无法即时显示。 在这种情况下，直到数据到达前，显示一个空的组件不是最好的用户体验。
+  最好预先从服务器上获取完数据，这样在路由激活的那一刻数据就准备好了。 还要在路由到此组件之前处理好错误。 但当某个 id 无法对应到一个危机详情时，就没办法处理它。 这时最好把用户带回到“危机列表”中，那里显示了所有有效的“危机”。总之，我希望的是只有当所有必要数据都已经拿到之后，才渲染这个路由组件。
+  这就需要Resolve守卫了。
+### 7.导航前预先加载路由信息
+  目前，CrisisDetailComponent 会接收选中的危机。 如果该危机没有找到，它就会导航回危机列表视图。
+  如果能在该路由将要激活时提前处理了这个问题，那么用户体验会更好。 CrisisDetailResolver 服务可以接收一个 Crisis，而如果这个 Crisis 不存在，就会在激活该路由并创建 CrisisDetailComponent 之前先行离开。
+  在“危机中心”特性区中创建 crisis-detail-resolver.service.ts 文件。
+```typescript
+import { Injectable } from '@angular/core';
+import { Router, Resolve, RouterStateSnapshot,
+         ActivatedRouteSnapshot } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+
+import { Crisis, CrisisService }  from './crisis.service';
+
+@Injectable()
+export class CrisisDetailResolver implements Resolve<Crisis> {
+  constructor(private cs: CrisisService, private router: Router) {}
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Crisis> {
+    let id = route.paramMap.get('id');
+
+    return this.cs.getCrisis(id).pipe(
+      take(1),
+      map(crisis => {
+        if (crisis) {
+          return crisis;
+        } else { //id 没有找到
+          this.router.navigate(['/crisis-center']);
+          return null;
+        }
+      })
+    );
+  }
+}
+```
+  在CrisisDetailComponent.nngOnInit中拿到相关的危机检索逻辑，并且把它们移到CrisisDetailResolver中，导入Crisis模型、CrisisService和Router以便让我可以在找不到指定的危机导航到别处。为了更明确一点，可以实现一个带有一个Crisis类型的Resolve接口。注入 CrisisService 和 Router，并实现 resolve() 方法。 该方法可以返回一个 Promise、一个 Observable 来支持异步方式，或者直接返回一个值来支持同步方式。
+  CrisisService.getCrisis 方法返回了一个可观察对象，这是为了防止在数据获取完毕前加载路由。 如果它没有返回一个有效的 Crisis，就把用户导航回 CrisisListComponent，并取消以前到 CrisisDetailComponent 尚未完成的导航。
+  把这个解析器（resolver）导入到 crisis-center-routing.module.ts 中，并往 CrisisDetailComponent 的路由配置中添加一个 resolve 对象。
+  别忘了把 CrisisDetailResolver 服务添加到 CrisisCenterRoutingModule 的 providers 数组中。
+```typescript
+import { CrisisDetailResolver }   from './crisis-detail-resolver.service';
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(crisisCenterRoutes)
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    CrisisDetailResolver
+  ]
+})
+export class CrisisCenterRoutingModule { }
+```
+  CrisisDetailComponent不应该再去获取这个危机的详情。把CrisisDetailComponent改成从ActivatedRoute.data.crisis 属性中获取危机详情，这正是重新配置路由的恰当时机。 当 CrisisDetailComponent 要求取得危机详情时，它就已经在那里了。
+```typescript
+ngOnInit() {
+  this.route.data
+    .subscribe((data: { crisis: Crisis }) => {
+      this.editName = data.crisis.name;
+      this.crisis = data.crisis;
+    });
+}
+```
 
 
 
