@@ -1015,12 +1015,49 @@ export class ComposeMessageComponent {
   主要send()方法在发送消息和关闭弹出框之间通过等待模拟了一秒钟的延迟。closePopup()方法用把popup出口导航到null的方式关闭了弹出框。
   像其它组件一样，还要把ComposeMessageComponent添加到AppModule的declarations中。
 #### 7.2 添加第二路由
-
-
-
-
-
-
+  打开AppRoutingModule，并把一个新的compose路由添加到appRoutes中。
+```typescript
+{
+  path: 'compose',
+  component: ComposeMessageComponent,
+  outlet: 'popup'
+}
+```
+  对path和compose这个属性是熟悉的了，注意这个新的属性outlet被设置成为了 popup，这个路由现在指向了popup出口，而ComposeMessageComponent 也将显示在那里。用户需要某种途径来打开这个弹出框。打开AppComponent，并添加一个 Contact 链接
+```html
+<a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
+```
+  虽然compose 路由被钉死在了popup出口上，但这仍然不足以向RouterLink指令表明要加载该路由。还要在链接参数数组中指定这个命名出口，并通过属性绑定的形式把它绑定到RouterLink上。
+  链接参数数组包含一个只有一个 outlets 属性的对象，它的值是另一个对象，这个对象以一个或多个路由的出口名作为属性名。 在这里，它只有一个出口名“popup”，它的值则是另一个链接参数数组，用于指定 compose 路由。意思是，当用户点击此链接时，在路由出口 popup 中显示与 compose 路由相关联的组件。
+	当有且只有一个无名出口时，外部对象中的这个 outlets 对象并不是必须的。
+	路由器假设这个路由指向了无名的主出口，并为你创建这些对象。
+	路由到一个命名出口就会揭示一个以前被隐藏的真相： 你可以在同一个 RouterLink 指令中为多个路由出口指定多个路由。
+	这里实际上没能这样做。要想指向命名出口，就得使用一种更强大也更啰嗦的语法。
+#### 7.4 第二路由导航：在导航期间合并路由
+  导航到危机中心 并点击 Contact，会在浏览器的地址栏看到这样的URL：
+```typescript
+http://.../crisis-center(popup:compose)
+```
+  这个URL中有意思的部分是 ... 后面的这些：
+  - crisis-center是主导航
+  - 圆括号包裹的部分是第二路由
+  - 第二路由包括一个出口名称（popup）、一个冒号分隔符和第二路由的路径（compose）
+  点击Persons链接，再次查看URL：
+```typescript
+http://.../persons(popup:compose)
+```
+  主导航的变化了，而第二路由没有变。路由器在导航树中对两个独立的分支保持追踪，并在URL中对这棵树进行表达。
+  还可以添加更多出口和更多路由（无论是在顶层还是在嵌套的子层）来创建一个带有多个分支的导航树。路由器将会生成相应的URL。通过像前面那样填充outlets对象，我可以告诉路由器立即导航到一棵完整的树，然后把这个对象通过一个链接参数数组传给router.navigate方法。
+#### 7.5 清除第二路由
+  正如刚刚说的，除非导航到新的组件，否则路由出口中的组件会始终存在。这里涉及到的第二出口也同样如此。每个第二出口都有自己独立的导航，跟主出口的导航彼此独立。修改主出口中的当前路由并不会影响到popup出口，这就是为什么在危机中心和英雄管理之间导航时，弹出框始终都是可见的。
+  点击send或cancel按钮，则会清除弹出框视图，来看一下closePopup()方法：
+```typescript
+closePopup() {
+  this.router.navigate([{ outlets: { popup: null }}]);
+}
+```
+  它使用Router.navigate()方法进行强制导航，并传入了一个链接参数数组。就像在AppComponent中绑定到的ConcatRouterLink一样，它也包含了一个带有outlets属性的对象，outlets属性的值是另一个对象，该对象用一些出口名称作为属性名，唯一的命名出口是 popup，但这次，popup的值是null，null不是一个路由，但却是一个合法的值，把popup这个RouterOutlet设置为null会清除该出口，并且从当前URL中移除第二路由popup。
+## 八、路由守卫
 
 
 
