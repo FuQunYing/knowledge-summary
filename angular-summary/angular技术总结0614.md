@@ -1058,9 +1058,59 @@ closePopup() {
 ```
   它使用Router.navigate()方法进行强制导航，并传入了一个链接参数数组。就像在AppComponent中绑定到的ConcatRouterLink一样，它也包含了一个带有outlets属性的对象，outlets属性的值是另一个对象，该对象用一些出口名称作为属性名，唯一的命名出口是 popup，但这次，popup的值是null，null不是一个路由，但却是一个合法的值，把popup这个RouterOutlet设置为null会清除该出口，并且从当前URL中移除第二路由popup。
 ## 八、路由守卫
+  现在，任何用户都能在任何时候导航到任何地方。但有时候这样是不对的。
+  - 该用户可能无权导航到目标组件
+  - 可能用户得先登录或者认证一下
+  - 在显示目标组件前，可能得先获取某些数据。
+  - 在离开组件前，可能要先保存修改
+  - 可能还要询问用户：是否要放弃本次更改，而不用保存它们？
+  这些可以往路由配置中添加守卫，来处理这些场景。
+  守卫返回一个值，以控制路由器的行为：
+  - 如果它返回true，导航 过程会继续
+  - 如果它返回false，导航过程会终止，且用户会留在原地
+	守卫还可以告诉路由器导航到别处，这样也取消当前的导航
+  守卫可以用同步的方式返回一个布尔值，但在很多情况下，守卫无法用同步的方式给出答案，守卫可能会向用户问一个问题，把更改保存到服务器，或者获取新数据，而这些都是异步操作。因此路由的守卫可以返回一个Observable<boolean>或Promise<boolean>，并且路由器会等待这个可观察对象被解析为true或false。
+  路由器可以支持多种守卫接口：
+  - 用CanActivate来处理导航到某路由的情况
+  - 用CanActivateChild来处理导航到某子路由的情况
+  - 用CanDeaactivate来处理从当前路由离开的情况
+  - 用Resolve在路由激活之前获取路由数据
+  - 用CanLoad来处理异步导航到某特性模块的情况
+  在分层路由的每个级别上，都可以设置多个守卫。路由器会按照从最深的子路由从下往上检查的顺序来检查CanDeaactivate()和CanActivateChild()守卫，然后它会按照从上到下的顺序检查CanActivate()守卫。如果特性模块是异步加载的，在加载它之前还会检查CanLoad()守卫 。如果任何一个守卫返回false，其它尚未完成的守卫会被取消，这样整个导航就被取消了。
+### 1.CanActivate：要求认证
+  应用程序通常会根据访问者来决定是否授予某个特性区的访问权，我可以只对已认证过的用户或具有特定角色的用户授予访问权，还可以阻止或限制用户访问权，直到用户账户激活为止。CanActivate守卫是一个管理这些导航类业务规则的工具。
+#### 1.1 添加一个 管理 特性模块
+  等会儿会使用一些新的管理特性来扩展危机中心。那些特性尚未定义，但是我可以先从添加一个名叫AdminModule的特性模块开始。创建一个admin目录，它带有一个特性模块文件、一个路由配置文件和一些支持性组件。
+  管理特性模块包含AdminComponent，它用于在特性模块内的仪表盘路由以及两个尚未完成的用于管理危机个人物的组件之间进行路由
+**admin-dashboard.component.ts**
+```typescript
+import { Component } from '@angular/core';
+@Component({
+  template:  `
+    <p>Dashboard</p>
+  `
+})
+export class AdminDashboardComponent { }
+```
+**admin.component.ts**
+```typescript
+import { Component } from '@angular/core';
 
-
-
+@Component({
+  template:  `
+    <h3>ADMIN</h3>
+    <nav>
+      <a routerLink="./" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="./crises" routerLinkActive="active">Manage Crises</a>
+      <a routerLink="./persons" routerLinkActive="active">Manage Heroes</a>
+    </nav>
+    <router-outlet></router-outlet>
+  `
+})
+export class AdminComponent {
+}
+```
 
 
 
