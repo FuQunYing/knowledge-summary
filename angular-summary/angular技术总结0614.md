@@ -1867,6 +1867,7 @@ export class AdminDashboardComponent implements OnInit {
   按照下列步骤试验下：点击Crisis Admin按钮，它会带着我提供的 queryParamMap 和 fragment 跳转到登录页。 点击登录按钮，你就会被重定向到 Admin Dashboard 页。 注意，它仍然带着上一步提供的 queryParamMap 和 fragment。
   我可以用这些持久化信息来携带需要为每个页面都提供的信息，如认证令牌或会话的 ID 等。
 	“查询参数”和“片段”也可以分别用 RouterLink 中的 preserveQueryParams 和 preserveFragment 保存。
+## 九、异步路由
 
 
 
