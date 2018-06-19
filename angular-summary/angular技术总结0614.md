@@ -947,8 +947,8 @@ this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.r
   - 它们彼此互不依赖。
   - 它们与其它路由组合使用。
   - 它们显示在命名出口中。
-  在 src/app/compose-message.component.ts 中创建一个名叫 ComposeMessageComponent 的新组件。 它显示一个简单的表单，包括一个头、一个消息输入框和两个按钮： “Send” 和 “Cancel”
-  ![图片](contact-popup.png)
+    在 src/app/compose-message.component.ts 中创建一个名叫 ComposeMessageComponent 的新组件。 它显示一个简单的表单，包括一个头、一个消息输入框和两个按钮： “Send” 和 “Cancel”
+    ![图片](contact-popup.png)
 下面树该组件及其模板
 **compose-message.component.ts**
 ```typescript
@@ -1042,7 +1042,7 @@ http://.../crisis-center(popup:compose)
   - crisis-center是主导航
   - 圆括号包裹的部分是第二路由
   - 第二路由包括一个出口名称（popup）、一个冒号分隔符和第二路由的路径（compose）
-  点击Persons链接，再次查看URL：
+    点击Persons链接，再次查看URL：
 ```typescript
 http://.../persons(popup:compose)
 ```
@@ -1064,19 +1064,19 @@ closePopup() {
   - 在显示目标组件前，可能得先获取某些数据。
   - 在离开组件前，可能要先保存修改
   - 可能还要询问用户：是否要放弃本次更改，而不用保存它们？
-  这些可以往路由配置中添加守卫，来处理这些场景。
-  守卫返回一个值，以控制路由器的行为：
+    这些可以往路由配置中添加守卫，来处理这些场景。
+    守卫返回一个值，以控制路由器的行为：
   - 如果它返回true，导航 过程会继续
   - 如果它返回false，导航过程会终止，且用户会留在原地
 	守卫还可以告诉路由器导航到别处，这样也取消当前的导航
-  守卫可以用同步的方式返回一个布尔值，但在很多情况下，守卫无法用同步的方式给出答案，守卫可能会向用户问一个问题，把更改保存到服务器，或者获取新数据，而这些都是异步操作。因此路由的守卫可以返回一个Observable<boolean>或Promise<boolean>，并且路由器会等待这个可观察对象被解析为true或false。
-  路由器可以支持多种守卫接口：
+    守卫可以用同步的方式返回一个布尔值，但在很多情况下，守卫无法用同步的方式给出答案，守卫可能会向用户问一个问题，把更改保存到服务器，或者获取新数据，而这些都是异步操作。因此路由的守卫可以返回一个Observable<boolean>或Promise<boolean>，并且路由器会等待这个可观察对象被解析为true或false。
+    路由器可以支持多种守卫接口：
   - 用CanActivate来处理导航到某路由的情况
   - 用CanActivateChild来处理导航到某子路由的情况
   - 用CanDeaactivate来处理从当前路由离开的情况
   - 用Resolve在路由激活之前获取路由数据
   - 用CanLoad来处理异步导航到某特性模块的情况
-  在分层路由的每个级别上，都可以设置多个守卫。路由器会按照从最深的子路由从下往上检查的顺序来检查CanDeaactivate()和CanActivateChild()守卫，然后它会按照从上到下的顺序检查CanActivate()守卫。如果特性模块是异步加载的，在加载它之前还会检查CanLoad()守卫 。如果任何一个守卫返回false，其它尚未完成的守卫会被取消，这样整个导航就被取消了。
+    在分层路由的每个级别上，都可以设置多个守卫。路由器会按照从最深的子路由从下往上检查的顺序来检查CanDeaactivate()和CanActivateChild()守卫，然后它会按照从上到下的顺序检查CanActivate()守卫。如果特性模块是异步加载的，在加载它之前还会检查CanLoad()守卫 。如果任何一个守卫返回false，其它尚未完成的守卫会被取消，这样整个导航就被取消了。
 ### 1.CanActivate：要求认证
   应用程序通常会根据访问者来决定是否授予某个特性区的访问权，我可以只对已认证过的用户或具有特定角色的用户授予访问权，还可以阻止或限制用户访问权，直到用户账户激活为止。CanActivate守卫是一个管理这些导航类业务规则的工具。
 #### 1.1 添加一个 管理 特性模块
@@ -1190,6 +1190,163 @@ const adminRoutes: Routes = [
 export class AdminRoutingModule {}
 ```
 ### 2.无组件路由：不借助组件对路由进行分组
+  来看AdminComponent下的子路由，这里有一个带path和children的子路由，但它没有使用component。这并不是配置中的失误，而是在使用无组件路由。这里的目标是对admin路径下的 危机中心 管理类路由进行分组，但并不需要另一个仅用来分组路由的组件。一个无组件的路由能让守卫子路由变得更容易。
+  接下来把AdminModule导入到app.module.ts中，并把它加入imports数组中来注册这些管理类路由。
+```typescript
+import { NgModule }       from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AppComponent } from './app.component';
+import { PageNotFoundComponent } from './not-found.component';
+import { AppRoutingModule } from './app-routing.module';
+import { PersonsModule } from './persons/persons.module';
+import { CrisisCenterModule } from './crisis-center/crisis-center.module';
+import { AdminModule } from './admin/admin.module';
+import { DialogService } from './dialog.service';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    PersonsModule,
+    CrisisCenterModule,
+    AdminModule,
+    AppRoutingModule
+  ],
+  declarations: [
+    AppComponent,
+    PageNotFoundComponent
+  ],
+  providers: [
+    DialogService
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+  然后往壳组件AppComponent中添加一个链接，让用户能点击它，以访问该特性：
+```typescript
+template: `
+  <h1 class="title">Angular Router</h1>
+  <nav>
+    <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
+    <a routerLink="/persons" routerLinkActive="active">Persons</a>
+    <a routerLink="/admin" routerLinkActive="active">Admin</a>
+    <a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
+  </nav>
+  <router-outlet></router-outlet>
+  <router-outlet name="popup"></router-outlet>
+  `
+```
+#### 2.1 守护 管理特性 区
+  现在 危机中心 的每个路由都是对所有人开放的，这些新的管理特性应该只能被已登录用户访问。我可以在用户登录之前隐藏这些链接，但这样会有点复杂并难以维护。但是我可以换一种方式：写一个CanActivate()守卫，将正在尝试访问管理组件匿名用户重定向到登录页。这是一种具有通用性的守护目标（通常会有其它特性需要登录用户才能访问），所以我要在应用的根目录下创建一个auth-guard.ts文件。此时，守卫的第一个版本只是被用来看 是如何工作的，并么有做什么有用的事情，它只是往控制台写日志，并且立即返回true，让导航继续而已
+```typescript
+import { Injectable }     from '@angular/core';
+import { CanActivate }    from '@angular/router';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate() {
+    console.log('AuthGuard#canActivate called');
+    return true;
+  }
+}
+```
+  接下来，打开crisis-center.route.ts，导入AuthGuard类，修改管理路由并通过CanActivate ()守卫应用AuthGuard：
+```typescript
+import { AuthGuard }                from '../auth-guard.service';
+
+const adminRoutes: Routes = [
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        children: [
+          { path: 'crises', component: ManageCrisesComponent },
+          { path: 'persons', component: ManagePersonsComponent },
+          { path: '', component: AdminDashboardComponent }
+        ],
+      }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(adminRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AdminRoutingModule {}
+```
+  管理特性区现在受此守卫保护了，不过这样的保护还不够。
+#### 2.2 教AuthGuard进行认证
+  先让AuthGuard至少能 假装进行认证。AuthGuard可以调用应用中的一项服务，该服务能让用户登录，并且保存当前用户的信息。下面是一个AuthService示范：
+```typescript
+import { Injectable } from '@angular/core';
+
+import { Observable, of } from 'rxjs';
+import { tap, delay } from 'rxjs/operators';
+
+@Injectable()
+export class AuthService {
+  isLoggedIn = false;
+  // 存储URL，这样可以在登录以后进行重定向
+  redirectUrl: string;
+
+  login(): Observable<boolean> {
+    return of(true).pipe(
+      delay(1000),
+      tap(val => this.isLoggedIn = true)
+    );
+  }
+
+  logout(): void {
+    this.isLoggedIn = false;
+  }
+}
+```
+  虽然它不会真的进行登录，但足够让你进行这个讨论了。 它有一个 isLoggedIn 标志，用来标识是否用户已经登录过了。 它的 login 方法会仿真一个对外部服务的 API 调用，返回一个可观察对象（observable）。在短暂的停顿之后，这个可观察对象就会解析成功。 redirectUrl 属性将会保存在 URL 中，以便认证完之后导航到它。
+  现在就修改 AuthGuard 来调用它。
+```typescript
+import { Injectable }       from '@angular/core';
+import {
+  CanActivate, Router,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot
+}                           from '@angular/router';
+import { AuthService }      from './auth.service';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    let url: string = state.url;
+
+    return this.checkLogin(url);
+  }
+
+  checkLogin(url: string): boolean {
+    if (this.authService.isLoggedIn) { return true; }
+
+    //存储试图重定向的URL
+    this.authService.redirectUrl = url;
+
+    // 用额外的导航导航到登录页面
+    this.router.navigate(['/login']);
+    return false;
+  }
+}
+```
+  注意，把 AuthService 和 Router 服务注入到构造函数中。 还没有提供 AuthService，这里要说明的是：可以往路由守卫中注入有用的服务。
+  该守卫返回一个同步的布尔值。如果用户已经登录，它就返回 true，导航会继续。这个 ActivatedRouteSnapshot 包含了即将被激活的路由，而 RouterStateSnapshot 包含了该应用即将到达的状态。 你应该通过守卫进行检查。如果用户还没有登录，就会用 RouterStateSnapshot.url 保存用户来自的 URL 并让路由器导航到登录页（你尚未创建该页）。 这间接导致路由器自动中止了这次导航，checkLogin() 返回 false 并不是必须的，但这样可以更清楚的表达意图。
+#### 2.3 添加LoginComponent
   
 
 
