@@ -1111,6 +1111,70 @@ import { Component } from '@angular/core';
 export class AdminComponent {
 }
 ```
+**admin.module.ts**
+```typescript
+import { NgModule }       from '@angular/core';
+import { CommonModule }   from '@angular/common';
+
+import { AdminComponent }           from './admin.component';
+import { AdminDashboardComponent }  from './admin-dashboard.component';
+import { ManageCrisesComponent }    from './manage-crises.component';
+import { ManageHeroesComponent }    from './manage-heroes.component';
+
+import { AdminRoutingModule }       from './admin-routing.module';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    AdminRoutingModule
+  ],
+  declarations: [
+    AdminComponent,
+    AdminDashboardComponent,
+    ManageCrisesComponent,
+    ManageHeroesComponent
+  ]
+})
+export class AdminModule {}
+```
+**manage-crisis.component.ts**
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template:  `
+    <p>Manage your crises here</p>
+  `
+})
+export class ManageCrisesComponent { }
+```
+**manage-persons.component.ts**
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template:  `
+    <p>Manage your persons here</p>
+  `
+})
+export class ManageHeroesComponent { }
+```
+  由于 AdminModule 中 AdminComponent 中的 RouterLink 是一个空路径的路由，所以它会匹配到管理特性区的任何路由。 但只有在访问 Dashboard 路由时才希望该链接被激活。 往 Dashboard 这个 routerLink 上添加另一个绑定 [routerLinkActiveOptions]="{ exact: true }"， 这样就只有当用户导航到 /admin 这个 URL 时才会激活它，而不会在导航到它的某个子路由时。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
