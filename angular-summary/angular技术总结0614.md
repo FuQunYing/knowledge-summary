@@ -722,14 +722,14 @@ export const slideInDownAnimation =
 @HostBinding('style.position')  position = 'absolute';
 ```
   传给了第一个 @HostBinding 的 '@routeAnimation' 匹配了 slideInDownAnimation触发器的名字 routeAnimation。 把 routeAnimation 属性设置为 true，因为你只关心 :enter 和 :leave 这两个状态。另外两个 @HostBinding 属性指定组件的外观和位置。当进入该路由时，HeroDetailComponent 将会从左侧缓动进入屏幕，而离开路由时，将会向下划出。
-## 7.危机中心
+## 七、危机中心
   现在是时候往该应用的危机中心添加一些真实的特性了。
   先从模仿 人物管理 中的特性开始：
   - 删除危机中心的占位文件
   - 创建app/crisis-center文件夹
   - 把app/persons中的文件复制到新的危机中心文件夹
   - 在这些新文件中，把每一个对 person 替换为 crisis，并把persons替换为crises
-  我会把CrisisService转换成模拟的危机列表，而不再是模拟的人物列表：
+    我会把CrisisService转换成模拟的危机列表，而不再是模拟的人物列表：
 ```typescript
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -766,7 +766,7 @@ export class CrisisCenterComponent { }
   CrisisCenterComponent 和 AppComponent 有下列共同点：
   - 它是危机中心特性区的根，正如AppComponent是整个应用的根
   - 它是危机管理特性区的壳，正如 AppComponent 是管理高层工作流的壳
-  就像大多数的壳一样，CrisisCenterComponent类也非常简单，甚至比AppComponent更简单：它没有业务逻辑，它的模板中没有链接，只有一个标题和用于放置危机中心的子视图的<router-outlet>，与AppComponent和大多数其它组件不同的是，它甚至都没有指定选择器selector，它不需要选择器，因为我 不会把这个组件嵌入到某个父模板中，而是使用路由器导航到它。
+    就像大多数的壳一样，CrisisCenterComponent类也非常简单，甚至比AppComponent更简单：它没有业务逻辑，它的模板中没有链接，只有一个标题和用于放置危机中心的子视图的<router-outlet>，与AppComponent和大多数其它组件不同的是，它甚至都没有指定选择器selector，它不需要选择器，因为我 不会把这个组件嵌入到某个父模板中，而是使用路由器导航到它。
 ### 3.子路由配置
   把下面这个crisis-center-home.component.ts添加到crisis-center目录下，作为 危机中心 特性区的宿主页面：
 ```typescript
@@ -811,12 +811,210 @@ const crisisCenterRoutes: Routes = [
 ```typescript
 localhost:4200/crisis-center/2
 ```
+  这里是完整的crisis-center.routing.ts及其导入语句：
+```typescript
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
+import { CrisisCenterHomeComponent } from './crisis-center-home.component';
+import { CrisisListComponent }       from './crisis-list.component';
+import { CrisisCenterComponent }     from './crisis-center.component';
+import { CrisisDetailComponent }     from './crisis-detail.component';
 
+const crisisCenterRoutes: Routes = [
+  {
+    path: 'crisis-center',
+    component: CrisisCenterComponent,
+    children: [
+      {
+        path: '',
+        component: CrisisListComponent,
+        children: [
+          {
+            path: ':id',
+            component: CrisisDetailComponent
+          },
+          {
+            path: '',
+            component: CrisisCenterHomeComponent
+          }
+        ]
+      }
+    ]
+  }
+];
 
+@NgModule({
+  imports: [
+    RouterModule.forChild(crisisCenterRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class CrisisCenterRoutingModule { }
+```
+### 4.把危机中心模块导入到AppModule的路由中
+  就像PersonsModule模块中一样，必须把CrisisCenterModule添加到AppModule的imports数组中 ，就在AppRoutingModule前面：
+```typescript
+import { NgModule }       from '@angular/core';
+import { CommonModule }   from '@angular/common';
+import { FormsModule }    from '@angular/forms';
 
+import { AppComponent }            from './app.component';
+import { PageNotFoundComponent }   from './not-found.component';
 
+import { AppRoutingModule }        from './app-routing.module';
+import { PersonsModule }            from './persons/persons.module';
+import { CrisisCenterModule }      from './crisis-center/crisis-center.module';
 
+import { DialogService }           from './dialog.service';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    PersonsModule,
+    CrisisCenterModule,
+    AppRoutingModule
+  ],
+  declarations: [
+    AppComponent,
+    PageNotFoundComponent
+  ],
+  providers: [
+    DialogService
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
+  从app.routing.ts中移除危机中心的初始路由，这些特性路由现在是由PersonsModule和CrisisCenter特性模块提供的。app-routing.module.ts文件中只有应用的顶级路由，比如默认路由和通配符路由：
+```typescript
+import { NgModule }                from '@angular/core';
+import { RouterModule, Routes }    from '@angular/router';
+
+import { ComposeMessageComponent } from './compose-message.component';
+import { PageNotFoundComponent }   from './not-found.component';
+
+const appRoutes: Routes = [
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true } //仅供调试
+    )
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AppRoutingModule {}
+```
+### 5.相对导航
+  虽然构建除了危机中心特性区，但是仍然在使用以斜杠开头的绝对路径来导航到危机详情的路由。路由器会从路由配置的顶层来匹配像这样的绝对路径。
+  虽然 可以继续像危机中心特性区一样使用绝对路径，但是那样会把链接钉死在在特定的父路由结构上。 如果修改了父路径 /crisis-center，那就不得不修改每一个链接参数数组。通过改成定义相对于当前 URL 的路径，你可以把链接从这种依赖中解放出来。 当你修改了该特性区的父路由路径时，该特性区内部的导航仍然完好无损。
+  例子如下：
+	路由器支持在链接参数数组中使用“目录式”语法来为查询路由名提供帮助：
+	./ 或 无前导斜线 形式是相对于当前级别的。
+	../ 会回到当前路由路径的上一级。
+	可以把相对导航语法和一个祖先路径组合起来用。 如果不得不导航到一个兄弟路由，你可以用 ../<sibling> 来回到上一级，然后进入兄弟路由路径中。
+  用Router.navigate方法导航到相对路径，必须提供当前的ActivatedRoute，来让路由器知道现在处于路由树中的什么位置。在链接参数数组中，添加一个带有relativeTo属性的对象，并把它设置为当前的ActivatedRoute，这样路由器就会基于当前激活路由的位置来计算出目标URL。
+	当调用路由器的navigateByUrl时，总是要指定完整的绝对路径。
+### 6.使用相对URL导航到危机列表
+  现在已经注入过了ActivatedRoute。需要把它来和相对导航路径组合在一起。如果使用RouterLink来代替Router服务进行导航，就要使用相同的链接参数数组，不过不再需要提供relativeTo属性，ActivatedRoute已经隐含在了RouterLink指令中。
+  修改 CrisisDetailComponent 的 gotoCrises 方法，来使用相对路径返回危机中心列表。
+```typescript
+//相对路径返回
+this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
+//这里使用了../语法返回上一级，如果当前危机的id是3，那么最终返回到的路径就是/crisis-center./:id=3;foo=foo
+```
+### 7.用命名出口显示多重路由
+  现在想要给用户提供一种方式来联系危机中心，当用户点击Contact按钮时，要在一个弹出框中显示一条消息。即使在应用中的不同页面之间切换，这个弹出框也应该始终保持打开状态，直到用户发送了消息或者手动取消、显示并不能把这个弹出框跟其它放在同一个路由出口中。
+  到目前位置，只定义了单路由出口，并且在其中潜逃了子路由以便对路由分组，在每个模板中，路由器只能支持一个无名主路由出口。模板哈可以有多个命名的路由出口，每个命名出口都有自己有一组带组件的路由，多重出口可以在同一时间根据不同的路由来显示不同的内容。
+  在AppComponent中添加一个名叫 popup 的出口，就在无名出口的下方：
+```html
+<router-outlet></router-outlet>
+<router-outlet name="popup"></router-outlet>
+```
+  学会了如何把一个弹出框组件路由到该出口，那里就是将会出现弹出框的地方。
+#### 7.1 第二路由
+  命名出口是第二路由的目标。第二路由很像主路由，配置方式也一样。它们只有一些关键的不同点：
+  - 它们彼此互不依赖。
+  - 它们与其它路由组合使用。
+  - 它们显示在命名出口中。
+  在 src/app/compose-message.component.ts 中创建一个名叫 ComposeMessageComponent 的新组件。 它显示一个简单的表单，包括一个头、一个消息输入框和两个按钮： “Send” 和 “Cancel”
+  ![图片](contact-popup.png)
+下面树该组件及其模板
+**compose-message.component.ts**
+```typescript
+import { Component, HostBinding } from '@angular/core';
+import { Router }                 from '@angular/router';
+
+import { slideInDownAnimation }   from './animations';
+
+@Component({
+  templateUrl: './compose-message.component.html',
+  styles: [ ':host { position: relative; bottom: 10%; }' ],
+  animations: [ slideInDownAnimation ]
+})
+export class ComposeMessageComponent {
+  @HostBinding('@routeAnimation') routeAnimation = true;
+  @HostBinding('style.display')   display = 'block';
+  @HostBinding('style.position')  position = 'absolute';
+
+  details: string;
+  sending = false;
+
+  constructor(private router: Router) {}
+
+  send() {
+    this.sending = true;
+    this.details = 'Sending Message...';
+
+    setTimeout(() => {
+      this.sending = false;
+      this.closePopup();
+    }, 1000);
+  }
+
+  cancel() {
+    this.closePopup();
+  }
+
+  closePopup() {
+    // 向命名出口提供 空 值清除指定出口的内容
+    this.router.navigate([{ outlets: { popup: null }}]);
+  }
+}
+```
+**compose-message.component.html**
+```typescript
+<h3>Contact Crisis Center</h3>
+<div *ngIf="details">
+  {{ details }}
+</div>
+<div>
+  <div>
+    <label>Message: </label>
+  </div>
+  <div>
+    <textarea [(ngModel)]="message" rows="10" cols="35" [disabled]="sending"></textarea>
+  </div>
+</div>
+<p *ngIf="!sending">
+  <button (click)="send()">Send</button>
+  <button (click)="cancel()">Cancel</button>
+</p>
+```
+  它看起来几乎和以前见到的其它组件一样，但有两个需要注意的区别：
+  主要send()方法在发送消息和关闭弹出框之间通过等待模拟了一秒钟的延迟。closePopup()方法用把popup出口导航到null的方式关闭了弹出框。
+  像其它组件一样，还要把ComposeMessageComponent添加到AppModule的declarations中。
+#### 7.2 添加第二路由
 
 
 
