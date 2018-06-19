@@ -1761,9 +1761,112 @@ ngOnInit() {
     });
 }
 ```
+  两个关键点
+  1.路由器的这个Resolve接口是可选的。CrisisDetailResolver并没有继承自某个基类。路由器只要找到了这个方法，就会调用它
+  2.要依赖路由器调用此守卫。不必关心用户用哪种方式导航离开，这是路由器的工作。你只要写出这个类，等路由器从那里取出它就可以了。
+  3.由路由器提供的 Observable 必须 完成（complete），否则导航不会继续。
+### 8.查询参数及片段
+  在这个查询参数例子中，只为路由指定了参数，但是该如何定义一些所有路由中都可用的可选参数，就应该查询参数了。
+  片段可以引用页面中带有特定 id 属性的元素.
+  修改 AuthGuard 以提供 session_id 查询参数，在导航到其它路由后，它还会存在。再添加一个锚点（A）元素，来能跳转到页面中的正确位置。
+  为 router.navigate 方法添加一个 NavigationExtras 对象，用来导航到 /login 路由。
+```typescript
+import { Injectable } from '@angular/core';
+import {
+  CanActivate, Router,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  CanActivateChild,
+  NavigationExtras
+} from '@angular/router';
+import { AuthService } from './auth.service';
 
+@Injectable()
+export class AuthGuard implements CanActivate, CanActivateChild {
+  constructor(private authService: AuthService, private router: Router) {}
 
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    let url: string = state.url;
 
+    return this.checkLogin(url);
+  }
+
+  canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    return this.canActivate(route, state);
+  }
+
+  checkLogin(url: string): boolean {
+    if (this.authService.isLoggedIn) { return true; }
+
+    // 存储视图重定向的URL
+    this.authService.redirectUrl = url;
+
+    // 创建虚拟会话id
+    let sessionId = 123456789;
+
+    // 设置包含全局查询参数和片段的导航额外对象
+    let navigationExtras: NavigationExtras = {
+      queryParams: { 'session_id': sessionId },
+      fragment: 'anchor'
+    };
+
+    // 用额外的导航导航到登录页面
+    this.router.navigate(['/login'], navigationExtras);
+    return false;
+  }
+}
+```
+  还可以在导航之间保留查询参数 和片段 ，而无需再次再导航中提供。在 LoginComponent 中的 router.navigate 方法中，添加第二个参数，该对象提供了 preserveQueryParams 和 preserveFragment，用于传递到当前的查询参数中并为下一个路由提供片段。
+```typescript
+// 设置导航超文本对象，该对象通过全局查询参数和片段
+let navigationExtras: NavigationExtras = {
+  queryParamsHandling: 'preserve',
+  preserveFragment: true
+};
+
+// 重定向到用户
+this.router.navigate([redirect], navigationExtras);
+```
+	queryParamsHandling 特性还提供了 merge 选项，它将会在导航时保留当前的查询参数，并与其它查询参数合并。
+  由于要在登陆后导航到危机管理特征区的路由，所以还得修改它，来处理这些全局查询参数和片段：
+```typescript
+import { Component, OnInit }  from '@angular/core';
+import { ActivatedRoute }     from '@angular/router';
+import { Observable }         from 'rxjs';
+import { map }                from 'rxjs/operators';
+
+@Component({
+  template:  `
+    <p>Dashboard</p>
+
+    <p>Session ID: {{ sessionId | async }}</p>
+    <a id="anchor"></a>
+    <p>Token: {{ token | async }}</p>
+  `
+})
+export class AdminDashboardComponent implements OnInit {
+  sessionId: Observable<string>;
+  token: Observable<string>;
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    // 如果可用，捕获会话ID
+    this.sessionId = this.route
+      .queryParamMap
+      .pipe(map(params => params.get('session_id') || 'None'));
+
+    // 如果可用，捕获片段
+    this.token = this.route
+      .fragment
+      .pipe(map(fragment => fragment || 'None'));
+  }
+}
+```
+  查询参数和片段可通过 Router 服务的 routerState 属性使用。和路由参数类似，全局查询参数和片段也是 Observable 对象。 在修改过的英雄管理组件中，你将借助 AsyncPipe 直接把 Observable 传给模板。
+  按照下列步骤试验下：点击Crisis Admin按钮，它会带着我提供的 queryParamMap 和 fragment 跳转到登录页。 点击登录按钮，你就会被重定向到 Admin Dashboard 页。 注意，它仍然带着上一步提供的 queryParamMap 和 fragment。
+  我可以用这些持久化信息来携带需要为每个页面都提供的信息，如认证令牌或会话的 ID 等。
+	“查询参数”和“片段”也可以分别用 RouterLink 中的 preserveQueryParams 和 preserveFragment 保存。
 
 
 
