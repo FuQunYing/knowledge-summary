@@ -335,8 +335,8 @@ export class AppModule { }
   - 用模块把应用和路由组织为一些特性区
   - 命令式的从一个组件导航到另一个
   - 通过路由传递必要的信息和可选信息
-  典型的应用具有多个特性区，每个特性区都专注于特定的业务用途。虽然可以把文件都放在src/app目录下，但是这并不现实，后期很难维护，大部分开发人员更喜欢把每个特性区都放在它自己的目录下。
-  现在我准备把应用拆分成多个不同的特性模块，每个特有模块都有自己的关注点，然后，我就可以把它们导入到主模块中，并且在它们之间导航。
+    典型的应用具有多个特性区，每个特性区都专注于特定的业务用途。虽然可以把文件都放在src/app目录下，但是这并不现实，后期很难维护，大部分开发人员更喜欢把每个特性区都放在它自己的目录下。
+    现在我准备把应用拆分成多个不同的特性模块，每个特有模块都有自己的关注点，然后，我就可以把它们导入到主模块中，并且在它们之间导航。
 ### 1.添加人物管理功能
   按照下面的步骤：
   - 创建src/app/persons文件夹
@@ -344,11 +344,11 @@ export class AppModule { }
   - 在 src/app/persons 目录下创建新的 person-list.component.ts 文件。
   - 把部分代码复制到 app.component.ts 中。
   - 做一些微小但必要的修改：
-   1.删除 selector（路由组件不需要它们）。
-   2.删除 <h1>。
-   3.给 <h2> 加文字，改成 <h2>PERSONS</h2>。
-   4.删除模板底部的 <person-detail>。
-   5.把 AppComponent 类改名为 PersonListComponent。
+      1.删除 selector（路由组件不需要它们）。
+      2.删除 <h1>。
+      3.给 <h2> 加文字，改成 <h2>PERSONS</h2>。
+      4.删除模板底部的 <person-detail>。
+      5.把 AppComponent 类改名为 PersonListComponent。
   - 把 person-detail.component.ts 和 person.service.ts 复制到 Persones 子目录下。
   - 在 persons 子目录下（不带路由）的 persons.module.ts 文件，内容如下：
 ```typescript
@@ -713,15 +713,115 @@ export const slideInDownAnimation =
   - 导出了一个名叫slideInDownAnimation的常量，并把它设置为一个名叫routerAnimation的动画触发器，带动画的组件将会引用这个名字
   - 指定了一个通配符状态  ，它匹配该路由组价存在时的任何动画状态
   - 定义两个过渡效果，其中一个（：enter）在组件进入应用视图时让它从屏幕左侧欢动进入，另一个（：leave）在组件离开应用视图时让它向下飞出。
-  可以为其它路由组件用不同的转场效果创建更多的触发器，现在这个触发器先用着。
-  返回PersonDetailComponent，从'./animatiions.ts'中导入slideInDownAnimation，从@angular/core中导入HostBinding装饰器，把一个包含slideInDownAnimation的animations数组添加到@Component的元数据中。
-  然后把三个@HostBinding属性添加到类中以设置这个路由组件元素的动画和样式。
+    可以为其它路由组件用不同的转场效果创建更多的触发器，现在这个触发器先用着。
+    返回PersonDetailComponent，从'./animatiions.ts'中导入slideInDownAnimation，从@angular/core中导入HostBinding装饰器，把一个包含slideInDownAnimation的animations数组添加到@Component的元数据中。
+    然后把三个@HostBinding属性添加到类中以设置这个路由组件元素的动画和样式。
 ```typescript
 @HostBinding('@routeAnimation') routeAnimation = true;
 @HostBinding('style.display')   display = 'block';
 @HostBinding('style.position')  position = 'absolute';
 ```
   传给了第一个 @HostBinding 的 '@routeAnimation' 匹配了 slideInDownAnimation触发器的名字 routeAnimation。 把 routeAnimation 属性设置为 true，因为你只关心 :enter 和 :leave 这两个状态。另外两个 @HostBinding 属性指定组件的外观和位置。当进入该路由时，HeroDetailComponent 将会从左侧缓动进入屏幕，而离开路由时，将会向下划出。
+## 7.危机中心
+  现在是时候往该应用的危机中心添加一些真实的特性了。
+  先从模仿 人物管理 中的特性开始：
+  - 删除危机中心的占位文件
+  - 创建app/crisis-center文件夹
+  - 把app/persons中的文件复制到新的危机中心文件夹
+  - 在这些新文件中，把每一个对 person 替换为 crisis，并把persons替换为crises
+  我会把CrisisService转换成模拟的危机列表，而不再是模拟的人物列表：
+```typescript
+import { BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
+export class Crisis {
+  constructor(public id: number, public name: string) { }
+}
+const CRISES = [
+  new Crisis(1, '天塌了'),
+  new Crisis(2, '地陷了'),
+  new Crisis(3, '小花猫不见了')
+];
+```
+  最终的危机中心可以作为引入子路由这个新概念的基础。
+### 1.带有子路由的危机中心
+  这里会展示如何组织危机中心，来满足Angular应用所推荐的模式：
+  - 把每个特性放在自己的目录中
+  - 每个特性都有自己的Angular特性模块
+  - 每个特性区都有自己的根组件
+  - 每个特性区的根组件中都有自己的路由出口及其子路由
+  - 特性区的路由很少与其它特性区的路由交叉
+### 2.子路由组件
+  往crisis-center目录下添加下列crisis-center.component.ts文件：
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template:  `
+    <h2>CRISIS CENTER</h2>
+    <router-outlet></router-outlet>
+  `
+})
+export class CrisisCenterComponent { }
+```
+  CrisisCenterComponent 和 AppComponent 有下列共同点：
+  - 它是危机中心特性区的根，正如AppComponent是整个应用的根
+  - 它是危机管理特性区的壳，正如 AppComponent 是管理高层工作流的壳
+  就像大多数的壳一样，CrisisCenterComponent类也非常简单，甚至比AppComponent更简单：它没有业务逻辑，它的模板中没有链接，只有一个标题和用于放置危机中心的子视图的<router-outlet>，与AppComponent和大多数其它组件不同的是，它甚至都没有指定选择器selector，它不需要选择器，因为我 不会把这个组件嵌入到某个父模板中，而是使用路由器导航到它。
+### 3.子路由配置
+  把下面这个crisis-center-home.component.ts添加到crisis-center目录下，作为 危机中心 特性区的宿主页面：
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  template: `
+    <p>Welcome to the Crisis Center</p>
+  `
+})
+export class CrisisCenterHomeComponent { }
+```
+  像 persons-routing.module.ts 文件一样，也创建一个 crisis-center-routing.module.ts。 但这次，要把子路由定义在父路由 crisis-center 中
+```typescript
+const crisisCenterRoutes: Routes = [
+  {
+    path: 'crisis-center',
+    component: CrisisCenterComponent,
+    children: [
+      {
+        path: '',
+        component: CrisisListComponent,
+        children: [
+          {
+            path: ':id',
+            component: CrisisDetailComponent
+          },
+          {
+            path: '',
+            component: CrisisCenterHomeComponent
+          }
+        ]
+      }
+    ]
+  }
+];
+```
+  注意，父路由crisis-center有一个children属性，它有一个包含CrisisListComponent的路由。CrisisListModule路由还有一个带两个 路由的children数组。
+  这两个路由导航到了危机中心的两个子组件：CrisisCenterHomeComponent 和 CrisisDetailComponent。对这些路由的处理中有一些重要的不同。路由器会把这些路由对应的组件放在 CrisisCenterComponent 的 RouterOutlet 中，而不是 AppComponent 壳组件中的。CrisisListComponent 包含危机列表和一个 RouterOutlet，用以显示 Crisis Center Home 和 Crisis Detail 这两个路由组件。Crisis Detail 路由是 Crisis List 的子路由。由于路由器默认会复用组件，因此当你选择了另一个危机时，CrisisDetailComponent 会被复用。
+  作为对比，回到PersonDetail 路由时，每当选择了不同的英雄时，该组件都会被重新创建。在顶级，以 / 开头的路径指向的总是应用的根。 但这里是子路由。 它们是在父路由路径的基础上做出的扩展。 在路由树中每深入一步，你就会在该路由的路径上添加一个斜线 /（除非该路由的路径是空的）。如果把该逻辑应用到危机中心中的导航，那么父路径就是 /crisis-center。要导航到 CrisisCenterHomeComponent，完整的 URL 是 /crisis-center (/crisis-center + '' + '')。要导航到 CrisisDetailComponent 以展示 id=2 的危机，完整的 URL 是 /crisis-center/2 (/crisis-center + '' + '/2')。
+  这个例子中包含站点部分的绝对URL，就是：
+```typescript
+localhost:4200/crisis-center/2
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
