@@ -1873,7 +1873,7 @@ export class AdminDashboardComponent implements OnInit {
   - 可以只在用户请求时才加载某些特性区
   - 对于那些只访问应用程序某些区域的用户，这样才能加快加载速度
   - 可以持续扩充多想加载特性区的功能，而不用增加初始加载的包体积
-  目前完成了一部分，通过把应用组织成一些模块：AppModule、PersonsModule、AdminModule和CrisisCenterModule，已经有了可以用于实现惰性加载的候选者。有些模块必须在启动时加载，但其它的都可以而且应该惰性加载。比如AdminModule就只有少数已认证的用户才需要它，所以我应该只有在正确的人请求它时才加载。、
+    目前完成了一部分，通过把应用组织成一些模块：AppModule、PersonsModule、AdminModule和CrisisCenterModule，已经有了可以用于实现惰性加载的候选者。有些模块必须在启动时加载，但其它的都可以而且应该惰性加载。比如AdminModule就只有少数已认证的用户才需要它，所以我应该只有在正确的人请求它时才加载。、
 ### 1.惰性加载路由配置
   把admin-routing.module.ts中的admin路径从admin改为空路径。Router支持空路径，可以使用它们来分组路由，而不用往URL中添加额外的路径片段。用户仍旧访问/admin，并且AdminComponent仍然作为用来包含子路由的路由组件。打开AppRoutingModule，并把一个新的admin路由添加到它的appRoutes数组中。
   给它的一个loadChildren属性（不是children属性），把它设置为AdminModule的地址。该地址是AdminModule的文件路径（相对于app目录的），，加上一个#分隔符，再加上导出模块的类名AdminModule：
@@ -1906,7 +1906,127 @@ canLoad(route:Route): boolean{
 },
 ```
 ### 3.预加载：特性区的后台加载
-  
+  现在看一下如何使用预加载技术异步加载模块。看起来应用一直都是这么做的，但其实并不是这样，AppModule在应用启动时就被加载了，它是立即加载的。而AdminModule只有当用户点击某个链接时才会加载，它是惰性加载的。预加载是介于两者之间的一种方式。看一下危机中心，用户第一眼不会看到它，默认情况下，人物管理才是第一视图。为了获得尽可能小的初始加载体积和最快的加载速度，应该对AppModule和PersonsModule进行立即加载。
+  我可以惰性加载危机中心。但是可以肯定用户会在启动应用之后的几分钟内访问危机中心。理想情况下，应用启动时应该只加载AppModule和PersonsModule，然后几乎立即开始加载CrisisCenterModule，在用户浏览到危机中心之前，该模块应该已经加载完毕，可供访问了。
+  这就是预加载。
+#### 3.1 预加载的工作原理
+  在每次成功的导航后，路由器会在自己的配置中查找尚未加载并且可以预加载的模块。是否加载某个模块，以及要加载哪些模块，取决于预加载策略。
+  Router人内置了两种预加载策略：
+  - 完全不预加载，这是默认值。惰性加载的特性区仍然会按需加载
+  - 预加载所有惰性加载的特性区
+    默认情况下，路由器或者完全不预加载或者预加载每个惰性加载模块。路由器还支持自定义加载策略，以便完全控制要预加载哪些模块以及何时加载。
+#### 3.2 惰性加载危机中心
+  修改路由配置，来惰性加载CrisisCenterModule。修改的步骤和配置惰性加载AdminModule时一样：
+  1. 把CrisisCenterRoutingModule中的路径从crisis-center改为空字符串
+  2. 往AppRoutingModule中添加一个crisis-center路由
+  3. 设置loadChildren字符串来加载CrisisCenterModule
+  4. 从aoo.module.ts中移除所有对CrisisCenterModule的引用
+  下面是打开预加载之前的模块修改版：
+  **app.module.ts**
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { Router } from '@angular/router';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { PersonsModule } from './persons/persons.module';
+import { ComposeMessageComponent } from './compose-message.component';
+import { LoginRoutingModule } from './login-routing.module';
+import { LoginComponent } from './login.component';
+import { PageNotFoundComponent } from './not-found.component';
+import { DialogService } from './dialog.service';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    PersonsModule,
+    LoginRoutingModule,
+    AppRoutingModule,
+    BrowserAnimationsModule
+  ],
+  declarations: [
+    AppComponent,
+    ComposeMessageComponent,
+    LoginComponent,
+    PageNotFoundComponent
+  ],
+  providers: [
+    DialogService
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {
+  // 仅诊断：检查路由器配置
+  constructor(router: Router) {
+    console.log('Routes: ', JSON.stringify(router.config, undefined, 2));
+  }
+}
+```
+  **app-routing.module.ts**
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes} from '@angular/router';
+import { ComposeMessageComponent } from './compose-message.component';
+import { PageNotFoundComponent } from './not-found.component';
+import { CanDeactivateGuard } from './can-deactivate-guard.service';
+import { AuthGuard } from './auth-guard.service';
+
+const appRoutes: Routes = [
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'popup'
+  },
+  {
+    path: 'admin',
+    loadChildren: 'app/admin/admin.module#AdminModule',
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'crisis-center',
+    loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
+  },
+  { path: '',   redirectTo: '/persons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+    )
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    CanDeactivateGuard
+  ]
+})
+export class AppRoutingModule {}
+```
+  **crisis-center-routing.module.ts**
+```typescript
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
