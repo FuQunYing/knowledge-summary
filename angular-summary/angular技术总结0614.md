@@ -2347,13 +2347,61 @@ template: `
 `
 ```
   とにかく，我可以用一级、两级或多级路由来写应用程序。链接参数数组提供了用来表示任意深度路由的链接参数数组以及任意合法的路由参数徐柳、必须的路由器参数以及可选的路由参数对象
-
-
-
-
-
-
-
+### 2.附录：LocationStrategy以及浏览器URL样式
+  当路由器导航到一个新的组件视图时，它会用该视图的URL来更新浏览器的当前地址以及历史。严格来说，这个URL其实是本地的，浏览器不会把该URL发给服务器，并且不会重新加载此页面。
+  现在HTML5浏览器支持history.pushStateAPI，这是一项可以改变浏览器的当前地址和历史，却又不会触发服务器端页面请求的技术。路由器可以合成一个  自然的  URL，它看起来和那些需要进行页面加载的URL没什么区别。
+  下面是危机中心的URL的 HTML5 pushState 风格下的样子：
+```typescript
+localhost:4200/crisis-center/
+```
+  老旧的浏览器在当前地址的URL变化时总会往服务器发送页面请求，唯一的例外规则是：当这些变化位于 # （被称为hash）后面时不会发送。通过把应用内的路由URL拼接在 # 之后，路由器可以获得这条 例外规则 带来的优点，下面是到 危机中心 路由的 hash URL：
+```typescript
+lcoalhost:4200/src/#/crisis-cennter/
+```
+  路由器通过两种LocationStrategy提供商来支持所有这些风格：
+  1. PathLocationStrategy - 默认的策略，支持 HTML5 pushState风格
+  2. HashLocationStrategy - 支持 hash URL 风格
+  RouterModule.forRoot函数把LocationStrategy设置成了PathLocationStrategy，使其成为了默认策略。可以在启动过程中改写它，来切换到HashLocationStrategy风格。
+#### 2.1 哪种策略更好
+  策略是必须选择的，并且在项目的早期就得选好。一旦该应用进入了生产阶段，要改起来就难了，因为外面已经有了大量对应用URL的引用。
+  几乎所有的Angular项目都会使用默认的HTML5风格。它生成的URL更易于被用户理解，它也为将来做服务端渲染预留了空间。在服务器端渲染指定的页面，是一项可以在该应用首次加载时大幅提升响应速度的技术。那些原本需要十秒甚至更长时间加载的应用，可以预先在服务端渲染好，并在少于一秒的时间内完整呈现在用户的设备上。只有当应用的 URL 看起来像是标准的 Web URL，中间没有 hash（#）时，这个选项才能生效。
+#### 2.2 HTML5 URL与<base href>
+  由于路由器默认使用“HTML 5 pushState”风格，所以必须用一个base href来配置该策略（Strategy）。
+  配置该策略的首选方式是往 index.html 的 <head> 中添加一个<base href> element标签。
+```html
+<base href="/">
+```
+  如果没有此标签，当通过“深链接”进入该应用时，浏览器就不能加载资源（图片、CSS、脚本）。如果有人把应用的链接粘贴进浏览器的地址栏或从邮件中点击应用的链接时，这种问题就发生。有些开发人员可能无法添加 <base> 元素，这可能是因为它们没有访问 <head> 或 index.html 的权限。
+  它们仍然可以使用 HTML 5 格式的 URL，但要采取两个步骤进行补救：
+  - 用适当的APP_BASE_HREF值提供（provide）路由器。
+  - 对所有 Web 资源使用绝对地址：CSS、图片、脚本、模板 HTML。
+#### 2.3 HashLocationStrategy策略
+  可以在根模块的RouterModule.forRoot的第二个参数中传入一个带有useHash:true的对象，以回到HashLocationStrategy的传统方式：
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Routes, RouterModule } from '@angular/router';
+import { AppComponent } from './app.component';
+import { PageNotFoundComponent } from './not-found.component';
+const routes: Routes = [
+];
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    RouterModule.forRoot(routes, { useHash: true })  // .../#/crisis-center/
+  ],
+  declarations: [
+    AppComponent,
+    PageNotFoundComponent
+  ],
+  providers: [
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+```
 
 
 
