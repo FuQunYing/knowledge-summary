@@ -2300,8 +2300,53 @@ export class AppModule {
   链接参数数组保存路由导航时所需的成分：
   - 指向目标组件的那个路由的路由（path）
   - 必备路由参数和可选路由参数，它们将进入该路由的URL
-  
-
+  我可以把RouterLink指令绑定到一个数组，就像这样：
+```html
+<a [routerLink]="['/persons]">Persons</a>
+```
+  在指定路由参数时，写过一个双元素的数组，就像这样：
+```html
+<a [routerLink]="['/person', person.id]">
+  <span class="badge">{{ person.id }}</span>{{ person.name }}
+</a>
+```
+  我可以在对象中提供可选的路由参数，就像这样：
+```html
+<a [routerLink]="['/crisis-center', { foo: 'foo' }]">Crisis Center</a>
+```
+  这三个例子涵盖了我在单级路由的应用中所需的一切，在我添加一个像危机中心一样的子路由时，可以创建新链接数组。之前曾为危机中心指定过一个默认的子路由，以便能使这种简单的RouterLink：
+```html
+<a [routerLink]="['/crisis-center']">Crisis Center</a>
+```
+  分解一下：
+  - 数组中的第一个条目标记出了父路由(/crisis-center)
+  - 这个父路由没有参数，因此这步已经完成了
+  - 没有默认的子路由，所以需要选取一个
+  - 若是决定跳转到CrisisListComponent，它的路由路径是 '/'，但是不需要显示添加它
+  - 最后 ['/crisis-center']
+  更进一步，这次要构建一个从根组件往下导航到 巨龙危机 时的链接参数数组：
+```html
+<a [routerLink]="['/crisis-center', 1]">Dragon Crisis</a>
+```
+  - 数组中的第一个条目标记出了父路由(/crisis-center)
+  - 这个父路由没有参数，因此这步已经完成了
+  - 数组中的第二个条目('/:id')用来标记出到指定危机的详情页的子路由
+  - 详细的子路由需要一个id路由参数
+  - 我把 巨龙危机的id添加为该数组中的第二个条目
+  - 最终生成的路径 /crisis-center/1
+  只要想，也可以用危机中心路由单独定义AppComponent的模板：
+```typescript
+template: `
+  <h1 class="title">Angular Router</h1>
+  <nav>
+    <a [routerLink]="['/crisis-center']">Crisis Center</a>
+    <a [routerLink]="['/crisis-center/1', { foo: 'foo' }]">Dragon Crisis</a>
+    <a [routerLink]="['/crisis-center/2']">Shark Crisis</a>
+  </nav>
+  <router-outlet></router-outlet>
+`
+```
+  とにかく，我可以用一级、两级或多级路由来写应用程序。链接参数数组提供了用来表示任意深度路由的链接参数数组以及任意合法的路由参数徐柳、必须的路由器参数以及可选的路由参数对象
 
 
 
