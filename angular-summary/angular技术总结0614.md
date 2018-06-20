@@ -1886,11 +1886,27 @@ export class AdminDashboardComponent implements OnInit {
   当路由器导航到这个路由时，它会用loadChildren字符串来动态加载AdminModule，然后把AdminModule添加到当前的路由配置中，最后，它把所请求的路由加载到目标admin组件中。
   惰性加载和重新配置工作只会发生一次，也就是在该路由首次被请求时，在后续的请求中，该模块和路由都是立即可用的。
 	Angular提供一个内置模块加载器，支持SystemJS来异步加载模块，如果我使用其它捆绑工具比如Webpack，则使用Webpack的机制来异步加载模块。
-  最后一步是把管理特性区
-configer.js 删减
-删除了 models
-
-
+  最后一步是把管理特性区从主应用中完全分离开。根模块AppModule既不能加载也不能引用AdminModule及其文件。
+  在app.module.ts中，从顶部移除AdminModule的导入语句，并且从Angular模块的imports数组中移除AdminModule。
+### 2.CanLoad守卫：保护对特性模块的未授权加载
+  我已经使用了CanActivate保护AdminModule了，它会阻止未授权用户访问管理特性区。如果用户未登录，它就会跳转到登录页。但是路由器仍然会加载AdminModule，即使用户无法访问它的任何一个组件。理想的方式是只有在用户已登录的情况下才会加载AdminModule。
+  添加一个CanLoad守卫，它只在用户已登录并且尝试访问管理特性区的时候，才加载一次AdminModule。现有的AuthGuard的checkLogin（）方法中已经有了支持CanLoad守卫的基础 逻辑。打开auth-guard.service.ts，从@angular/router中导入CanLoad接口，把它添加到AuthGuard类的implements列表中，然后实现canLoad，代码如下：
+```typescript
+canLoad(route:Route): boolean{
+    let url=`${route.path}`
+    return this.checkLogin(url)
+}
+```
+  路由器会把canLoad()方法的route参数设置为准备访问的目标URL。如果用户已经登录了，checkLogin()方法就会重定向到那个URL。现在把AuthGuard导入到AppRoutingModule中，并把AuthGuard添加到admin路由的canLoad数组中。完整的admin路由是这样的：
+```typescript
+{
+  path: 'admin',
+  loadChildren: 'app/admin/admin.module#AdminModule',
+  canLoad: [AuthGuard]
+},
+```
+### 3.预加载：特性区的后台加载
+  
 
 
 
