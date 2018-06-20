@@ -216,8 +216,8 @@ import { Component } from '@angular/core';
 
 @Component({
   template: `
-    <h2>PersonES</h2>
-    <p>Get your Persones here</p>
+    <h2>Persons</h2>
+    <p>Get your persons here</p>
 
     <button routerLink="/sidekicks">Go to sidekicks</button>
   `
@@ -256,7 +256,7 @@ const appRoutes: Routes = [
 	从技术角度说，pathMatch = 'full' 导致 URL 中剩下的、未匹配的部分必须等于 ''。 在这个例子中，跳转路由在一个顶级路由中，因此剩下的URL 和完整的URL 是一样的。
 	pathMatch 的另一个可能的值是 'prefix'，它会告诉路由器：当剩下的URL 以这个跳转路由中的 prefix 值开头时，就会匹配上这个跳转路由。
 	在这里不能这么做！如果 pathMatch 的值是 'prefix'，那么每个URL 都会匹配上 ''。
-	尝试把它设置为 'prefix'，然后点击 Go to sidekicks 按钮。别忘了，它是一个无效 URL，本应显示“Page not found”页。 但是，你仍然在“英雄列表”页中。在地址栏中输入一个无效的 URL，你又被路由到了 /Persones。 每一个 URL，无论有效与否，都会匹配上这个路由定义。
+	尝试把它设置为 'prefix'，然后点击 Go to sidekicks 按钮。别忘了，它是一个无效 URL，本应显示“Page not found”页。 但是，你仍然在“英雄列表”页中。在地址栏中输入一个无效的 URL，你又被路由到了 /Persons。 每一个 URL，无论有效与否，都会匹配上这个路由定义。
 	默认路由应该只有在整个URL 等于 '' 时才重定向到 PersonListComponent，别忘了把重定向路由设置为 pathMatch = 'full'。
 ```
 ## 五、路由模块
@@ -349,7 +349,7 @@ export class AppModule { }
       3.给 <h2> 加文字，改成 <h2>PERSONS</h2>。
       4.删除模板底部的 <person-detail>。
       5.把 AppComponent 类改名为 PersonListComponent。
-  - 把 person-detail.component.ts 和 person.service.ts 复制到 Persones 子目录下。
+  - 把 person-detail.component.ts 和 person.service.ts 复制到 Persons 子目录下。
   - 在 persons 子目录下（不带路由）的 persons.module.ts 文件，内容如下：
 ```typescript
 import { NgModule }       from '@angular/core';
@@ -372,7 +372,7 @@ import { PersonService } from './person.service';
   ],
   providers: [ PersonService ]
 })
-export class PersonesModule {}
+export class PersonsModule {}
 ```
 ### 2.人物特性区的路由需求
   人物 特性有两个相互协作的组件，列表和详情。列表视图是自给自足的，我导航到它，它会自行获取人物列表并显示它们。
@@ -387,14 +387,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { PersonListComponent }    from './Person-list.component';
 import { PersonDetailComponent }  from './Person-detail.component';
 
-const PersonesRoutes: Routes = [
-  { path: 'persones',  component: PersonListComponent },
+const PersonsRoutes: Routes = [
+  { path: 'persons',  component: PersonListComponent },
   { path: 'person/:id', component: PersonDetailComponent }
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forChild(PersonesRoutes)
+    RouterModule.forChild(personsRoutes)
   ],
   exports: [
     RouterModule
@@ -418,7 +418,7 @@ import { PersonDetailComponent }  from './Person-detail.component';
 
 import { PersonService } from './Person.service';
 
-import { PersonRoutingModule } from './Persones-routing.module';
+import { PersonRoutingModule } from './Persons-routing.module';
 
 @NgModule({
   imports: [
@@ -432,7 +432,7 @@ import { PersonRoutingModule } from './Persones-routing.module';
   ],
   providers: [ PersonService ]
 })
-export class PersonesModule {}
+export class PersonsModule {}
 ```
 ### 5.移除重复的 人物管理 路由
   人物 类的路由目前定义在两个地方：PersonsRoutingModule中（并最终给PersonsModule）和AppRoutingModule中。由特性模块提供的路由会被路由器再组合上它们所导入的模块的路由。这让我可以继续定义特性路由模块中的路由，而不是修改主路由配置。
@@ -478,7 +478,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { PersonesModule } from './persones/persones.module';
+import { PersonsModule } from './persons/persons.module';
 import { CrisisListComponent } from './crisis-list.component';
 import { PageNotFoundComponent } from './not-found.component';
 
@@ -486,7 +486,7 @@ import { PageNotFoundComponent } from './not-found.component';
   imports: [
     BrowserModule,
     FormsModule,
-    PersonesModule,
+    PersonsModule,
     AppRoutingModule
   ],
   declarations: [
@@ -520,7 +520,7 @@ imports: [
 ### 9.在列表视图中设置路由参数
   然后导航到 PersonDetailComponent 组件。在那里期望看到所选人物的详情，这需要两部分信息：导航目标和该人物的 id。因此，这个链接参数数组中有两个条目：目标路由的path（路径），和一个用来指定所选人物 id 的路由参数。
 ```typescript
-['/hero', hero.id] // { 15 }
+['/person', person.id] // { 15 }
 ```
   路由器从该数组中组合出了目标URL：localhost:4200/person/01
 ### 10.Activated Route实战
@@ -543,9 +543,9 @@ constructor(
   然后在ngOnInit方法中，用ActivatedRoute服务来接收路由的参数，从参数中取得该英雄的id，并接收此英雄用于显示：
 ```typescript
 ngOnInit() {
-  this.hero$ = this.route.paramMap.pipe(
+  this.Person$ = this.route.paramMap.pipe(
     switchMap((params: ParamMap) =>
-      this.service.getHero(params.get('id')))
+      this.service.getPerson(params.get('id')))
   );
 }
 ```
@@ -560,69 +560,69 @@ get(name) | 如果这个 map 中有参数名对应的参数值（字符串），
 getAll(name) | 如果这个 map 中有参数名对应的值，就返回一个字符串数组，否则返回空数组。当一个参数名可能对应多个值的时候，请使用 getAll。
 keys | 返回这个map中的所有参数名组成的字符串数组
   **参数的可观察对象与组件复用**
-  在这个例子中，接收了路由参数的Observable对象，这种写法暗示着这些路由参数在该组件的生存期内可能会变化。确实如此，默认情况下，如果它没有访问过其它组件就导航到了同一个组件实例，那么路由器倾向于复用组件实例。如果复用，这些参数可以变化。假设父组件的导航栏有“前进”和“后退”按钮，用来轮流显示英雄列表中中英雄的详情。 每次点击都会强制导航到带前一个或后一个 id 的 HeroDetailComponent 组件。
-  你不希望路由器仅仅从 DOM 中移除当前的 HeroDetailComponent 实例，并且用下一个 id 重新创建它。 那可能导致界面抖动。 更好的方式是复用同一个组件实例，并更新这些参数。
+  在这个例子中，接收了路由参数的Observable对象，这种写法暗示着这些路由参数在该组件的生存期内可能会变化。确实如此，默认情况下，如果它没有访问过其它组件就导航到了同一个组件实例，那么路由器倾向于复用组件实例。如果复用，这些参数可以变化。假设父组件的导航栏有“前进”和“后退”按钮，用来轮流显示英雄列表中中英雄的详情。 每次点击都会强制导航到带前一个或后一个 id 的 PersonDetailComponent 组件。
+  你不希望路由器仅仅从 DOM 中移除当前的 PersonDetailComponent 实例，并且用下一个 id 重新创建它。 那可能导致界面抖动。 更好的方式是复用同一个组件实例，并更新这些参数。
   不幸的是，ngOnInit 对每个实例只调用一次。 你需要一种方式来检测在同一个实例中路由参数什么时候发生了变化。 而 params 属性这个可观察对象（Observable）干净漂亮的处理了这种情况。
   **Snapshot（快照）：当不需要 Observable 时的替代品**
-  本应用不需要复用 HeroDetailComponent。 用户总是会先返回英雄列表，再选择另一位英雄。 所以，不存在从一个英雄详情导航到另一个而不用经过英雄列表的情况。 这意味着路由器每次都会创建一个全新的 HeroDetailComponent 实例。
-  假如你很确定这个 HeroDetailComponent 组件的实例永远、永远不会被复用，那就可以使用快照来简化这段代码。
+  本应用不需要复用 PersonDetailComponent。 用户总是会先返回英雄列表，再选择另一位英雄。 所以，不存在从一个英雄详情导航到另一个而不用经过英雄列表的情况。 这意味着路由器每次都会创建一个全新的 PersonDetailComponent 实例。
+  假如你很确定这个 PersonDetailComponent 组件的实例永远、永远不会被复用，那就可以使用快照来简化这段代码。
   route.snapshot 提供了路由参数的初始值。 你可以通过它来直接访问参数，而不用订阅或者添加 Observable 的操作符。 这样在读写时就会更简单：
 ```typescript
 ngOnInit() {
   let id = this.route.snapshot.paramMap.get('id');
-  this.hero$ = this.service.getHero(id);
+  this.person$ = this.service.getPerson(id);
 }
 ```
 ### 11.导航回列表组件
-  HeroDetailComponent 组件有一个“Back”按钮，关联到它的 gotoHeroes 方法，该方法会导航回 HeroListComponent 组件。路由的 navigate 方法同样接受一个单条目的链接参数数组，你也可以把它绑定到 [routerLink] 指令上。 它保存着到 HeroListComponent 组件的路径：
+  PersonDetailComponent 组件有一个“Back”按钮，关联到它的 gotoPersons 方法，该方法会导航回 PersonListComponent 组件。路由的 navigate 方法同样接受一个单条目的链接参数数组，你也可以把它绑定到 [routerLink] 指令上。 它保存着到 PersonListComponent 组件的路径：
 ```typescript
-gotoHeroes() {
-  this.router.navigate(['/heroes']);
+gotoPersons() {
+  this.router.navigate(['/Persons']);
 }
 ```
 ### 12.路由参数是否必选
-  如果想导航到 HeroDetailComponent 以对 id 为 01 的英雄进行查看并编辑，就要在路由的 URL 中使用路由参数来指定必要参数值 localhost:4200/person/01
-  当从 HeroDetailComponent 返回时，你很快就会通过把正在查看的英雄的 id 作为可选参数包含在 URL 中来实现这个特性。
+  如果想导航到 PersonDetailComponent 以对 id 为 01 的英雄进行查看并编辑，就要在路由的 URL 中使用路由参数来指定必要参数值 localhost:4200/person/01
+  当从 PersonDetailComponent 返回时，你很快就会通过把正在查看的英雄的 id 作为可选参数包含在 URL 中来实现这个特性。
   可选信息有很多种形式。搜索条件通常就不是严格结构化的，比如 name='wind\*'；有多个值也很常见，如 after='12/31/2015'&before='1/1/2017'； 而且顺序无关，如 before='1/1/2017'&after='12/31/2015'，还可能有很多种变体格式，如 during='currentYear'。
   这么多种参数要放在 URL 的路径中可不容易。即使你能制定出一个合适的 URL 方案，实现起来也太复杂了，得通过模式匹配才能把 URL 翻译成命名路由。
   可选参数是在导航期间传送任意复杂信息的理想载体。 可选参数不涉及到模式匹配并在表达上提供了巨大的灵活性。
   和必要参数一样，路由器也支持通过可选参数导航。 在你定义完必要参数之后，再通过一个独立的对象来定义可选参数。
   通常，对于强制性的值（比如用于区分两个路由路径的）使用必备参数；当这个值是可选的、复杂的或多值的时，使用可选参数。
 ### 13.人物列表：选定一个人物（也可以不选）
-  当导航到 HeroDetailComponent 时，你可以在路由参数中指定一个所要编辑的英雄 id，只要把它作为链接参数数组中的第二个条目就可以了。
+  当导航到 PersonDetailComponent 时，你可以在路由参数中指定一个所要编辑的英雄 id，只要把它作为链接参数数组中的第二个条目就可以了。
 ```typescript
-['/hero', hero.id] // { 15 }
+['/person', person.id] // { 15 }
 ```
   路由器在导航 URL 中内嵌了 id 的值，这是因为你把它用一个 :id 占位符当做路由参数定义在了路由的 path 中：
 ```typescript
-{ path: 'hero/:id', component: HeroDetailComponent }
+{ path: 'person/:id', component: PersonDetailComponent }
 ```
-  当用户点击后退按钮时，HeroDetailComponent 构造了另一个链接参数数组，可以用它导航回 HeroListComponent。
+  当用户点击后退按钮时，PersonDetailComponent 构造了另一个链接参数数组，可以用它导航回 PersonListComponent。
 ```typescript
-gotoHeroes() {
-  this.router.navigate(['/heroes']);
+gotoPersons() {
+  this.router.navigate(['/persons']);
 }
 ```
-  该数组缺少一个路由参数，这是因为你那时没有理由往 HeroListComponent 发送信息。
-  但现在有了。你要在导航请求中同时发送当前英雄的 id，以便 HeroListComponent 可以在列表中高亮这个英雄。 这是一个有更好，没有也无所谓的特性，就算没有它，列表照样能显示得很完美。
-  传送一个包含可选id 参数的对象。 为了演示，这里还在对象中定义了一个没用的额外参数（foo），HeroListComponent 应该忽略它。 下面是修改过的导航语
+  该数组缺少一个路由参数，这是因为你那时没有理由往 PersonListComponent 发送信息。
+  但现在有了。你要在导航请求中同时发送当前英雄的 id，以便 PersonListComponent 可以在列表中高亮这个英雄。 这是一个有更好，没有也无所谓的特性，就算没有它，列表照样能显示得很完美。
+  传送一个包含可选id 参数的对象。 为了演示，这里还在对象中定义了一个没用的额外参数（foo），PersonListComponent 应该忽略它。 下面是修改过的导航语
 ```typescript
-gotoHeroes(hero: Hero) {
-  let heroId = hero ? hero.id : null;
-  // Pass along the hero id if available
-  // so that the HeroList component can select that hero.
+gotoPersons(person: Person) {
+  let personId = person ? person.id : null;
+  // Pass along the Person id if available
+  // so that the personList component can select that person.
   // Include a junk 'foo' property for fun.
-  this.router.navigate(['/heroes', { id: heroId, foo: 'foo' }]);
+  this.router.navigate(['/persons', { id: personId, foo: 'foo' }]);
 }
 ```
   该应用仍然能工作，点击back按钮返回英雄列表视图。注意浏览器的地址栏，它应该是这样的，不过也取决于在哪里运行：localhost:4200/person:id=01;foo=foo
-  d 的值像这样出现在 URL 中（;id=15;foo=foo），但不在 URL 的路径部分。 “Heroes”路由的路径部分并没有定义 :id。
+  d 的值像这样出现在 URL 中（;id=15;foo=foo），但不在 URL 的路径部分。 “persons”路由的路径部分并没有定义 :id。
   可选的路由参数没有使用“？”和“&”符号分隔，因为它们将用在 URL 查询字符串中。 它们是用“;”分隔的。 这是矩阵 URL标记法.
 ### 14.ActivatedRoute服务中的路由参数
   英雄列表仍然没有改变，没有那个人物被加亮显示。
-  HeroListComponent 还完全不需要任何参数，也不知道该怎么处理它们。你可以改变这一点。
-  以前，当从 HeroListComponent 导航到 HeroDetailComponent 时，你通过 ActivatedRoute 服务订阅了路由参数这个 Observable，并让它能用在 HeroDetailComponent 中。 你把该服务注入到了 HeroDetailComponent 的构造函数中。
-  这次，你要进行反向导航，从 HeroDetailComponent 到 HeroListComponent。
+  PersonListComponent 还完全不需要任何参数，也不知道该怎么处理它们。你可以改变这一点。
+  以前，当从 PersonListComponent 导航到 PersonDetailComponent 时，你通过 ActivatedRoute 服务订阅了路由参数这个 Observable，并让它能用在 PersonDetailComponent 中。 你把该服务注入到了 PersonDetailComponent 的构造函数中。
+  这次，你要进行反向导航，从 PersonDetailComponent 到 PersonListComponent。
   首先，你扩展该路由的导入语句，以包含进 ActivatedRoute 服务的类：
 ```typescript
 import { ActivatedRoute, ParamMap } from '@angular/router';
@@ -634,22 +634,22 @@ import { switchMap } from 'rxjs/operators';
 ```
   接着注入ActivatedRoute到PersonListComponent的构造函数中：
 ```typescript
-export class HeroListComponent implements OnInit {
-  heroes$: Observable<Hero[]>;
+export class PersonListComponent implements OnInit {
+  persons$: Observable<person[]>;
 
   private selectedId: number;
 
   constructor(
-    private service: HeroService,
+    private service: PersonService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    this.heroes$ = this.route.paramMap.pipe(
+    this.persons$ = this.route.paramMap.pipe(
       switchMap((params: ParamMap) => {
         // (+) before `params.get()` turns the string into a number
         this.selectedId = +params.get('id');
-        return this.service.getHeroes();
+        return this.service.getPersons();
       })
     );
   }
@@ -659,12 +659,12 @@ export class HeroListComponent implements OnInit {
   用css类绑定更新模板，把它绑定到isSelected方法上。如果该方法返回true，此绑定就会添加CSS类selected，否则就移除它，在<li>标记中找到它，就像这样：
 ```typescript
 template: `
-  <h2>HEROES</h2>
+  <h2>Persons</h2>
   <ul class="items">
-    <li *ngFor="let hero of heroes$ | async"
-      [class.selected]="hero.id === selectedId">
-      <a [routerLink]="['/hero', hero.id]">
-        <span class="badge">{{ hero.id }}</span>{{ hero.name }}
+    <li *ngFor="let person of Persons$ | async"
+      [class.selected]="person.id === selectedId">
+      <a [routerLink]="['/person', person.id]">
+        <span class="badge">{{ person.id }}</span>{{ person.name }}
       </a>
     </li>
   </ul>
@@ -721,7 +721,7 @@ export const slideInDownAnimation =
 @HostBinding('style.display')   display = 'block';
 @HostBinding('style.position')  position = 'absolute';
 ```
-  传给了第一个 @HostBinding 的 '@routeAnimation' 匹配了 slideInDownAnimation触发器的名字 routeAnimation。 把 routeAnimation 属性设置为 true，因为你只关心 :enter 和 :leave 这两个状态。另外两个 @HostBinding 属性指定组件的外观和位置。当进入该路由时，HeroDetailComponent 将会从左侧缓动进入屏幕，而离开路由时，将会向下划出。
+  传给了第一个 @HostBinding 的 '@routeAnimation' 匹配了 slideInDownAnimation触发器的名字 routeAnimation。 把 routeAnimation 属性设置为 true，因为你只关心 :enter 和 :leave 这两个状态。另外两个 @HostBinding 属性指定组件的外观和位置。当进入该路由时，PersonDetailComponent 将会从左侧缓动进入屏幕，而离开路由时，将会向下划出。
 ## 七、危机中心
   现在是时候往该应用的危机中心添加一些真实的特性了。
   先从模仿 人物管理 中的特性开始：
@@ -1103,7 +1103,7 @@ import { Component } from '@angular/core';
       <a routerLink="./" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
       <a routerLink="./crises" routerLinkActive="active">Manage Crises</a>
-      <a routerLink="./persons" routerLinkActive="active">Manage Heroes</a>
+      <a routerLink="./persons" routerLinkActive="active">Manage Persons</a>
     </nav>
     <router-outlet></router-outlet>
   `
@@ -1119,7 +1119,7 @@ import { CommonModule }   from '@angular/common';
 import { AdminComponent }           from './admin.component';
 import { AdminDashboardComponent }  from './admin-dashboard.component';
 import { ManageCrisesComponent }    from './manage-crises.component';
-import { ManageHeroesComponent }    from './manage-heroes.component';
+import { ManagePersonsComponent }    from './manage-persons.component';
 
 import { AdminRoutingModule }       from './admin-routing.module';
 
@@ -1132,7 +1132,7 @@ import { AdminRoutingModule }       from './admin-routing.module';
     AdminComponent,
     AdminDashboardComponent,
     ManageCrisesComponent,
-    ManageHeroesComponent
+    ManagePersonsComponent
   ]
 })
 export class AdminModule {}
@@ -1157,7 +1157,7 @@ import { Component } from '@angular/core';
     <p>Manage your persons here</p>
   `
 })
-export class ManageHeroesComponent { }
+export class ManagePersonsComponent { }
 ```
   由于 AdminModule 中 AdminComponent 中的 RouterLink 是一个空路径的路由，所以它会匹配到管理特性区的任何路由。 但只有在访问 Dashboard 路由时才希望该链接被激活。 往 Dashboard 这个 routerLink 上添加另一个绑定 [routerLinkActiveOptions]="{ exact: true }"， 这样就只有当用户导航到 /admin 这个 URL 时才会激活它，而不会在导航到它的某个子路由时。
   最初的管理路由配置如下：
@@ -1361,7 +1361,7 @@ import { Router } from '@angular/router';
 import { AppComponent }            from './app.component';
 import { AppRoutingModule }        from './app-routing.module';
 
-import { PersonsModule }            from './heroes/heroes.module';
+import { PersonsModule }            from './persons/persons.module';
 import { ComposeMessageComponent } from './compose-message.component';
 import { LoginRoutingModule }      from './login-routing.module';
 import { LoginComponent }          from './login.component';
@@ -1512,7 +1512,7 @@ const adminRoutes: Routes = [
         canActivateChild: [AuthGuard],
         children: [
           { path: 'crises', component: ManageCrisesComponent },
-          { path: 'heroes', component: ManageHeroesComponent },
+          { path: 'persons', component: ManagePersonsComponent },
           { path: '', component: AdminDashboardComponent }
         ]
       }
