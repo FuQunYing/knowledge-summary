@@ -2202,11 +2202,105 @@ const personsRoutes: Routes = [
 })
 export class PersonRoutingModule { }
 ```
+  注意，这里有两种类型的重定向。第一种是不带参数的从/persons重定向到/superpersons。这是一种非常直观的重定向。第二种是从/person/:id重定向到/superperson/:id，它还要包含一个：id路由参数，路由器重定向时使用强大的撇皮模式匹配功能，这样，路由器就会检查URL，并且把path中带的路由参数替换成相应的目标形式。以前，我导航形式如/person/01的URL时，带了一个路由参数id，它的值是01
+	在重定向的时候，路由还支持查询参数和fragment
+	- 当使用就绝对地址重定向时，路由器会将使用路由配置的redirectTo属性中规定的查询参数和片段
+	- 当使用相对地址重定向时，路由器将会使用源地址中的查询参数和片段
+  在修改app-routing.module.ts之前，要先考虑一条重要的规则。目前我把空路径路由重定向到了/persons，它又被重定向到了/superpersons，这样不行，从设计上就不不行，因为路由器在每一层的路由配置中只会处理一次重定向。这样可以防止无限循环的重定向。
+  所以我要在app-routing.module.ts中修改空路径路由，让它重定向到/superpersons
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { ComposeMessageComponent }  from './compose-message.component';
+import { PageNotFoundComponent } from './not-found.component';
+
+import { CanDeactivateGuard } from './can-deactivate-guard.service';
+import { AuthGuard } from './auth-guard.service';
+import { SelectivePreloadingStrategy } from './selective-preloading-strategy';
+
+const appRoutes: Routes = [
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'popup'
+  },
+  {
+    path: 'admin',
+    loadChildren: 'app/admin/admin.module#AdminModule',
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'crisis-center',
+    loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule',
+    data: { preload: true }
+  },
+  { path: '',   redirectTo: '/superpersons', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(
+      appRoutes,
+      {
+        enableTracing: true, //仅供调试
+        preloadingStrategy: SelectivePreloadingStrategy,
+
+      }
+    )
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    CanDeactivateGuard,
+    SelectivePreloadingStrategy
+  ]
+})
+export class AppRoutingModule { }
+```
+  由于RouterLink指令没有关联到路由配置，所以需要修改相关的路由链接，以便在新的路由激活时，它们也能保持激活状态。要修改app.componnent.ts模板中的/persons路由链接
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <h1 class="title">Angular Router</h1>
+    <nav>
+      <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
+      <a routerLink="/superpersons" routerLinkActive="active">Persons</a>
+      <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
+    </nav>
+    <router-outlet></router-outlet>
+    <router-outlet name="popup"></router-outlet>
+  `
+})
+export class AppComponent {
+}
+```
+  当这些重定向设置好之后，所有以前的路由都指向了它们的新目标，并且每个URL也仍然能正常工作。
+## 十一、审查路由配置
+  本应用中，大量的精力被投入在一系列路由模块文件里配置路由器上，并且小心的以合适的顺序列出它们。但是这些路由是否真的如同预想那样执行了，路由器的真实配置是怎样的。通过注入Router并检查它的config属性，可以随时审查路由器的当前配置。例如，把AppModule修改为这样，并在浏览器的控制台窗口中查看最终的路由配置：
+```typescript
+import { Router } from '@angular/router';
+
+export class AppModule {
+  // 仅诊断：检查路由器配置
+  constructor(router: Router) {
+    console.log('Routes: ', JSON.stringify(router.config, undefined, 2));
+  }
+}
+```
+## 十二、附录
+### 1.附录：链接参数数组
+  链接参数数组保存路由导航时所需的成分：
+  - 指向目标组件的那个路由的路由（path）
+  - 必备路由参数和可选路由参数，它们将进入该路由的URL
   
-
-
-
-
 
 
 
