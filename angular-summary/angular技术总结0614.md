@@ -1868,8 +1868,27 @@ export class AdminDashboardComponent implements OnInit {
   我可以用这些持久化信息来携带需要为每个页面都提供的信息，如认证令牌或会话的 ID 等。
 	“查询参数”和“片段”也可以分别用 RouterLink 中的 preserveQueryParams 和 preserveFragment 保存。
 ## 九、异步路由
-
-
+  完成上面的步骤以后，程序已经扩大了。在继续构建特征区的过程中，应用的尺寸将会变得更大。在某一个时间点，将会达到一个顶点，应用将会需要过多的时间来加载。
+  要想解决这个问题，可以通过引进异步路由，可以获得在请求时才惰性加载特性模块的能力。惰性加载有多个优点：
+  - 可以只在用户请求时才加载某些特性区
+  - 对于那些只访问应用程序某些区域的用户，这样才能加快加载速度
+  - 可以持续扩充多想加载特性区的功能，而不用增加初始加载的包体积
+  目前完成了一部分，通过把应用组织成一些模块：AppModule、PersonsModule、AdminModule和CrisisCenterModule，已经有了可以用于实现惰性加载的候选者。有些模块必须在启动时加载，但其它的都可以而且应该惰性加载。比如AdminModule就只有少数已认证的用户才需要它，所以我应该只有在正确的人请求它时才加载。、
+### 1.惰性加载路由配置
+  把admin-routing.module.ts中的admin路径从admin改为空路径。Router支持空路径，可以使用它们来分组路由，而不用往URL中添加额外的路径片段。用户仍旧访问/admin，并且AdminComponent仍然作为用来包含子路由的路由组件。打开AppRoutingModule，并把一个新的admin路由添加到它的appRoutes数组中。
+  给它的一个loadChildren属性（不是children属性），把它设置为AdminModule的地址。该地址是AdminModule的文件路径（相对于app目录的），，加上一个#分隔符，再加上导出模块的类名AdminModule：
+```typescript
+{
+  path: 'admin',
+  loadChildren: 'app/admin/admin.module#AdminModule',
+},
+```
+  当路由器导航到这个路由时，它会用loadChildren字符串来动态加载AdminModule，然后把AdminModule添加到当前的路由配置中，最后，它把所请求的路由加载到目标admin组件中。
+  惰性加载和重新配置工作只会发生一次，也就是在该路由首次被请求时，在后续的请求中，该模块和路由都是立即可用的。
+	Angular提供一个内置模块加载器，支持SystemJS来异步加载模块，如果我使用其它捆绑工具比如Webpack，则使用Webpack的机制来异步加载模块。
+  最后一步是把管理特性区
+configer.js 删减
+删除了 models
 
 
 
