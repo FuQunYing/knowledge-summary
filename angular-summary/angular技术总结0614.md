@@ -2109,9 +2109,25 @@ export class SelectivePreloadingStrategy implements PreloadingStrategy {
   }
 }
 ```
+  SelectivePreloadingStrategy实现了PreloadingStrategy，它只有一个方法preload。
+  路由器会用两个参数调用preload方法：
+  1. 要加载的路由
+  2. 一个加载器（loader）函数，它能异步加载带路由的模块
+  preload的实现必须返回一个Observable，如果该路由应该预加载，它就会返回调用加载器函数所返回的Observable。如果该路由不应该预加载，它就返回一个null值的Observable对象。
+  在当前例子中，preload方法只有在路由的data.preload标识为真时才会加载该路由。它还有一个副作用，SelectivePreloadimgStrategy会把所选路由的path记录在它的公共数组preloadModules中。很快就会扩展AdminDashboardComponent来注入该服务，并且显示它的preloadModules数组。
+  但是首先，要对AppRoutingModule做少量修改：
+  1. 把 SelectivePreloadingStrategy 导入到 AppRoutingModule 中。
+  2. 把 PreloadAllModules 策略替换成对 forRoot 的调用，并且传入这个 SelectivePreloadingStrategy。
+  3. 把 SelectivePreloadingStrategy 策略添加到 AppRoutingModule 的 providers 数组中，以便它可以注入到应用中的任何地方。
+  现在编辑AdminDashboardComponent以显示这些预加载路由的日志
+  1. 导入SelectivePreloadingStrategy
+  2. 把它注入到仪表盘的构造函数中
+  3. 修改模板来显示这个策略的preloadedModules数组
+  当完成时，代码长这样：
+  **admin-dashboard.componnent.ts**
+```typescript
 
-
-
+```
 
 
 
