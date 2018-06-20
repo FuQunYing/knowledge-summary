@@ -2011,11 +2011,104 @@ export class AppRoutingModule {}
 ```
   **crisis-center-routing.module.ts**
 ```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { CrisisCenterHomeComponent } from './crisis-center-home.component';
+import { CrisisListComponent } from './crisis-list.component';
+import { CrisisCenterComponent } from './crisis-center.component';
+import { CrisisDetailComponent } from './crisis-detail.component';
+import { CanDeactivateGuard } from '../can-deactivate-guard.service';
+import { CrisisDetailResolver }   from './crisis-detail-resolver.service';
 
+const crisisCenterRoutes: Routes = [
+  {
+    path: '',
+    component: CrisisCenterComponent,
+    children: [
+      {
+        path: '',
+        component: CrisisListComponent,
+        children: [
+          {
+            path: ':id',
+            component: CrisisDetailComponent,
+            canDeactivate: [CanDeactivateGuard],
+            resolve: {
+              crisis: CrisisDetailResolver
+            }
+          },
+          {
+            path: '',
+            component: CrisisCenterHomeComponent
+          }
+        ]
+      }
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(crisisCenterRoutes)
+  ],
+  exports: [
+    RouterModule
+  ],
+  providers: [
+    CrisisDetailResolver
+  ]
+})
+export class CrisisCenterRoutingModule { }
 ```
+  现在可以尝试一下，并确认在点击了 Crisis Center按钮之后加载了CrisisCenterModule。要为所有惰性加载模块启用预加载功能，请从Angular的路由模块导入PreloadAllModules。RouterModule.forRoot方法的第二个参数接受一个附加配置选项对象，preloadingStrategy就是其中之一。把PreloadAllModules添加到forRoot调用中：
+```typescript
+RouterModule.forRoot(
+  appRoutes,
+  {
+    enableTracing: true, //仅供调试
+    preloadingStrategy: PreloadAllModules
+  }
+)
+```
+  这会让Router预加载器立即加载所有惰性加载路由（带loadChildren属性的路由）。当访问http://localhost:4200 时，/persons路由立即随之启动，并且路由器在加载了PersonsModule之后立即开始加载CrisisCenterModule。然而，AdminModule没有预加载，有什么东西阻塞了它。
+#### 3.4 CanLoad会阻塞预加载
+  PreloadAllModules 策略不会加载被CanLoad守卫所保护的特性区。这是刻意设计的。
+  几步之前刚刚给 AdminModule 中的路由添加了 CanLoad 守卫，以阻塞加载那个模块，直到用户认证结束。 CanLoad 守卫的优先级高于预加载策略。如果我要加载一个模块并且保护它防止未授权访问，请移除 canLoad 守卫，只单独依赖CanActivate守卫。
+### 4.自定义预加载策略
+  在大多数场景下，预加载每个惰性加载模块就很好了，但是有时候它缺并不是正确的选择，特别是在移动设备和低宽带连接下。可能出于用户的测量和其它商业和技术因素而选择只对某些特性模块进行预加载。
+  使用自定义预加载策略，我可以控制路由器预加载哪些路由以及如何加载。在这里将添加一个自定义策略，它只预加载那些data.preload标志为true的路由。我可以往路由的data属性中添加任何东西。在AppRoutingModule的crisis-center路由中设置data.preload标志：
+```typescript
+{
+  path: 'crisis-center',
+  loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule',
+  data: { preload: true }
+},
+```
+  往项目中添加一个新的名叫selective-preloading-strategy.ts的文件，并在其中定义 一个服务类SelectivePreloadingStrategy，代码长这样：
+```typescript
+import { Injectable } from '@angular/core';
+import { PreloadingStrategy, Route } from '@angular/router';
+import { Observable, of } from 'rxjs';
 
+@Injectable()
+export class SelectivePreloadingStrategy implements PreloadingStrategy {
+  preloadedModules: string[] = [];
 
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    if (route.data && route.data['preload']) {
+      // 向预加载模块数组添加路由路径
+      this.preloadedModules.push(route.path);
 
+      // 记住控制台的路由路径
+      console.log('Preloaded: ' + route.path);
+
+      return load();
+    } else {
+      return of(null);
+    }
+  }
+}
+```
 
 
 
