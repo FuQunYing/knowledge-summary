@@ -1921,8 +1921,8 @@ canLoad(route:Route): boolean{
   2. 往AppRoutingModule中添加一个crisis-center路由
   3. 设置loadChildren字符串来加载CrisisCenterModule
   4. 从aoo.module.ts中移除所有对CrisisCenterModule的引用
-  下面是打开预加载之前的模块修改版：
-  **app.module.ts**
+    下面是打开预加载之前的模块修改版：
+    **app.module.ts**
 ```typescript
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -2113,22 +2113,96 @@ export class SelectivePreloadingStrategy implements PreloadingStrategy {
   路由器会用两个参数调用preload方法：
   1. 要加载的路由
   2. 一个加载器（loader）函数，它能异步加载带路由的模块
-  preload的实现必须返回一个Observable，如果该路由应该预加载，它就会返回调用加载器函数所返回的Observable。如果该路由不应该预加载，它就返回一个null值的Observable对象。
-  在当前例子中，preload方法只有在路由的data.preload标识为真时才会加载该路由。它还有一个副作用，SelectivePreloadimgStrategy会把所选路由的path记录在它的公共数组preloadModules中。很快就会扩展AdminDashboardComponent来注入该服务，并且显示它的preloadModules数组。
-  但是首先，要对AppRoutingModule做少量修改：
+    preload的实现必须返回一个Observable，如果该路由应该预加载，它就会返回调用加载器函数所返回的Observable。如果该路由不应该预加载，它就返回一个null值的Observable对象。
+    在当前例子中，preload方法只有在路由的data.preload标识为真时才会加载该路由。它还有一个副作用，SelectivePreloadimgStrategy会把所选路由的path记录在它的公共数组preloadModules中。很快就会扩展AdminDashboardComponent来注入该服务，并且显示它的preloadModules数组。
+    但是首先，要对AppRoutingModule做少量修改：
   1. 把 SelectivePreloadingStrategy 导入到 AppRoutingModule 中。
   2. 把 PreloadAllModules 策略替换成对 forRoot 的调用，并且传入这个 SelectivePreloadingStrategy。
   3. 把 SelectivePreloadingStrategy 策略添加到 AppRoutingModule 的 providers 数组中，以便它可以注入到应用中的任何地方。
-  现在编辑AdminDashboardComponent以显示这些预加载路由的日志
+    现在编辑AdminDashboardComponent以显示这些预加载路由的日志
   1. 导入SelectivePreloadingStrategy
   2. 把它注入到仪表盘的构造函数中
   3. 修改模板来显示这个策略的preloadedModules数组
-  当完成时，代码长这样：
-  **admin-dashboard.componnent.ts**
+    当完成时，代码长这样：
+    **admin-dashboard.componnent.ts**
 ```typescript
+import { Component, OnInit }    from '@angular/core';
+import { ActivatedRoute }       from '@angular/router';
+import { Observable }           from 'rxjs';
+import { map }                  from 'rxjs/operators';
 
+import { SelectivePreloadingStrategy } from '../selective-preloading-strategy';
+
+
+@Component({
+  template:  `
+    <p>Dashboard</p>
+
+    <p>Session ID: {{ sessionId | async }}</p>
+    <a id="anchor"></a>
+    <p>Token: {{ token | async }}</p>
+
+    Preloaded Modules
+    <ul>
+      <li *ngFor="let module of modules">{{ module }}</li>
+    </ul>
+  `
+})
+export class AdminDashboardComponent implements OnInit {
+  sessionId: Observable<string>;
+  token: Observable<string>;
+  modules: string[];
+
+  constructor(
+    private route: ActivatedRoute,
+    private preloadStrategy: SelectivePreloadingStrategy
+  ) {
+    this.modules = preloadStrategy.preloadedModules;
+  }
+
+  ngOnInit() {
+    // 如果可用，捕获会话ID
+    this.sessionId = this.route
+      .queryParamMap
+      .pipe(map(params => params.get('session_id') || 'None'));
+
+    // 如果可用，捕获片段
+    this.token = this.route
+      .fragment
+      .pipe(map(fragment => fragment || 'None'));
+  }
+}
 ```
+  一旦应用加载完了初始路由，CrisisCenterModule也被预加载了。通过Admin特性区中的记录就可以验证它，Preloaded Modules中没有列出crisis-center，它也被记录到了浏览器的控制台
+## 十、使用重定向迁移URL
+  现在已经设置好了路由，并且用命令式和声明式的方式导航到了很多不同的路由。但是任何应用的需求都会随着时间而改变。我把链接/persons和person/:id指向了PersonListComponent和PersonDetailComponent组件。如果有这样一个需求，要把链接persons变成superpersons，我还是想要以前的URL能正常导航。但是并不想在应用中找到并修改每一个链接，这时候，重定向就可以省去这些琐碎的重构工作。
+### 1.把/persons修改为/superpersons
+  先取得Person路由，并把它们迁移到新的URL。Router（路由器）会在开始导航之前现在配置中检查所有重定向语句，以便将来按需触发重定向，要支持这种修改，就要在persons-routing.module文件中把老的路由重定向到新的路由：
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
+import { PersonListComponent } from './person-list.component';
+import { PersonDetailComponent }  from './person-detail.component';
+
+const personsRoutes: Routes = [
+  { path: 'persons', redirectTo: '/superpersons' },
+  { path: 'person/:id', redirectTo: '/superperson/:id' },
+  { path: 'superpersons',  component: PersonListComponent },
+  { path: 'superperson/:id', component: PersonDetailComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(personsRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class PersonRoutingModule { }
+```
+  
 
 
 
