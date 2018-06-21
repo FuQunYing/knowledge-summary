@@ -280,8 +280,23 @@ rxjs（observable/subscribe，消息订阅机制？？）*/
 		· 提供商是用来创建服务的地方，将依赖注入到当前的对象中
 		· 提供商要注册到注入器
 ### 3.提供服务
-
-
+  对于要用到的任何服务，必须至少注册一个提供商，可以在模块中或者组件中注册这些提供商。
+  - 当你往根模块中添加服务提供商时，服务的同一个实例会服务于你应用中的所有组件。
+```typescript
+providers: [
+  BackendService,
+  HeroService,
+  Logger
+],
+```
+  - 当你在组件级注册提供商时，你会为该组件的每一个新实例提供该服务的一个新实例。 要在组件级注册，就要在 @Component 元数据的 providers 属性中注册服务提供商。
+```typescript
+@Component({
+  selector:    'app-hero-list',
+  templateUrl: './hero-list.component.html',
+  providers:  [ HeroService ]
+})
+```
 
 
 
