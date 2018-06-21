@@ -42,15 +42,18 @@
    - 组件模板中的指令和绑定标记会根据程序数据和程序逻辑修改这些视图。
   - 依赖注入器会为组件提供一些服务，比如路由器服务就能让你定义如何在视图之间导航。
 ##二、模块简介
+  Angular 应用是模块化的，它拥有自己的模块化系统，称作 NgModule。 一个 NgModule 就是一个容器，用于存放一些内聚的代码块，这些代码块专注于某个应用领域、某个工作流或一组紧密相关的功能。 它可以包含一些组件、服务提供商或其它代码文件，其作用域由包含它们的 NgModule 定义。 它还可以导入一些由其它模块中导出的功能，并导出一些指定的功能供其它 NgModule 使用。
+  每个 Angular 应用都至少有一个 NgModule 类，也就是根模块，它习惯上命名为 AppModule，并位于一个名叫 app.module.ts 的文件中。引导这个根模块就可以启动你的应用。
+  虽然小型的应用可能只有一个 NgModule，不过大多数应用都会有很多特性模块。应用的根模块之所以叫根模块，是因为它可以包含任意深度的层次化子模块。
 ###1.根模块和特性模块
-首先每个angular应用至少有一个根模块（AppModule），在比较小的项目中，有这一个模块就够了。但是在大项目中，页面非常多，就有很多特性模块了，特性模块就是一个内聚代码块，专注于某个应用领域、工作流或者功能让相近页面相近的功能，比如钩哒里面的LayoutModule、RoutesModule、ServiceModule，看名字就知道这个模块里面大概是干嘛的。
-###2.@NgModule
-在模块里面（不管是根模块还是特性模块）都有一个@NgModule的装饰器的类，NgModule是一个装饰器函数，它接收一个用来描述模块属性的元数据对象，最重要的属性有：
-a. declarations，所有的视图类都在这儿声明，不声明就用肯定报错没跑了，组件、指令、管道都属于视图类。
-b. exports，declarations的子集，可用于其它模块的组件模板。
-c. imports，引入本模块所需要的其它模块。
-d. providers，服务的提供商，服务不放在这里面没法用，放在根模块的providers里面就全局都能用。
-e. bootstrap，不是那个样式库的boot，它是在根模块里面指定要启动哪一个主视图，里面放的通常都是AppComponent。
+  首先每个angular应用至少有一个根模块（AppModule），在比较小的项目中，有这一个模块就够了。但是在大项目中，页面非常多，就有很多特性模块了，特性模块就是一个内聚代码块，专注于某个应用领域、工作流或者功能让相近页面相近的功能，比如钩哒里面的LayoutModule、RoutesModule、ServiceModule，看名字就知道这个模块里面大概是干嘛的。
+###2.@NgModule 元数据
+  在模块里面（不管是根模块还是特性模块）都有一个@NgModule的装饰器的类，NgModule是一个装饰器函数，它接收一个用来描述模块属性的元数据对象，最重要的属性有：
+  - declarations，所有的视图类都在这儿声明，不声明就用肯定报错没跑了，组件、指令、管道都属于视图类。
+  -  exports，declarations的子集，可用于其它模块的组件模板。
+  -  imports，引入本模块所需要的其它模块。
+  -  providers，服务的提供商，服务不放在这里面没法用，放在根模块的providers里面就全局都能用。
+  - bootstrap，应用的主视图，称为根组件。它是应用中所有其它视图的宿主。只有根模块才应该设置这个 bootstrap 属性。
 eg：一个简单的根模块：
 ```typescript
 import {NgModule} from"@angular/core"
@@ -66,8 +69,113 @@ import {AppComponent} from"......"
 
 })
 ```
-ps：引导根模块来启动应用的就是main.ts，里面有一句
+  ps：引导根模块来启动应用的就是main.ts，里面有一句
 ```typescript
 platformBrowserDynamic().bootstarpModule(AppModule)
 ```
-所以，启动开发服务器的时候，找到了main.ts，根据main找到了AppModule，根据AppModule里面bootstrap的指定，启动那个组件，就看到页面啦。
+  所以，启动开发服务器的时候，找到了main.ts，根据main找到了AppModule，根据AppModule里面bootstrap的指定，启动那个组件，就看到页面啦。
+### 3.NgModule和组件
+  NgModule 为其中的组件提供了一个编译上下文环境。根模块总会有一个根组件，并在引导期间创建它。 但是，任何模块都能包含任意数量的其它组件，这些组件可以通过路由器加载，也可以通过模板创建。那些属于这个 NgModule 的组件会共享同一个编译上下文环境。
+  ![图片](compilation-context.png)
+  组件及其模板共同定义视图。组件还可以包含视图层次结构，它能让你定义任意复杂的屏幕区域，可以将其作为一个整体进行创建、修改和销毁。 一个视图层次结构中可以混合使用由不同 NgModule 中的组件定义的视图。 这种情况很常见，特别是对一些 UI 库来说。
+  ![图片](view-hierarchy.png)
+  当你创建一个组件时，它直接与一个叫做宿主视图的视图关联起来。 宿主视图可以是视图层次结构的根，该视图层次结构可以包含一些内嵌视图，这些内嵌视图又是其它组件的宿主视图。 这些组件可以位于相同的 NgModule 中，也可以从其它 NgModule 中导入。 树中的视图可以嵌套到任意深度。
+### 4.NgModules 和 JavaScript模块
+  NgModule就是一个带有@NgModule的装饰器的类，是Angular的一个基础特性。
+  JavaScript的模块系统，就是用来管理一组JS对象，和Angular的模块系统没啥关系，JS里面每一个文件都可以看作是一个模块，文件里面定义的对象属于这个模块，最后通过export关键字，可以向外暴露这些对象，可以使别的模块去引用它（import引入就能用啦）
+  两个模块系统互补，写程序的时候都要用到。
+### 5.Angular自带的库
+  新建一个angular应用的时候，node-modules里面有很多的包，@angular开头的就是Angular的模块库，比如 在某个文件中 import {Component} from "@angular/core"，意思就是从@angular/core的库中，导入Component的装饰器；或者 import {BrowserModule} from "@angular/platform-browser"，就是从@angular/platform-browser库里面导入一个BrowserModule的Angular模块
+  ps：某个应用模块需要用到BrowserModule的时候，不仅要引入，也要把它加入@NgModule元数据的imports数组里面去。imports ： [BrowserModule]，这种情况下，Angular和JS的模块系统就一起使用啦。
+## 三、组件简介
+  组件就是一个带有特定功能的可以被反复使用的视图。
+  Angular是以模块为基本单位（Vue好像是以组件为基本单位的吧），模块是由各种各样的组件构成的。创建过的每一个组件，在使用之前，都要去对应的模块中去声明，声明之后，只允许在该模块内使用，在根模块里面声明的话，就哪儿都能用了。
+  在类里面，就是导出那个，定义组件的应用逻辑，为视图提供支持，让视图不仅能看还能用。组件通过一些属性和方法组成的API和视图进行交互（就是全景图里面的属性绑定和事件绑定啦）。
+eg:一个简单的组件实例代码
+```typescript
+	export class NameComponent implements OnInit {
+		//导出一个类
+		arrs: Arr[];
+		//其实随便定义一个什么就行，用来接受从服务哪里获取到的值
+		selectedArr: Arr;
+		//随便定义的，接受事件被调用时传入的值
+		constructor (private service: ArrService) {}
+		//在构造函数里面实例化一个服务，这个服务是在某个地方写好，引入并注入过的啦，
+		//ps：angular中的服务是单例模式，在这个应用程序中，这个对象只保留一个实例。
+		ngOninit() {
+		//生命周期函数，ngOnInit表示组件在创建后立刻就调用，别的钩子就见到的时候再说。
+			this.arrs = this.service.getArrs();
+			//service后面就是定义好的方法啦
+		}
+		selectedArrs(arr: Arr) {this.selectedArr = arr} 
+		//这是一个事件，调用时就可以拿到传入的值并赋值给selectedArr
+	}
+```
+### 1.组件的元数据
+  简单来说，元数据就是@Component里面的那些属性，单独看某个Component的时候，就只是被导出了一个类，angular并不知道，通过元数据里面的属性，告诉angular这是个组件，告诉angular去哪儿获取我给组件指定的各种构建模块，什么HTML模板啦、css啦..
+```txt
+	selector：选择器，要用当前组件的时候，把这个名字当做普通的HTML标签
+	templateUrl：模板的相对地址
+	template：直接写HTML在这里，不用引入html文件
+	styleUrls：一个数组，放css的地址，可以放多个
+	providers：服务的依赖注入提供商数组，服务要想使用，先引入，然后指定提供商，然后实例化，才能使用。
+```
+### 2.模板与视图
+  你要通过组件的配套模板来定义其视图。模板就是一种 HTML，它会告诉 Angular 如何渲染该组件。
+  视图通常会分层次进行组织，让你能以 UI 分区或页面为单位进行修改、显示或隐藏。 与组件直接关联的模板会定义该组件的宿主视图。该组件还可以定义一个带层次结构的视图，它包含一些内嵌的视图作为其它组件的宿主。
+  ![图片](component-tree.png)
+  带层次结构的视图可以包含同一模块（NgModule）中组件的视图，也可以（而且经常会）包含其它模块中定义的组件的视图
+### 3.模板语法
+   组件建成的时候，自带了模板，在这里面定义组件的视图。模板是以HTML的形式存在，告诉angular如何渲染组件，但是也不完全是标准的HTML。
+	比如：
+```html
+    <ul>
+        <li *ngFor="let arr of arrs" (click)="selectedArrs(arr)" >{{arr}}</li>
+        <!--*ngFor 循环指令，可以生成和arrs的length一样多的li，绑定单击事件就是(click)，绑定别的事件也要加()-->
+    </ul>
+    <app-detail *ngIf="selectedArr" [arr]="selectedArr"></app-detail>
+    <!--app-detail，是别的组件的名字，当做普通的HTML标签使用；*ngIf，根据等号后面的值的真假来决定当前的元素要不要挂载到DOM树上；[]是属性绑定的时候用的，加入等号后面的值是不确定的，就需要用属性绑定-->
+```
+### 4.数据绑定
+  在传统模式下，数据变化或者视图更改都是直接操作页面DOM元素，angular支持数据绑定，通过数据来控制页面视图。
+比如：
+```html
+	<li>{{arr.xxx}}</li>
+	//{{arr.xxx}}插值表达式 在<li>标签中显示组件的arr.xxx属性的值。
+	<app-hero-detail [arr]="selectedArr"></app-hero-detail>
+	//[arr]属性绑定 把父组件NameComponent的selectedArr的值传到子组件DetailComponent的arr属性中。
+	<li (click)="selectedArr(arr)"></li>
+	//(click) 事件绑定 在用户点击li时调用组件的selectedArr方法。
+除了上面三种，还有第四种数据绑定：
+	<input [(ngModel)]="arr.xxx">
+	//[(ngModel)]双向数据绑定 数据属性的值通过属性绑定到视图到输入框，用户修改以后通过事件绑定把新值流回组件，并更新属性的值，这个绑定可以说是非常重要了。
+```
+  一图展示数据绑定的四种形式：
+  ![图片](databinding.png)
+	ps：双向数据绑定的原理
+		TODO暂时没有搞明白脏数据检查机制，网上的解释都是angularJS的，不准，待定。
+### 5.管道
+  Angular 的管道可以让你在模板中声明显示值的转换逻辑。 带有 @Pipe 装饰器的类中会定义一个转换函数，用来把输入值转换成供视图显示用的输出值。
+  Angular 自带了很多管道，比如 date 管道和 currency 管道，完整的列表参见 Pipes API 列表。你也可以自己定义一些新管道。
+  要在 HTML 模板中指定值的转换方式，请使用 管道操作符 (|)。{{interpolated_value | pipe_name}}
+  你可以把管道串联起来，把一个管道函数的输出送给另一个管道函数进行转换。 管道还能接收一些参数，来控制它该如何进行转换。比如，你可以把要使用的日期格式传给 date 管道：
+```html
+<!-- Default format: output 'Jun 15, 2015'-->
+ <p>Today is {{today | date}}</p>
+<!-- fullDate format: output 'Monday, June 15, 2015'-->
+<p>The date is {{today | date:'fullDate'}}</p>
+ <!-- shortTime format: output '9:43 AM'-->
+ <p>The time is {{today | date:'shortTime'}}</p>
+```
+### 6.指令
+
+
+
+
+
+
+
+
+
+
+
