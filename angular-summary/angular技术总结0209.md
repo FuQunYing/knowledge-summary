@@ -1871,5 +1871,67 @@ h3[_ngcontent-pmm-6] {
 })
 export class QuestSummaryComponent { }
 ```
+## 六、Angular元素 概览
+  Angular元素就是打包成自定义元素的Angular组件。所谓自定义元素就是一套与具体框架无关的用于定义新HTML元素的web标准。自定义元素这项特性目前受到了Chrome、Opera和Safari的支持，在其它浏览器中也能通过腻子脚本加以支持。自定义元素扩展了HTML，它允许我定义一个由JavaScript代码创建和孔子的标签，浏览器会维护一个自定义元素（也叫Web Components）的注册表CustomElementRegistry，它把一个可实例化的JavaScript类映射到HTML标签上。
+  @angular/elements 包导出了一个 createCustomElement() API，它在 Angular 组件接口与变更检测功能和内置 DOM API 之间建立了一个桥梁。把组件转换成自定义元素会让所需的 Angular 基础设施也可用在浏览器中。创建自定义元素非常简单直接，它会自动把你的组件视图对接到变更检测和数据绑定机制，会把 Angular 的功能映射到原生 HTML 中的等价物。
+### 1.使用自定义元素
+  自定义元素会自举启动，它们在添加到DOM中时就会自行启动自己，并在从DOM中移除时自行销毁自己。一旦自定义元素添加到了任何页面的DOM中，它的外观和行为就和其它的HTML元素一样了，不需要对Angular的术语或使用约定有任何特殊的了解。
+  - Angular应用中的简易动态内容
+	把组件转换成自定义元素为你在 Angular 应用中创建动态 HTML 内容提供了一种简单的方式。 在 Angular 应用中，你直接添加到 DOM 中的 HTML 内容是不会经过 Angular 处理的，除非你使用动态组件来借助自己的代码把 HTML 标签与你的应用数据关联起来并参与变更检测。而使用自定义组件，所有这些装配工作都是自动的。
+  - 富内容应用
+	如果你有一个富内容应用（比如正在展示本文档的这个），自定义元素能让你的内容提供者使用复杂的 Angular 功能，而不要求他了解 Angular 的知识。比如，像本文档这样的 Angular 指南是使用 Angular 导航工具直接添加到 DOM 中的，但是其中可以包含特殊的元素，比如 <code-snippet>，它可以执行复杂的操作。 你所要告诉你的内容提供者的一切，就是这个自定义元素的语法。他们不需要了解关于 Angular 的任何知识，也不需要了解你的组件的数据结构或实现。
+#### 1.1 工作原理
+  使用createCustomElement()函数来把组件转换成一个可注册成浏览器中自定义元素的类。注册完这个配置好的类之后，我就可以在内容中像内置HTML元素一样使用这个新元素了。
+```html
+<my-popup message="msg"></my-popup>
+```
+  当我的自定义元素放进页面中时，浏览器会创建一个已注册类的实例。其内容是由组件模板提供的，它使用Angular模板语法，并且使用组件和DOM数据进行渲染。组件的输入属性（Property）对应于该元素的输入属性（Attribute）
+![图片](customElement1.png)
+	现在正在使用的这些自定义元素也可以被用在使用其它框架构建的Web应用中。Angular框架的一个最小化的、自包含的版本，会注入成一个服务，以支持变更检测和数据绑定功能。
+### 2.把组件转换成自定义元素
+  Angular提供的createCustomElement()函数，以支持把Angular组件及其依赖转换成自定义元素。该函数会收集组件的Observable型属性。提供浏览器创建和销毁实例时所需要的Angular功能，还会对变更进行检测并做出响应。
+  这个转换过程实现了NgElementConstructor接口，并创建了一个构造器类，用于生成该组件的一个自举型实例。然后用JavaScript的customElements.define()函数把这个配置好的构造器和相关的自定义元素标签注册到浏览器的CustomElementRegistry中，当浏览器遇到这个已注册的标签时，就会使用该构造器来创建一个自定义元素的实例。
+  ![图片](createElement.png)
+#### 2.1映射
+  寄宿着 Angular 组件的自定义元素在组件中定义的"数据及逻辑"和标准的 DOM API 之间建立了一座桥梁。组件的属性和逻辑会直接映射到 HTML 属性和浏览器的事件系统中。
+  - 用于创建的 API 会解析该组件，以查找输入属性（Property），并在这个自定义元素上定义相应的属性（Attribute）。 它把属性名转换成与自定义元素兼容的形式（自定义元素不区分大小写），生成的属性名会使用中线分隔的小写形式。 比如，对于带有 @Input('myInputProp') inputProp 的组件，其对应的自定义元素会带有一个 my-input-prop 属性。
+  - 组件的输出属性会用 HTML 自定义事件的形式进行分发，自定义事件的名字就是这个输出属性的名字。 比如，对于带有 @Output() valueChanged = new EventEmitter() 属性的组件，其相应的自定义元素将会分发名叫 "valueChanged" 的事件，事件中所携带的数据存储在该事件对象的 detail 属性中。 如果你提供了别名，就改用这个别名。比如，@Output('myClick') clicks = new EventEmitter<string>(); 会导致分发名为 "myClick" 事件。
+### 3.自定义元素的浏览器支持
+浏览器 | 自定义元素支持
+- | -
+Chrome | 原生支持
+Opera | 原生支持
+Safari | 原生支持
+Firefox | 把dom.webcompoents.enabled和dom.sebcomponents.customelements.enabled首选项设为true，计划在版本60/61中提供原生支持
+Edge | 正在实现
+  对于原生支持了自定义元素的浏览器，该规范要求开发人员使用ES2016的类来定义自定义元素，开发人员可以在项目的tsconfig.json中设置target:'es2015'属性来满足这一要求，并不是所有浏览器都支持自定义元素和 es2016，开发人员也可选择使用腻子脚本来让它支持老式浏览器和es5的代码。
+  Angular CLI为项目添加正确的腻子脚本：
+  ng add @angular/elements --name=\*project_name\*
+### 4.范例：弹窗服务
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
