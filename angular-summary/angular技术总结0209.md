@@ -2015,9 +2015,56 @@ export class PopupService{
     }
 }
 ```
+  **app.module.ts**
+```typescript
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
 
+import { AppComponent } from './app.component';
+import { PopupService } from './popup.service';
+import { PopupComponent } from './popup.component';
 
+// 包含PopUpService提供程序，但从编译中排除POPOUP组件，因为它将动态添加。
 
+@NgModule({
+  declarations: [AppComponent, PopupComponent],
+  imports: [BrowserModule, BrowserAnimationsModule],
+  providers: [PopupService],
+  bootstrap: [AppComponent],
+  entryComponents: [PopupComponent],
+})
+
+export class AppModule {}
+```
+  **app.component.ts**
+```typescript
+import { Component, Injector } from '@angular/core';
+import { createNgElementConstructor } from '../elements-dist';
+import { PopupService } from './popup.service';
+import { PopupComponent } from './popup.component';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <input #input value="Message">
+    <button (click)="popup.showAsComponent(input.value)">
+        Show as component </button>
+    <button (click)="popup.showAsElement(input.value)">
+        Show as element </button>
+  `
+})
+
+export class AppComponent {
+   constructor(private injector: Injector, public popup: PopupService) {
+    // 在init上，将POPOUP组件转换为自定义元素
+    const PopupElement =
+createNgElementConstructor(PopupComponent, {injector: this.injector});
+    // 用浏览器注册自定义元素。
+       customElements.define('popup-element', PopupElement);
+  }
+}
+```
 
 
 
