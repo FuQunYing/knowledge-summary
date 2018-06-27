@@ -1908,8 +1908,98 @@ Edge | 正在实现
   Angular CLI为项目添加正确的腻子脚本：
   ng add @angular/elements --name=\*project_name\*
 ### 4.范例：弹窗服务
-  
-
+  以前，如果我要在运行期间把一个组件添加到应用中，就不得不定义动态组件。还要把动态组件添加到模块的entryComponents列表中，以便应用在启动时能找到它，然后还要加载它、把它附加到DOM中的元素上，并且装备所有的依赖、变更检测和事件处理。
+  用Angular自定义组件会让这个过程更简单更透明。它会自动提供所有基础设施和框架，而我要做的就是定义所需的各种事件处理逻辑（如果并不准备在应用中直接用它，还要把该组件在编译时排除出去）
+  这个弹窗服务的例子，定义了一个组件，可以动态加载它也可以把它转换成自定义组件。
+  - popup.component.ts定义了一个简单的弹窗元素，用于显示一条输入消息，附带一些动画和样式
+  - popup.service.ts创建了一个可注入的服务，它提供了两种方式来执行PopupComponent：作为动态组件或作为自定义元素。注意动态组件的方式需要更多的代码来做搭建工作
+  - app.module.ts把PopupComponent添加到模块的entryComponents列表中，而从编译过程中排除它，以消除启动时的警告和错误
+  - app.component.ts定义了该应用的根组件，它借助PopupService在运行时把这个弹窗添加到DOM中。在应用运行期间，根组件的构造函数会把PopupComponent转换成自定义元素。
+  为了对比，这个例子中同时演示了这两种方式，一个按钮使用动态加载的方式添加弹窗，另一个按钮使用自定义元素的方式。可以看到，两者的结果是一样的，差别只是准备的过程不同。
+  **popup.component.ts**
+```typescript
+import {Component,EventEmitter,Input,Output} from '@angular/core';
+import {AnimationEvent} from '@angular/animations';
+import {animate,state,style,transition,trigger} from '@angular/animations';
+@Component({
+    selector:'my-popup',
+    template:'Popup:{{msg}}',
+    host:{
+        '[@state]':'state',
+        '(@state.done)':'onAnimationDone($event)'
+    },
+    animations:[
+        trigger('state',[
+            state('opened',style({transform:'translateY(0%)'})),
+            state('void,closed',style({transform:'translateY(100%)',opacity:0})),
+            transitionn('*=>*',animate('100ms ease-in')),
+        ])
+    ],
+    styles:[`
+    	:host{
+            position:absolute;
+            bottom:0;
+            left:0;
+            right:0;
+            background:#009cff;
+            height:48px;
+            padding:16px;
+            display:flex;
+            align-items:center;
+            border-top:1px solid #000;
+            font-size:24px;
+    	}
+    `
+    ]
+})
+export class PopupComponent{
+    
+}
+```
+  **popup.service.ts**
+```typescript
+import {ApplicationRef,ComponentFactoryResolver,Injectable,Injector} from  '@angular/core'
+import {PopupComponent} from './popup.component'
+import {NgElementConstructor} from '../elements-dist'
+@Injectable()
+export class PopupService{
+    constructor(private injector:Injector,
+    			private applicationRef:ApplicationRef,
+    			private componentFactoryResolver:ComponentFactoryResolver){}
+    //之前的动态加载方法要求你在将弹出窗口添加到DOM之前设置基础结构
+    showAsComponent(msg:string){
+        //创建元素
+        const popup=document.createElement('popup-component');
+        //创建组件并用元素连接起来
+        const factory=this.componentFactoryResolver.resolveComponentFactory(PopupComponent);
+        const popupComponentRef=factory.create(this.injector,[],popup);
+        //连接到视图，以便更改检测器知道要运行。
+        this.applicationRef.attachView(popupComponentRef.hostView)
+        //监听关闭事件
+        popupComponentRef.instace.closed.subscribe(()=>{
+            document.body.removeChild(popup);
+            this.applicationRef.detachView(popupComponentRef.hostView);
+        });
+        //设置消息
+        popupComponentRef.instance.msg=msg
+        //添加到DOM
+        document.body.appendChild(popup)
+    }
+    //这使用新的自定义元素方法将弹出式添加到DOM中。
+    showAsElement(msg:string){
+        //创建元素
+        const popupEl=document.createElement('popup-element');
+        //监听关闭事件
+        popupEl.addEventListener('closed',()=>{
+            document.body.removeChild(popupEl)
+        })
+        //设置msg
+        popupEl.msg=msg;
+        //添加到DOM
+        document.body.appendChild(popupEl);
+    }
+}
+```
 
 
 
