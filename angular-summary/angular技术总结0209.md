@@ -1953,7 +1953,22 @@ import {animate,state,style,transition,trigger} from '@angular/animations';
     ]
 })
 export class PopupComponent{
-    
+    private state: 'opened'|'closed'='closed';
+    @Input()
+    set msg(msg:string){
+        this._msg=msg;
+        this.state='opened';
+        setTimeout(()=>this.state='closed',2000);
+    }
+    get msg():string(return this._msg;)
+    _msg:string;
+    @Output()
+    closed=new EventEmitter();
+    onAnimationDone(e:AnimationEvent){
+        if(e.toState === 'closed'){
+            this.closed.next();
+        }
+    }
 }
 ```
   **popup.service.ts**
