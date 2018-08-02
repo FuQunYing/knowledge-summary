@@ -56,20 +56,20 @@ vue create app-name
 ```
 ### 1.3 使用图形化界面
   也可以通过vue ui命令以图形化界面创建和管理项目： vue ui，这个命令会打开一个浏览器窗口，并以图形化界面引导项目创建。
-## 2.拉取2.X模板（旧版本）
+###  1.4 拉取2.X模板（旧版本）
   Vue CLI3和旧版使用了相同的vue命令，所以Vue CLI2（vue-cli）被覆盖了，如果仍然需要使用旧版本的vue init 功能，可以全局安装一个桥接工具：
 ```txt
 npm install -g @vue/cli-init
 # `vue init` 的运行效果将会跟 `vue-cli@2.x` 相同
 vue init webpack my-project
 ```
-# 三、快速原型开发
+## 2.快速原型开发
   可以使用vue serve 和vue build命令对单个 \*.vue文件进行快速原型开发，不过这需要先额外安装一个全局的扩展：
 ```txt
 npm i -g @vue/cli-service-global
 ```
   vue serve的缺点就是它需要安装全局依赖，这使得它在不同机器上的一致性不能得到保证，因此这只适用于快速原型开发。
-## 1.vue serve
+### 2.1 vue serve
   用法：serve [options]  [entry]
   在开发环境模式下配置.js或.vue文件启动一个服务器
   Options:
@@ -83,6 +83,36 @@ npm i -g @vue/cli-service-global
 </template>
 ```
   然后在App.vue文件所在的目录下运行：vue serve
+  vue serve 使用了和vue create创建的项目相同的默认设置（webpack、Babel、PostCSS和ESLint）。它会在当前目录自动推导入口文件——入口可以是main.js、index.js、App.vue或app.vue中的一个。也可以显式的指定入口文件：vue serve MyComponent.vue
+  如果需要，还可以提供一个index.html，package.json、安装并使用本地依赖、甚至通过响应的配置文件配置Babel、PostCSS和ESLint。
+### 2.2 vue build
+  用法： build [options]  [entry]
+  在生产环境下零配置构建一个.js或.vue文件
+  Options：
+  -t , --target  <target> 构建目标(app | lib | wc | wc-async， 默认值： app)
+  -n , --name <name> 库的名字或Web Components组件的名字（默认值：入口文件名）
+  -d , --dest <dir> 输出目录 （默认值 ： dist）
+  -h, --help 输出用法信息
+  也可以使用vue build将目标文件构建成一个生产环境的包并用来部署：vue build MyComponent.vue
+  vue build 也提供了将组件构建成为一个库或一个Web Components组件的能力。
+## 3.插件和Preset
+### 3.1 插件
+  Vue CLI使用了一套基于插件的架构，看package.json，就会发现依赖都是以@vue/cli-plugin-开头的，插件可以修改webpack的内部配置，也可以向vue-cli-service注入命令，在项目创建的过程中，绝大部分列出的特性都是通过插件来实现的。
+  基于插件的架构使得Vue CLI灵活且可扩展。
+### 3.1.1 在现有的项目中安装插件
+  每个CLI插件 都会包含一个（用来创建文件的）生成器和一个（用来调整webpack核心配置和注入命令的）运行时插件，当使用vue create来创建一个新项目的时候，有些插件会根据我选择的特性被预安装好，如果想在一个已经被创建好的项目中安装一个插件，可以使用vue  add 命令：
+```txt
+  vue add @vue/eslint
+  
+  vue add的设计意图是为了安装和调用Vue CLI插件，这不意味着替换掉普通的npm包。对于这些普通的npm包，仍然需要选用包管理器。
+  推荐在运行vue add之前将项目的最新状态提交，因为该命令可能调用插件的文件生成器并很有可能更改现有的文件
+```
+  这个命令将@vue/eslint解析为完整的包名@vue/cli-plugin-eslint，然后从npm安装它，调用它的生成器。
+```txt
+//这个和之前的用法等价
+vue add @vue/cli-plugin-eslint
+```
+  
 
 
 
