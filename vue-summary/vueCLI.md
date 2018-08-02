@@ -112,7 +112,29 @@ npm i -g @vue/cli-service-global
 //这个和之前的用法等价
 vue add @vue/cli-plugin-eslint
 ```
-  
+  如果不带@vue前缀，该命令会换作解析一个unscoped的包，例如以下命令会安装第三方插件vue-cli-plugin-apollo:
+```txt
+//安装并调用vue-cli-plugin-apollo
+vue add appollo
+```
+  也可以基于一个指定的scope使用第三方插件，例如如果一个插件名为@foo/vue-cli-plugin-bar， 可以这样添加：
+```txt
+vue add @foo/bar
+```
+  可以向被安装的插件传递生成器选项（这样做会跳过命令提示）：
+```txt
+vue add @vue/eslint --config airbnb --lintOn save
+```
+  vue-router和vuex的情况比较特殊，它们并没有自己的插件，但是仍然可以这样添加它们：
+```txt
+vue add router
+vue add vuex
+```
+  如果一个插件已经被安装，可以使用vue invoke命令跳过安装过程，只调用它的生成器，这个命令会接受和vue add相同的参数。
+### 3.2 Preset
+  一个Vue CLI preset是一个包含创建新项目所需预定义选项和插件的JSON对象，让用户无需在命令提示中选择它们。
+#### 3.2.1 Preset插件的版本管理
+
 
 
 
