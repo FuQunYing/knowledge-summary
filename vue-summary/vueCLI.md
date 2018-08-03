@@ -342,6 +342,32 @@ h('img', {attr: {src: require('./image.png')}})
 <img src="~/some-npm-package/foo.png">
 ```
   - 如果URL以@开头，它也会作为一个模块请求被解析，它的用处在于Vue CLI默认会设置一个指向<projectRoot>/src的别名@。
+### 2.3 public文件夹
+  任何放置在public文件夹的静态资源都会被简单的复制，而不经过webpack，需要通过绝对路径来引用它们。推荐将资源作为模块依赖图的一部分导入，这样它们会通过webpack的处理并获得如下好处：
+  - 脚本和样式表会被压缩且打包在一起，从而避免额外的网络请求
+  - 文件丢失会直接在编译时报错，而不是到了用户端才产生 404 错误。
+  - 最终生成的文件名包含了内容哈希，因此不必担心浏览器会缓存它们的老版本
+  public 目录提供的是一个应急手段，当你通过绝对路径引用它时，留意应用将会部署到哪里。如果你的应用没有部署在域名的根部，那么你需要为你的 URL 配置 baseUrl 前缀：
+  - 在 public/index.html 或其它通过 html-webpack-plugin 用作模板的 HTML 文件中，你需要通过 <%= BASE_URL %> 设置链接前缀：
+```html
+<link rel="icon" href="<%= BASE_URL %>favicon.ico">
+```
+  - 在模板中，你首先需要向你的组件传入基础 URL：
+```javascript
+data () {
+  return {
+    baseUrl: process.env.BASE_URL
+  }
+}
+```
+  然后：
+```html
+<img :src="`${baseUrl}my-image.png`"
+```
+### 2.4 何时使用public文件夹
+  - 需要在构建输出中指定一个文件的名字。
+  - 有上千个图片，需要动态引用它们的路径。
+  - 有些库可能和 webpack 不兼容，这时除了将其用一个独立的 <script> 标签引入没有别的选择。
 
 
 
