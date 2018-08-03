@@ -273,6 +273,22 @@ module.exports={
 ```
   3.如果该依赖交付ES5代码，但使用了ES6+特性且没有显式地列出需要的polyfill（例如vuetify）：使用useBuiltIns：'entry'然后在入库哦文件添加import '@babel/polyfill'。这会根据browserlist目标导入所有polyfill，这样就不用再担心依赖的polyfill问题了，但是因为包含了一些没有用到的polyfill所以最终的包大小可能会增加。
 ## 3.现代模式
+  有了Babel可以兼顾所有最新的ES2015+语言特性，但也意味着需要交付转译呵呵polyfill后的包以支持旧的浏览器。这些转译后的包通常都比原生的ES2015+代码会更冗长，运行更慢，现如今绝大多数现代浏览器都已经支持了原生的ES2015，所以因为要支持更老的浏览器而为它们交付笨重的代码是一种浪费。
+  VueCLI提供了一个现代模式解决这个问题，以如下命令为生产环境构建：
+```txt
+vue-cli-service build --modern
+```
+  Vue CLI 会产生两个应用的版本：一个现代版的包，面向支持ES modules的现代浏览器，另一个旧版的包，面向不支持的旧浏览器。这里没有特殊的部署要求，其生成的HTML文件会自动使用以下技术：
+  - 现代版的包会通过<script type="module">在被支持的浏览器中加载；它们还会使用<link rel="moduleprelod">进行预加载
+  - 旧版的包会通过<script nomodule>加载，并会被支持ES modules的浏览器忽略
+  - 一个针对Safari10中的<script nomodule>的修复会被自动注入
+  对于一个Hello World应用来说，现代版的包已经消了16%，在生产环境下，现代版的包通常都会表现出显著的解析速度和运算速度，从而改善应用的加载性能。
+# 五、HTML和静态资源
+## 1.HTML
+### 1.1 Index文件
+  public/index.html文件是一个会被html-webpack-plugin处理的模板。在构建过程中，资源链接会被自动注入。另外，Vue CLI也会自动注入resource hint、preload/prefetch、manifest和图标链接（当用到PWA插件时）以及构建过程中处理的JavaScript和CSS文件的资源链接。
+### 1.2 插值
+  因为index文件被用作模板，所以可以使用lodash template语法插入内容：
 
 
 
