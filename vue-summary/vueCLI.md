@@ -289,6 +289,53 @@ vue-cli-service build --modern
   public/index.html文件是一个会被html-webpack-plugin处理的模板。在构建过程中，资源链接会被自动注入。另外，Vue CLI也会自动注入resource hint、preload/prefetch、manifest和图标链接（当用到PWA插件时）以及构建过程中处理的JavaScript和CSS文件的资源链接。
 ### 1.2 插值
   因为index文件被用作模板，所以可以使用lodash template语法插入内容：
+  - <%= VALUE %> 用来做不转义插值
+  - <%- VALUE %> 用来做HTML转义插值
+  - <% expression %> 用来描述JavaScript流程控制
+  除了被html-webpack-plugin 暴露的默认值之外，所有客户端环境变量也可以直接使用。例如，BASE_URL的用法：
+```html
+<link rel="icon" href="<%= BASE_URL%>favicon.ico">
+```
+### 1.3 Preload
+  <link rel="preload">是一种resource hint，用来指定页面加载后会很快被用到的资源，所以在页面加载的过程中，希望在浏览器开始主体渲染之前尽早preload。默认情况下，一个VueCLI应用会为所有初始化渲染需要的文件自动生成preload提示。这些提示会被@vue/preload-webpack-plugin注入，并且可以通过chainWebpack的config.plugin('preload')进行修改和删除。
+### 1.4 Prefetch
+  <link rel="prefetch">是一种resource hint，用来告诉浏览器在页面加载完成后，利用空闲时间提前获取用户未来可能会访问的内容。默认情况下，一个Vue CLI应用会为所有作为async chunk生成的JavaScript文件（通过动态import()按需code splitting的产物）自动生成prefetch提示。
+  这些提示会被@vue/preload-webpack-plugin注入，并且可以通过chainWebpack的config.plugin('prefetch')进行修改和删除。
+  示例：
+```javascript
+//vue.config.js
+module.exports={
+    chainWebpack: config=>{
+        //移除prefetch插件
+        config.plugins.delete('prefetch')
+        //或者修改它的选项
+        config.plugin('prefetch').tap(options=>{
+            options.fileBlackList.push([/myasyncRoute(.)+?\.js$/])
+            return options
+        })
+    }
+}
+//提示：Prefetch链接将会消耗带宽，如果我的应用很大且有很多async chunk，而用户主要使用的是对带宽比较敏感的移动端，那么可能就需要关掉prefetch链接
+```
+### 1.5 构建一个多页应用
+  不是每个应用都需要时一个单页应用。Vue CLI支持使用vue.config.js中的pages选项构建一个多页面的应用。构建好的应用将会在不同的入口之间高效共享通用的chunk以获得最佳的加载性能。
+## 2.处理静态资源
+  静态资源可以通过两种方式进行处理：
+  - 在JavaScript被导入或在template/CSS中通过相对路径被引用，这类引用会被webpack处理
+  - 放置在public目录下或通过绝对路径被引用，这类资源将会直接被拷贝，而不会经过webpack的处理。
+### 2.1 从相对路径导入
+  当在JavaScript、CSS或\*.vue文件中使用相对路径（必须以.开头）引用一个静态资源时，该资源将会被包含进入webpack的依赖图中。在其编译过程中，所有诸如<img src="...">、background:url(...)和CSS@import的资源URL都会被解析为一个模块依赖。
+  比如，url(./image.png) 会被转译成require('./image.png')
+```html
+<img src="./iamge.png">
+```
+  将会被编译到：
+```css
+h('img', {attr: {src: require('./image.png')}})
+```
+  在其内部，通过file-loader用版本哈希值和正确的公共基础路径来决定最终的文件路径，再用url-loader将小于10kb的资源内联，以减少HTTP请求的数量。
+### 2.2 URL转换规则
+  -
 
 
 
