@@ -204,8 +204,8 @@ npx vue-cli-service serve
   - --host， 指定host（默认值：0.0.0.0）
   - --port， 指定port（默认值8080）
   - --https， 使用https（默认值：false）
-  serve命令会启动一个开发服务器（基于webpack-dev-server）并附带开箱即用的模块热重载 （Hot-Module-Replacement）
-  除了通过命令行参数，也可以使用vue.config.js里的devServer字段配置开发服务器，然而并没有找到这个文件。
+    serve命令会启动一个开发服务器（基于webpack-dev-server）并附带开箱即用的模块热重载 （Hot-Module-Replacement）
+    除了通过命令行参数，也可以使用vue.config.js里的devServer字段配置开发服务器，然而并没有找到这个文件。
 ## 3.vue-cli-service build
   用法：vue-cli-service build [options]  [entry | pattern]
   选项：
@@ -218,8 +218,8 @@ npx vue-cli-service serve
   - --report 生成report.html以帮助分析包内容
   - --report-json 生成report.json以帮助分析包内容
   - --watch 监听文件变化
-  vue-cli-service build会在dist/目录产生一个可用于生产环境的包，带有JS/CSS/HTML的压缩，和为更好的缓存而做的自动vender chunk splitting。它的chunk manifest会内联在HTML里。
-  这里还有一些有用的命令参数：
+    vue-cli-service build会在dist/目录产生一个可用于生产环境的包，带有JS/CSS/HTML的压缩，和为更好的缓存而做的自动vender chunk splitting。它的chunk manifest会内联在HTML里。
+    这里还有一些有用的命令参数：
   - --modern使用现代模式构建应用，为现代浏览器角度原生支持的ES2015代码，并生成一个兼容老浏览器的包用来自动回退
   - --target 允许将项目中的任何组件以一个库或WebComponents组件的方式进行构建。
   - --report 和 --report-json 会根据构建统计生成报告，它会帮助分析包中包含的模块们的大小
@@ -248,6 +248,31 @@ npx vue-cli-service help
 ```
 ## 8.配置时无需Eject
   通过vue create 创建的项目无需额外的配置就已经可以跑起来了。插件的设计也是可以相互共存的，所以绝大多数情况下，我只需要在交互式命令提示中选取需要的功能即可。
+# 四、浏览器兼容性
+## 1.browserlist
+  package.json文件里面有一个browserlist字段，指定项目里的目标浏览器的范围，这个值会被@babel/preset-env和Autoprefixer用来确定需要转译的JavaScript特性和需要添加的CSS浏览器前缀。
+## 2.Polyfill
+  一个默认的Vue CLI项目会使用@vue/babel-preset-app，它通过@babel/preset-env和browserlist配置来决定项目需要的polyfill。
+  默认情况下，它会被useBuiltIns：'usage'传递给@babel/preset-env，这样它会根据源代码中出现的语言特性自动检测需要的polyfill，这确保了最终包里polyfill数量的最小化。然而，这也意味着如果其中一个依赖需要特殊的polyfill，默认情况下Babel无法将其检测出来。
+  如果有依赖需要polyfill，有这样几种选择：
+  1.如果该依赖基于一个目标环境不支持的ES版本撰写：将其添加到vue.config.js中的transpileDependencies选项，这会为依赖同时开启语法转换和根据情况检测polyfill
+  2.如果该依赖交付了Es5代码并显式地列出了需要的polyfill：可以使用@vue/babel-preset-app的polyfill选项预包含所需要的polyfill。注意，es6.promise将被默认包含，因为现在的库依赖Promise是非常普遍的。
+```typescript
+//babel.config.js
+module.exports={
+    presets:[
+        ['@vue/app', {
+            polyfills:[
+                'es6.promise',
+                'es6.symbol'
+            ]
+        }]
+    ]
+}
+//推荐以这种方式添加polyfill而不是在源代码中直接导入它们，因为如果这里列出的polyfill在browserlist的目标中并不需要，则它会被自动排除
+```
+  3.如果该依赖交付ES5代码，但使用了ES6+特性且没有显式地列出需要的polyfill（例如vuetify）：使用useBuiltIns：'entry'然后在入库哦文件添加import '@babel/polyfill'。这会根据browserlist目标导入所有polyfill，这样就不用再担心依赖的polyfill问题了，但是因为包含了一些没有用到的polyfill所以最终的包大小可能会增加。
+## 3.现代模式
 
 
 
