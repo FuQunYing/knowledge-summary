@@ -195,7 +195,7 @@ npm run serve / yarn serve
 ```txt
 npx vue-cli-service serve
 ```
-### 1.1 vue-cli-service serve
+## 2.vue-cli-service serve
   用法： vue-cli-service serve [options]
   选项：
   - --open， 在服务器启动时打开浏览器
@@ -206,8 +206,48 @@ npx vue-cli-service serve
   - --https， 使用https（默认值：false）
   serve命令会启动一个开发服务器（基于webpack-dev-server）并附带开箱即用的模块热重载 （Hot-Module-Replacement）
   除了通过命令行参数，也可以使用vue.config.js里的devServer字段配置开发服务器，然而并没有找到这个文件。
-### 1.2 vue-cli-service build
-  用法：vue-cli-service build 
+## 3.vue-cli-service build
+  用法：vue-cli-service build [options]  [entry | pattern]
+  选项：
+  - --mode， 指定环境模式，默认production
+  - --dest， 指定输出目录，默认dist
+  - --modern， 面向现代浏览器不带自动回退地构建应用
+  - --target， app | lib | wc | wc-async 默认值app
+  - --name， 库或Web Components模式下的名字 默认值packa.json中的name字段或入口文件名
+  - --no-clean 在构建项目之前不清除目标目录
+  - --report 生成report.html以帮助分析包内容
+  - --report-json 生成report.json以帮助分析包内容
+  - --watch 监听文件变化
+  vue-cli-service build会在dist/目录产生一个可用于生产环境的包，带有JS/CSS/HTML的压缩，和为更好的缓存而做的自动vender chunk splitting。它的chunk manifest会内联在HTML里。
+  这里还有一些有用的命令参数：
+  - --modern使用现代模式构建应用，为现代浏览器角度原生支持的ES2015代码，并生成一个兼容老浏览器的包用来自动回退
+  - --target 允许将项目中的任何组件以一个库或WebComponents组件的方式进行构建。
+  - --report 和 --report-json 会根据构建统计生成报告，它会帮助分析包中包含的模块们的大小
+## 4.vue-cli-service inspect
+  用法： vue-cli-service inspect [options]  [...paths]
+  选项： --mode 指定环境模式 默认值development
+  可以使用 vue-cli-service inspect 来审查一个 Vue CLI项目的webpack config
+## 5.查看所有的可用命令
+  有些CLI插件会向vue-cli-service注入额外的命令。例如@vue/cli-plugin-eslint 会注入vue-cli-service lint命令。可以用以下命令查看所有注入的命令：
+```txt
+npx vue-cli-service help
+```
+  或者这样，学习每个命令的可用选项：npx vue-cli-service help [command]
+## 6.缓存和并行处理
+  cache-loader会默认为Vue/Babel/Typescript编译开启。文件会缓存在node_modules/.cache中——如果遇到编译方面的问题，可以试试删除缓存目录然后再试一下
+  thread-loader 会在多核CPU的机器上为Babel/TypeScript转译开启
+## 7.Git Hook
+  在安装之后，@vue/cli-service也会安装yorkie，它会让人在package.json的gitHooks字段中方便地指定Git hook：
+```json
+{
+    "gitHooks":{
+        "pre-commit": "lint-staged"
+    }
+}
+//yorkie fork 自husky且并不和之后的版本兼容
+```
+## 8.配置时无需Eject
+  通过vue create 创建的项目无需额外的配置就已经可以跑起来了。插件的设计也是可以相互共存的，所以绝大多数情况下，我只需要在交互式命令提示中选取需要的功能即可。
 
 
 
