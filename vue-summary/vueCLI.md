@@ -18,7 +18,7 @@
   - 加载其它CLI插件的核心服务
   - 一个针对绝大部分应用优化过的内部的webpack配置
   - 项目内部的vue-cli-service命令，提供serve、build和inspect命令
-  如果熟悉create-react-app的话，@vue/cli-service实际上大致等价于react-scripts，虽然功能集合不一样。
+    如果熟悉create-react-app的话，@vue/cli-service实际上大致等价于react-scripts，虽然功能集合不一样。
 ### 2.3 CLI插件
   CLI插件是向我的Vue项目中提供可选功能的npm包，例如Babel/Typescript转译，ESLint集成、单元测试和end-to-end测试等，Vue CLI插件的名字以@vue/cli-plugin-（内建插件）或vue-cli-plugin-（社区插件）开头，非常容易使用。
   当在项目内部运行vue-cli-service命令时，它会自动解析并加载package.json中列出的所有CLI插件。插件可以作为项目创建过程的一部分，或在后期加入到项目中，它们也可以被归成一组可复用的preset。
@@ -134,6 +134,80 @@ vue add vuex
 ### 3.2 Preset
   一个Vue CLI preset是一个包含创建新项目所需预定义选项和插件的JSON对象，让用户无需在命令提示中选择它们。
 #### 3.2.1 Preset插件的版本管理
+  可以显式地指定用到的插件版本：
+```json
+{
+    "plugins":{
+        "@vue/cli-plugin-eslint":{
+            "version":"^3.0.0",
+            //...该插件的其它选项
+        }
+    }
+}
+```
+  注意对于官方插件来说这不是必须的——当被忽略时，CLI会自动使用registry中的最新版本，不过推荐为preset列出的所有第三方插件提供显式的版本范围。
+#### 3.2.2 允许插件的命令提示
+  每个插件在项目创建的过程中都可以注入它自己的命令提示，不过当我使用了一个preset，这些命令提示就会被跳过，因为Vue CLI假设所有的插件选项都已经在preset中声明过了。在有些情况下，希望preset只声明需要的插件，同时让用户通过插件注入的命令提示来保留一些灵活性。
+  对于这种场景可以在插件选项中指定"prompts":true来允许注入命令：
+```json
+{
+    "plugins":{
+        "@vue/cli-plugin-eslint":{
+            //让用户选取它们自己的ESlint config
+            "prompts":true
+        }
+    }
+}
+```
+#### 3.2.3 远程Preset
+  可以通过git repo将一个preset分享给其它开发者。这个repo应该包含一个包含了preset数据的preset.json文件，然后就可以在创建项目的 时候通过--preset选项使用这个远程的preset了：
+```txt
+//从GitHub repo 使用preset
+vue create --preset username/repo my-project
+```
+  GitLab和BitBucket也是支持的，如果要从私有repo获取，要确保使用--clone选项：
+```txt
+vue create --preset gitlab:username/repo --clone my-project
+vue create --preset bitbucket:username/repo --clone my-project
+```
+#### 3.2.4 加载文件系统中的Preset
+  当开发一个远程的preset的时候，必须不厌其烦的向远程repo发出push进行反复测试。为了简化这个流程，--preset标记也支持本地的.json文件
+```txt
+vue create --preset local.json my-project
+```
+# 三、CLI服务
+## 1.使用命令
+  在一个Vue CLI项目中，@vue/cli-service安装了一个名为vue-cli-service的命令，可以在npm scripts中以vue-cli-service、或者从终端中以./node_modules/.bin/vue-cli-service访问这个命令。
+  使用默认preset的项目的package.json：
+```json
+{
+    "scripts": {
+        "serve":"vue-cli-service serve",
+        "build":"vue-cli-service build"
+    }
+}
+```
+  可以通过npm或者yarn调用这些script：
+```txt
+npm run serve / yarn serve
+```
+  如果可以使用npx（最新版的npm应该已经自带），也可以这样直接调用命令：
+```txt
+npx vue-cli-service serve
+```
+### 1.1 vue-cli-service serve
+  用法： vue-cli-service serve [options]
+  选项：
+  - --open， 在服务器启动时打开浏览器
+  - --copy， 在服务器启动时将URL复制到剪切板
+  - --mode， 指定环境模式（默认值：development）
+  - --host， 指定host（默认值：0.0.0.0）
+  - --port， 指定port（默认值8080）
+  - --https， 使用https（默认值：false）
+  serve命令会启动一个开发服务器（基于webpack-dev-server）并附带开箱即用的模块热重载 （Hot-Module-Replacement）
+  除了通过命令行参数，也可以使用vue.config.js里的devServer字段配置开发服务器，然而并没有找到这个文件。
+### 1.2 vue-cli-service build
+  用法：vue-cli-service build 
 
 
 
