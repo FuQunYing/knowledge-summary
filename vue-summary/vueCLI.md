@@ -335,7 +335,13 @@ h('img', {attr: {src: require('./image.png')}})
 ```
   在其内部，通过file-loader用版本哈希值和正确的公共基础路径来决定最终的文件路径，再用url-loader将小于10kb的资源内联，以减少HTTP请求的数量。
 ### 2.2 URL转换规则
-  -
+  - 如果URL是一个绝对路径（例如/image/foo.png），它将会被保留不变
+  - 如果URL是 . 开头的，它会作为一个相对模块请求被解释且基于我打的文件系统中的目录结构进行解析
+  - 如果URL以~开头，其后的任何内容都会作为一个模块请求被解析。这意味着我甚至可以引用Node模块中的资源
+```html
+<img src="~/some-npm-package/foo.png">
+```
+  - 如果URL以@开头，它也会作为一个模块请求被解析，它的用处在于Vue CLI默认会设置一个指向<projectRoot>/src的别名@。
 
 
 
