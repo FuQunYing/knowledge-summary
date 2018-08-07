@@ -425,6 +425,30 @@ module.exports={
     }
 }
 ```
+## 4.向预处理器Loader传递选项
+  有的时候想要向webpack的预处理器loader传递选项，可以使用vue.config.js中的css.loaderOptions选项，比如可以这样向所有的Sass样式传入共享的全局变量：
+```javascript
+//vue.config.js
+const fs=require('fs');
+moddule.exports={
+    css:{
+        loaderOptions:{
+            //给sass-loader传递选项
+            sass:{
+                //@/是src/的别名，所有这里假设我有'src/variables.scss'这个文件
+                data:`import "@/variables.scss"`
+            }
+        }
+    }
+}
+```
+  Loader可以通过loaderOptions配置，包括：
+  - css-loader
+  - postcss-loader
+  - sass-loader
+  - less-loader
+  - stylus-loader
+  这样做比使用chainWebpack手动指定loader更推荐，因为这些选项需要应用在使用了相应loader的多个地方。
 
 
 
