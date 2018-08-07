@@ -449,7 +449,119 @@ moddule.exports={
   - less-loader
   - stylus-loader
   这样做比使用chainWebpack手动指定loader更推荐，因为这些选项需要应用在使用了相应loader的多个地方。
-
+# 七、配合webpack
+## 1.简单的配置方式
+  调整webpack配置最简单的方式就是在vue.config.js中的configureWebpack选项提供一个对象：
+```javascript
+//vue.config.js
+module.exports={
+    configureWebpack:{
+        plugins:[
+            new MyAwesomeWebpackPlugin()
+        ]
+    }
+}
+  该对象会被webpack-merge合并入最终的webpack配置
+//warning：
+//有些webpack选项是基于vue.config.js中的值设置的，所以不能直接修改。拨入我应该修改vue.config.js中的outputDir选项而不是修改output.path；我应该修改vue.config.js中的baseUrl选项而不是修改output.pablicPath。这样做是因为vue.config.js中的值会被用在配置里的多个地方，以确保所有的部分都能正常工作在一起。
+```
+  如果需要基于环境有条件地配置行为，或者想要直接修改配置，那就换成一个函数（该函数会在环境变量被设置之后懒执行），该方法的第一个参数会收到已经解析好的配置。在函数内，可以直接修改配置，或者返回一个将会被合并的对象：
+```javascript
+//vue.config.js
+module.exports={
+    configureWebpack:config=>{
+        if(process.env.NODE_ENV === 'production') {
+            //为生产环境修改配置....
+        } else {
+            //为开发环境修改配置....
+        }
+    }
+}
+```
+## 2.链式操作（高级）
+  webpack内部的配置是通过webpack-chain维护的，这个库提供了一个webpack原始配置的上层抽象，使其可以定义具名的loader规则和具名插件，并有机会在后期进入这些规则并对它们的选项进行修改。它允许我们更细粒度的控制其内部的配置。
+  下面看一些常见的在vue.config.js中的chainWebpack修改的例子：
+  tips：如果打算链式访问特定的loader时，vue inspect会非常有帮助。
+### 2.1 修改Loader选项
+```javascript
+//vue.config.js
+module.exports={
+    chainWebpack:config=>{
+        config
+          .rule('vue')
+            .use('vue-loader')
+              .loader('vue-loader')
+                .tap(options => {
+                    //修改它的选项
+                    return options
+                })
+    }
+}
+//对于css相关的loader来说，推荐使用css.loaderOptions而不是直接链式指定loader。这是因为每种css文件类型都有多个规则，而css.loaderOptions可以确保我通过一个地方影响所有的规则。
+```
+### 2.2 添加一个新的Loader
+```javascript
+//vue.config.js
+mmodule.expors={
+    chainWebpack:config=>{
+        //GraphQL Loader
+        config.module
+          .rule('graphql')
+           .test(/\.graphql$/)
+            .use('graphql-tag/loader')
+              .loader('graphql-tag/loader')
+               .end()
+    }
+}
+```
+### 2.3 替换一个规则里的Loader
+  如果想要替换已有的基础loader，例如为内联的SVG文件使用vue-svg-loader而不是加载这个文件：
+```javascript
+//vue.config.js
+module.exports={
+    chainWebpack:config=>{
+        const svgRule=config.module.rule('svg')
+        //清除已有的所有loader，如果不这样做，接下来的loader会附加在该规则现有的loader之后
+        svgRule.uses.clear()
+        //添加要替换的loader
+        svgRule
+          .use('vue-svg-loader')
+            .loader('vue-svg-loader')
+    }
+}
+```
+### 2.4 修改插件选项
+```javascript
+//vue.config.js
+module.exports={
+    chainWebpack:config=>{
+        config
+         .plugin('html')
+         .tap(args => {
+             return [/*传递给html-webpack-plugin's构造函数的新参数'*/]
+         })
+    }
+}
+```
+  需要熟悉webpack-chain的API，并阅读一些源码以便了解如何最大程度利用好这个选项，但是比起直接修改webpack配置，它的表达能力更强，也更为安全。
+  比方说想要将index.html默认的路径从/Users/username/proj/public/index.html改为/Users/username/proj/app/templates/index.html。通过参考html-webpack-plugin可以看到一个可以传入的选项列表，可以在下列配置中传入一个新的模块路径来改变它：
+```javascript
+//vue.config.js
+module.exports={
+    chainWebpack:config=>{
+        config
+         .plugin('html')
+          .tap(args=>{
+         args[0].template='/Users/username/proj/app/templates/index.html'
+         return args
+          })
+    }
+}
+```
+  可以通过接下来要讨论的工具vue inspect来确认变更。
+## 3.审查项目的webpack配置
+  因为@vue/cli-service对webpack配置进行了抽象，所以理解配置中包含的东西会比较困难，尤其是当我打算自行对其调整的时候。
+  vue-cli-service暴露了inspect命令用于审查解析好的webpack配置。那个全局的vue可执行程序同样提供了inspect命令，这个命令只是简单的把vue-cli-service inspect代理到了我的项目中。该命令会将解析出来的webpack配置、包括链式访问的规则和插件的提示打印到stdout
 
 
 
