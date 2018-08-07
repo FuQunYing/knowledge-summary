@@ -561,7 +561,34 @@ module.exports={
   可以通过接下来要讨论的工具vue inspect来确认变更。
 ## 3.审查项目的webpack配置
   因为@vue/cli-service对webpack配置进行了抽象，所以理解配置中包含的东西会比较困难，尤其是当我打算自行对其调整的时候。
-  vue-cli-service暴露了inspect命令用于审查解析好的webpack配置。那个全局的vue可执行程序同样提供了inspect命令，这个命令只是简单的把vue-cli-service inspect代理到了我的项目中。该命令会将解析出来的webpack配置、包括链式访问的规则和插件的提示打印到stdout
+  vue-cli-service暴露了inspect命令用于审查解析好的webpack配置。那个全局的vue可执行程序同样提供了inspect命令，这个命令只是简单的把vue-cli-service inspect代理到了我的项目中。该命令会将解析出来的webpack配置、包括链式访问的规则和插件的提示打印到stdout。
+  可以将其输出重定向到一个文件以便进行查阅：
+```txt
+vue inspect > output.js
+```
+  注意它输出的并不是一个有效的webpack配置文件，而是一个用于审查的被序列化的格式。
+  也可以通过指定一个路径来审查配置的一小部分：
+```txt
+#只审查第一条规则
+vue inspect module.rules.0
+```
+  或者指向一个规则或插件的名字：
+```txt
+vue inspect --rule vue
+vue inspect --plugin html
+```
+  最后可以列出所有规则和插件的名字：
+```txt
+vue inspect --rules
+vue inspect --plugins
+```
+## 4.以一个文件的方式使用解析好的配置
+  有些外部工具可能需要通过一个文件访问解析好的webpack配置，比如那些需要提供webpack配置路径的IDE或CLI，在这种情况下，可以使用如下路径：
+```txt
+<projectRoot>/node_modules/@vue/cli-service/webpack.config.js
+```
+  该文件会动态解析并输出vue-cli-service命令中使用的相同的webpack配置，包括那些来自插件甚至是我自定义的配置。
+
 
 
 
