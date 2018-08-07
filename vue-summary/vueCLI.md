@@ -282,7 +282,7 @@ vue-cli-service build --modern
   - 现代版的包会通过<script type="module">在被支持的浏览器中加载；它们还会使用<link rel="moduleprelod">进行预加载
   - 旧版的包会通过<script nomodule>加载，并会被支持ES modules的浏览器忽略
   - 一个针对Safari10中的<script nomodule>的修复会被自动注入
-  对于一个Hello World应用来说，现代版的包已经消了16%，在生产环境下，现代版的包通常都会表现出显著的解析速度和运算速度，从而改善应用的加载性能。
+    对于一个Hello World应用来说，现代版的包已经消了16%，在生产环境下，现代版的包通常都会表现出显著的解析速度和运算速度，从而改善应用的加载性能。
 # 五、HTML和静态资源
 ## 1.HTML
 ### 1.1 Index文件
@@ -292,7 +292,7 @@ vue-cli-service build --modern
   - <%= VALUE %> 用来做不转义插值
   - <%- VALUE %> 用来做HTML转义插值
   - <% expression %> 用来描述JavaScript流程控制
-  除了被html-webpack-plugin 暴露的默认值之外，所有客户端环境变量也可以直接使用。例如，BASE_URL的用法：
+    除了被html-webpack-plugin 暴露的默认值之外，所有客户端环境变量也可以直接使用。例如，BASE_URL的用法：
 ```html
 <link rel="icon" href="<%= BASE_URL%>favicon.ico">
 ```
@@ -347,7 +347,7 @@ h('img', {attr: {src: require('./image.png')}})
   - 脚本和样式表会被压缩且打包在一起，从而避免额外的网络请求
   - 文件丢失会直接在编译时报错，而不是到了用户端才产生 404 错误。
   - 最终生成的文件名包含了内容哈希，因此不必担心浏览器会缓存它们的老版本
-  public 目录提供的是一个应急手段，当你通过绝对路径引用它时，留意应用将会部署到哪里。如果你的应用没有部署在域名的根部，那么你需要为你的 URL 配置 baseUrl 前缀：
+    public 目录提供的是一个应急手段，当你通过绝对路径引用它时，留意应用将会部署到哪里。如果你的应用没有部署在域名的根部，那么你需要为你的 URL 配置 baseUrl 前缀：
   - 在 public/index.html 或其它通过 html-webpack-plugin 用作模板的 HTML 文件中，你需要通过 <%= BASE_URL %> 设置链接前缀：
 ```html
 <link rel="icon" href="<%= BASE_URL %>favicon.ico">
@@ -368,7 +368,63 @@ data () {
   - 需要在构建输出中指定一个文件的名字。
   - 有上千个图片，需要动态引用它们的路径。
   - 有些库可能和 webpack 不兼容，这时除了将其用一个独立的 <script> 标签引入没有别的选择。
+# 六、配合CSS
+  Vue CLI项目天生支持PostCSS、CSS Modules和包含Sass、Less、Stylus在内的预处理器
+## 1.预处理器
+  可以在创建项目的时候选择预处理器，如果当时没选好，内置的webpack仍然会被预配置为可以完成所有的处理。也可以手动安装相应的webpack loader：
+```txt
+//Sass
+npm i -D sass-loader node-sass
 
+//Less
+npm i -D less-loader less
+
+//Stylus
+npm i -D stylus-loader stylus
+```
+  然后就可以导入相应的文件类型，或者在\*.vue文件中这样来使用:
+```html
+<style lang="scss">
+$color=red;
+</style>
+```
+## 2.PostCSS
+  Vue CLI 内部使用了PostCSS。
+  可以通过.postcssrc或任何postcss-load-config支持的配置源来配置PostCSS。也可以通过vue.config.js中的css.loaderOptions.postcss配置postcss-loader。
+  默认开启了autoprefixer，如果要配置目标浏览器，可使用package.json的browserlist字段。
+```txt
+关于CSS中浏览器前缀规则的注意事项：
+在生产环境构建中，Vue CLI会优化CSS并基于目标浏览器抛弃不必要的浏览器前缀规则，因为默认开启了autoprefixer，只使用无前缀的css规则即可
+```
+## 3.CSS Modules
+  可以通过<style module>以开箱即用的方式在\*.vue文件中使用CSS Module
+  如果想在JavaScript中作为CSS Module导入CSS或其它预处理文件，该文件应该以.module.(css|less|sass|scss|styl)结尾：
+```javascript
+import styles from './foo.module.css'
+//所有支持的预处理器都一样工作
+import sassStyles from './foo.module.scss'
+```
+  如果想去掉文件名中的.module，可以设置vue.config.js中的css.modules为true：
+```javascript
+//vue.config.js
+module.exports={
+    css:{module:true}
+}
+```
+  如果希望自定义生成的CSSModules模块的类名，可以通过vue.config.js中的css.loaderOptions.css选项来实现。所有的css-loader选项在这里都是支持的，例如localIndentName和camelCase：
+```javascript
+//vue.config.js
+module.exports={
+    css:{
+        loadersOptions:{
+            css:{
+                localIndentName:'[name]-[hash]',
+                camelCase:'only'
+            }
+        }
+    }
+}
+```
 
 
 
