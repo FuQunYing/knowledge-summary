@@ -448,7 +448,7 @@ moddule.exports={
   - sass-loader
   - less-loader
   - stylus-loader
-  这样做比使用chainWebpack手动指定loader更推荐，因为这些选项需要应用在使用了相应loader的多个地方。
+    这样做比使用chainWebpack手动指定loader更推荐，因为这些选项需要应用在使用了相应loader的多个地方。
 # 七、配合webpack
 ## 1.简单的配置方式
   调整webpack配置最简单的方式就是在vue.config.js中的configureWebpack选项提供一个对象：
@@ -589,7 +589,66 @@ vue inspect --plugins
 ```
   该文件会动态解析并输出vue-cli-service命令中使用的相同的webpack配置，包括那些来自插件甚至是我自定义的配置。
 
-
+# 八、环境变量和模式
+  可以替换项目根目录中的下列文件来指定环境变量：
+```javascript
+.env //在所有的环境中被载入
+.env.local //在所有的环境中被载入，但会被git忽略
+.env.[mode]//只在指定的模式中被载入
+.env.[mode].local//只在指定的模式中被载入，但会被git忽略
+```
+  一个环境文件只包含环境变量的“键=值”对：
+```txt
+FOO=bar
+VUE_APP_SECRET=secret
+```
+  被载入的变量将会对vue-cli-service的所有命令、插件和依赖可用。
+  **环境加载属性**
+```txt
+	为一个特定模式准备的环境文件的（比如.env.production)将会比一般的环境文件（比如.env）拥有更高的优先级。
+	此外，Vue CLI启动时已经存在的环境变量拥有最高优先级，并不会被.env文件覆盖，如果在环境中有默认的NODE_ENV，可能就需要考虑移除掉它
+```
+## 1.模式
+  模式是Vue CLI项目中一个重要的概念。默认情况下，一个VueCLI项目有三个模式：
+  - development模式用于vue-cli-service serve
+  - production模式用于vue-cli-service build 和 vue-cli-service test:e2e
+  - test模式用于vue-cli-service test:unit
+  注意模式不同于NODE_ENV，一个模式可以包含多个环境变量。也就是说，每个模式都会将NODE_ENV的值设置为模式的名称——比如在development模式下NODE_ENV的值会被设置为development。
+  我可以通过为.env文件增加后缀来设置某个模式下特有的环境变量。比如，如果我在项目根目录下创建一个名为.,env.development的文件，那么在这个文件里声明过的变量就只会在development模式下被载入。
+  我可以通过传递--mode选项参数为命令行覆写默认的模式，例如，如果我想要在构建命令中使用开发环境变量，就在package.json脚本中加入：
+```txt
+"dev-build":"vue-cli-service build --mode development"
+```
+## 2.示例：Staging模式
+  假设有一个应用包含以下.env文件：
+```txt
+VUE_APP_TITLE=My App
+```
+  和.env.staging文件：
+```txt
+NODE_ENV=production
+VUE_APP_TITLE=My App(staging)
+```
+  - vue-cli-service build 会加载可能存在的.env、.env.production和.env.productionn.local文件然后构建出生产环境应用
+  - vue-cli-service build --mode staging 会在staging模式下加载可能存在的.env、.env.staging和.env.staging.local文件然后构建出生产环境应用
+  这两种情况下，根据NODE_ENV，构建出的应用都是生产环境应用，但是在staging版本中，process.env.VUE_APP_TITLE被覆写成了另一个值。
+## 2.在客户端侧代码中使用环境变量：
+  只有以VUE\_AP\P_开头的的变量会被webpack.DefinePlugin静态嵌入到客户端的包中，可以在应用的代码中这样访问：
+```javascript
+console.log(process.env.VUE_APP_SECRET)
+```
+  在构建过程中，process.env.VUE_APP_SECRET将会被相应的值所取代。在VUE_APP_SECRET = secret的情况下，它会被替换为"secret"
+  除了VUE\_APP\_\*变量之外，在应用代码中始终可用的还有两个特殊的变量：
+  - NODE_ENV - 会是 development、production或test中的一个，具体的值取决于应用运行的模式
+  - BASE_URL - 会是vue.config.js中的baseUrl选项相符，即我的应用会部署到的基础路径
+  所有解析出来的环境变量都可以在public/index.html中以HTML插值中介绍的方式使用
+  **提示**
+```txt
+  可以在vue.config.js文件中计算环境变量，它们仍然需要以VUE_APP_前缀开头。这可以用用户版本信息process.en.VUE_APP_VERSION=require('./package.json').vversion
+```
+## 3.只在本地有效的变量
+  有的时候可能有一些不应该提交到代码仓库中的变量，尤其是当项目托管在公共仓库时，这种情况下应该使用一个.env.local文件去二人呆滞，本地环境文件默认会被忽略，且出现在.gitignore中
+  .local也可以加在指定模式的环境文件上，比如.env.development.local降温在development模式下被载入，且被git忽略。
 
 
 
