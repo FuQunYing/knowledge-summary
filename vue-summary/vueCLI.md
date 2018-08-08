@@ -613,9 +613,9 @@ VUE_APP_SECRET=secret
   - development模式用于vue-cli-service serve
   - production模式用于vue-cli-service build 和 vue-cli-service test:e2e
   - test模式用于vue-cli-service test:unit
-  注意模式不同于NODE_ENV，一个模式可以包含多个环境变量。也就是说，每个模式都会将NODE_ENV的值设置为模式的名称——比如在development模式下NODE_ENV的值会被设置为development。
-  我可以通过为.env文件增加后缀来设置某个模式下特有的环境变量。比如，如果我在项目根目录下创建一个名为.,env.development的文件，那么在这个文件里声明过的变量就只会在development模式下被载入。
-  我可以通过传递--mode选项参数为命令行覆写默认的模式，例如，如果我想要在构建命令中使用开发环境变量，就在package.json脚本中加入：
+    注意模式不同于NODE_ENV，一个模式可以包含多个环境变量。也就是说，每个模式都会将NODE_ENV的值设置为模式的名称——比如在development模式下NODE_ENV的值会被设置为development。
+    我可以通过为.env文件增加后缀来设置某个模式下特有的环境变量。比如，如果我在项目根目录下创建一个名为.,env.development的文件，那么在这个文件里声明过的变量就只会在development模式下被载入。
+    我可以通过传递--mode选项参数为命令行覆写默认的模式，例如，如果我想要在构建命令中使用开发环境变量，就在package.json脚本中加入：
 ```txt
 "dev-build":"vue-cli-service build --mode development"
 ```
@@ -631,7 +631,7 @@ VUE_APP_TITLE=My App(staging)
 ```
   - vue-cli-service build 会加载可能存在的.env、.env.production和.env.productionn.local文件然后构建出生产环境应用
   - vue-cli-service build --mode staging 会在staging模式下加载可能存在的.env、.env.staging和.env.staging.local文件然后构建出生产环境应用
-  这两种情况下，根据NODE_ENV，构建出的应用都是生产环境应用，但是在staging版本中，process.env.VUE_APP_TITLE被覆写成了另一个值。
+    这两种情况下，根据NODE_ENV，构建出的应用都是生产环境应用，但是在staging版本中，process.env.VUE_APP_TITLE被覆写成了另一个值。
 ## 2.在客户端侧代码中使用环境变量：
   只有以VUE\_AP\P_开头的的变量会被webpack.DefinePlugin静态嵌入到客户端的包中，可以在应用的代码中这样访问：
 ```javascript
@@ -641,14 +641,110 @@ console.log(process.env.VUE_APP_SECRET)
   除了VUE\_APP\_\*变量之外，在应用代码中始终可用的还有两个特殊的变量：
   - NODE_ENV - 会是 development、production或test中的一个，具体的值取决于应用运行的模式
   - BASE_URL - 会是vue.config.js中的baseUrl选项相符，即我的应用会部署到的基础路径
-  所有解析出来的环境变量都可以在public/index.html中以HTML插值中介绍的方式使用
-  **提示**
+    所有解析出来的环境变量都可以在public/index.html中以HTML插值中介绍的方式使用
+    **提示**
 ```txt
   可以在vue.config.js文件中计算环境变量，它们仍然需要以VUE_APP_前缀开头。这可以用用户版本信息process.en.VUE_APP_VERSION=require('./package.json').vversion
 ```
 ## 3.只在本地有效的变量
   有的时候可能有一些不应该提交到代码仓库中的变量，尤其是当项目托管在公共仓库时，这种情况下应该使用一个.env.local文件去二人呆滞，本地环境文件默认会被忽略，且出现在.gitignore中
   .local也可以加在指定模式的环境文件上，比如.env.development.local降温在development模式下被载入，且被git忽略。
+# 九、构建目标
+  当运行vue-cli-service build时，可以通过--target选项指定不同的构建目标。它允许我将相同源代码根据不同的用例生成不同的构建。
+## 1.应用
+  应用模式是默认的模式，在这个模式中：
+  - index.html会带有注入的资源和resource hhint
+  - 第三方库会被分到一个独立包以便更好的缓存
+  - 小于10kb的静态资源会被内联在JavaScript中
+  - public中的静态资源会被复制到输出目录中
+## 2.库
+  **注意对Vue的依赖**
+```txt
+在库模式中，Vue是外置的，这意味着包中不会有Vue，即使在代码中导入了Vue，如果这个库会通过一个打包器使用，它将尝试通过打包器以依赖的方式加载Vue；否则就会回退到一个全局的Vue变量
+```
+  可以通过下面的命令将一个单独的入口构建为一个库：
+```txt
+vue-cli-service build --target lib --name myLib [entry]
+```
+```txt
+File                     Size                     Gzipped
+
+dist/myLib.umd.min.js    13.28 kb                 8.42 kb
+dist/myLib.umd.js        20.95 kb                 10.22 kb
+dist/myLib.common.js     20.57 kb                 10.09 kb
+dist/myLib.css           0.33 kb                  0.23 kb
+```
+  这个入口可以是一个.js或一个.vue文件，如果没有指定入口，则会使用src/App.vue
+  构建一个库会输出：
+  - dist/myLib.common.js:一个给打包器用的CommonJS包（然而，webpack目前还没有支持ES modules输出格式的包）
+  - dist/myLib.umd.js:一个直接给浏览器或AMD loader使用的UMD包
+  - dist/myLib.umd.min.js:压缩后的UMD构建版本
+  - dist/myLid.css:提取出来的CSS文件（可以通过在vue.config.js中设置css:{extract:fallse}强制内联）
+### 2.1 Vue vs.JS/ TS入口
+  当使用一个.vue文件作为入口时，我的库会直接暴露这个Vue组件本身，因为组件始终是默认导出的内容。
+  然而，当使用一个.js或.ts文件作为入口时，它可能会包含具名导出，所以库会暴露为有一个模块，也就是说我的库必须在UMD构建中通弄过window.yourLib.default访问，或在CommonJS构建中通过const myLib=require('muLib').default访问，如果没有任何具名导出并希望直接暴露默认导出，可以在vue.config.js中使用以下webpack配置：
+```javascript
+module.export={
+    configureWebpack:{
+        output:{
+            libraryExport:'default'
+        }
+    }
+}
+```
+## 3.Web Components组件
+  **兼容性提示**
+```txt
+	WebComponents模式不支持IE11以及更低版本
+```
+  **注意对Vue的依赖**
+```txt
+	在Web Components模式中，Vue是外置的，这意味着包中不会有Vue，即使在代码中导入了Vue，这里的包会假设在页面中已经有一个可用的全局变量Vue
+```
+  可以通过下面的命令将一个单独的入口构建为一个WebComponents组件：
+```txt
+vue-cli-service build --target wc --name my-element [entry]
+```
+  注意这里的入口应该是\*.vue文件，VueCLI将会把这个组件自动包裹并注册为WebComponents组件，无需main.js里自行注册，也可以在开发时，把main.js作为demo app单独使用。
+  该构建将会产生一个单独的JavaScript文件（及其压缩后的版本）将所有的东西都内联起来，当这个脚本被引入网页时，会注册自定义组件<my-element>，其使用@vue/web-component-wrapper包裹了目标的Vue 组件，这个包裹器会自动代理属性、特性、事件和插槽，
+  **注意这个包依赖了在页面上全局可用的Vue**
+  这个模式允许组件的使用者以普通的DOM元素的方式使用这个组件：
+```html
+<script src="https://unpkg.com/vue"></script>
+<script src="path/to/my-element.js"></script>
+
+<!-- 可在普通 HTML 中或者其它任何框架中使用 -->
+<my-element></my-element>
+```
+### 3.1 注册多个WebComponents组件的包
+  当构建一个WebComponents组件包的时候，也可以使用一个glob表达式作为入口指定多个组件目标：
+```txt
+vue-cli-service build --target wc --name foo 'src/components/*.vue'
+```
+  当构建多个web component时，--name将会哟用于设置前缀，同时自定义元素的名称会由组件的文件名推导得出，比如一个名为HelloWorld.vue的组件携带--name foo将会生成的自定义元素名为<foo-hello-world>
+### 3.2 异步Web Components组件
+  当指定多个Web Components组件作为目标时，这个包可能会变得非常大，并且用户可能只想使用我的包中注册的一部分组件，这时异步WebComponents模式会生成一个code-split的包，带一个只提供所有组件共享的运行时，并预先注册所有的自定义组件小入口文件。一个组件真正的实现只会在页面中用到自定义元素相应的一个实例时按需获取：
+```txt
+vue-cli-service build --target wc-async --name foo 'src/components/*.vue/'
+```
+```txt
+File                Size                        Gzipped
+
+dist/foo.0.min.js    12.80 kb                    8.09 kb
+dist/foo.min.js      7.45 kb                     3.17 kb
+dist/foo.1.min.js    2.91 kb                     1.02 kb
+dist/foo.js          22.51 kb                    6.67 kb
+dist/foo.0.js        17.27 kb                    8.83 kb
+dist/foo.1.js        5.24 kb                     1.64 kb
+```
+  现在用户在该页面上只需要引入Vue和这个入口文件即可：
+```html
+<script src="https://unpkg.com/vue"></script>
+<script src="path/to/foo.min.js"></script>
+
+<!-- foo-one 的实现的 chunk 会在用到的时候自动获取 -->
+<foo-one></foo-one>
+```
 
 
 
