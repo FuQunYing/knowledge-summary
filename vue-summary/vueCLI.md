@@ -745,6 +745,7 @@ dist/foo.1.js        5.24 kb                     1.64 kb
 <!-- foo-one 的实现的 chunk 会在用到的时候自动获取 -->
 <foo-one></foo-one>
 ```
+# 十、部署
 
 
 
