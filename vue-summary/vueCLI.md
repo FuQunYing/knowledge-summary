@@ -746,8 +746,74 @@ dist/foo.1.js        5.24 kb                     1.64 kb
 <foo-one></foo-one>
 ```
 # 十、部署
+## 1.通用指南
+  如果我用Vue CLI处理静态资源并和后端框架作为部署的一部分，那么需要的仅仅是确保Vue CLI生成的构建文件在正确的位置，并遵循后端框架的发布方式即可。如果我独立于后端部署前端应用——就是后端暴露一个前端可访问的API，然后前端实际上是纯静态应用，那么可以将dist目录里构建的内容部署到任何静态服务器中，但要确保正确的baseUrl
+### 1.1 本地预览
+  dist目录需要启动一个HTTP服务器来访问，所以以file://协议直接打开dist/index.html是不会工作的，在本地预览生产环境构建最简单的方式就是使用一个Node.js静态文件服务器，例如serve：
+```sh
+npm i -g serve
+# -s 参数的意思是将其架设在Single-Page Application模式下
+# 这个模式会处理即将提到的路由问题
+serve -s dist
+```
+### 1.2 使用history.pushState的路由与
+  如果我在history模式下使用Vue Router，是无法搭配简单的静态文件服务器的。例如，如果使用Vue Router为/todos/42/定义了一个路由，开发服务器已经配置了响应的localhost:3000/todos/42相应，但是一个为生产环境构建架设的简单的静态服务器却会返回404。
+  为了解决这个问题，就需要配置生产环境服务器，将任何没有匹配到静态文件的请求回退到index.html。Vue Router的文档提供了常用服务器配置指引（看到Router再说）
+### 1.3 CORS
+  如果前端静态内容是部署在与后端API不同的域名上，需要适当地配置CORS（等待详情）
+###  1.4 PWA
+  如果使用了PWA插件，那么应用必须架设在HTTPS上，这样Service Worker才能被正确注册（等待详情 .too）
+## 2.平台指南
+### 2.1 GitHub Pages
+  如果部署到https://<USERNAME>.github.io/ ，您可以省略BaseLL，因为它默认为“//”。
+  如果部署到https://<USERNAME>.github.io/<REPO>/ ，（即仓库位置在https://github.com/<USERNAME>/<REPO>）， 就将baseUrl设置为"/<REPO>/"，比如，如果项目名字是"my-project"，那么vue.config.js应该这样配置：
+```javascript
+module.exports = {
+  baseUrl: process.env.NODE_ENV === 'production'
+    ? '/my-project/'
+    : '/'
+}
+```
+  在项目中，用以下内容创建deploy.sh（用未注释的突出显示的行）并运行它来部署：
+```sh
+#!/user/bin/env sh
+# about on error
+set -e
+# build
+npm run docs:build
+# navigate into the build output directory
+cd docs/.vuepress/dist
+# 如果在部署自定义域， 输出 www.example.com' > CNAME
+git init
+git add -A
+git commit -m 'deploy'
+# 如果部署到https://<USERNAME>.github.io
+# git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git master
 
-
+# 如果部署到https://<USERNAME>.github.io/<REPO>
+# git push -f git@github.com:<USERNAME>/<REPO>.git master:gh-pages
+cd -
+```
+  **提示：**还可以在CI安装程序中运行上面的脚本，以便在每次推送时启用自动部署。
+### 2.2 Gitlab Pages
+  就像GitlabPages 文档里面描述的，所有的事情都是从.gitlab-ci.yml 文件开始的，看下这个起步例子：
+```yaml
+# 将.gitlab-ci.yml文件放在存储库的根目录中
+pages:# the job must be named pages
+	iamge:node:latest
+	stage:deploy
+	script:
+		- npm ci
+		- npm run build
+		- mv public public-vue # 公用文件夹上Gitlab Pages 钩子
+		- mv dist public # 重命名dist 文件夹（npm run build的结果）
+	artifacts:
+		paths:
+			- public # artifact路径必须是/public，让GitlabPages去选择
+	only：
+		- master
+```
+  
 
 
 
