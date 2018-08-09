@@ -813,10 +813,29 @@ pages:# the job must be named pages
 	only：
 		- master
 ```
-  
-
-
-
+  通常，静态网站将托管在https://yourUserName.gitlab.io/yourProjectName 上，所以，还需要创建一个初始的vue.config.js 文件来更新BASE_URL值去匹配：
+```javascript
+//vue.config.js必须在仓库文件的根目录下，。保证更新的时候 'yourProjectName' 和Gitlab项目上的名字一样
+module.exports = {
+  baseUrl: process.env.NODE_ENV === 'production'
+    ? '/yourProjectName/'
+    : '/'
+}
+```
+  可以阅读Gitlab Page主页的文档，了解项目网站被托管的URL更多的信息，也可以使用自定义域。
+  在向远程仓库推送的时候，先提交.gitlab-ci.yml 和 vue.config.js.。Gitlab CI 管道会被触发，成功的时候，访问项目中的Settings>Pages去查看网站链接，并单击它。
+### 2.3 Netlify
+  在Netlify，从Github新建一个具有以下设置的项目：
+  - 创建命令：npm run build 或者yarn build
+  - 公共文件夹：dist
+  单击上传按钮。
+### 2.4 Amazon S3
+  详情待定
+### 2.5 Firebase
+### 2.6 Now
+### 2.7 Stdlib
+### 2.8 Heroku
+### 2.9 Surge
 
 
 
