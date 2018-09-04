@@ -58,6 +58,7 @@ referrerInfo.appId | String | 来源小程序或公众号或App的appId
 referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=1037或者1038时支持
   **以下场景支持返回referrerInfo.appId：**
 场景值 | 场景 | appId含义
+- | - | -
 1020 | 公众号profile页相关小程序列表 | 返回来源公众号appId
 1035 | 公众号自定义菜单 | 返回来源公众号的appId
 1036 | App分享消息卡片 | 返回来源应用appId
@@ -715,6 +716,56 @@ D（从转发进入） | B | D.onUnload(), B.onLoad(), B.onShow()
   - reLaunch 可以打开任意页面。
   - 页面底部的 tabBar 由页面决定，即只要是定义为 tabBar 的页面，底部都有 tabBar。
   - 调用页面路由带的参数可以在目标页面的onLoad中获取
+### 5.模块化
+#### 5.1 文件作用域
+  在JavaScript文件中声明的变量和函数只在该文件中有效；不同的文件中可以声明相同名字的变量和函数，不会互相影响。
+  通过全局函数getApp()可以获取全局的应用实例，如果需要全局的数据可以在App()中设置，如：
+```javascript
+//app.js
+App({
+    globalData:1
+})
+```
+```javascript
+//a.js
+// 本地变量只能在a.js中被使用
+var localValue='a';
+//得到app实例
+var app=getApp()
+//拿到全局的data并进行更改
+app.globalData++
+```
+```javascript
+//b.js
+//可以在b.js中重新定义localValue，不会干扰a.js的localValue
+//如果a.js在b.js之前运行，那么这里就会输出2
+console.log(getApp().globalData)
+```
+#### 5.2 模块化
+  可以将一些公共的代码抽离成为一个单独的js文件，作为一个模块，模块只有通过module.exports或者exports才能对外暴露接口。
+  需要注意：
+  - exports是module.exports的一个引用，因此在模块里边随意更改exports的指向会造成未知的错误，所以推荐开发者采用module.exports来暴露模块接口，除非真的非常清晰的知道这两者的关系。
+  - 小程序目前不支持直接引入node_moduels，如果需要用到node_modules，那件拷贝出相关的代码到小程序的目录中。
+```javascript
+//common.js
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
