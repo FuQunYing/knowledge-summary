@@ -747,36 +747,6 @@ console.log(getApp().globalData)
   - exports是module.exports的一个引用，因此在模块里边随意更改exports的指向会造成未知的错误，所以推荐开发者采用module.exports来暴露模块接口，除非真的非常清晰的知道这两者的关系。
   - 小程序目前不支持直接引入node_moduels，如果需要用到node_modules，那件拷贝出相关的代码到小程序的目录中。
 ```javascript
-//common.js
+//common.js`
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
