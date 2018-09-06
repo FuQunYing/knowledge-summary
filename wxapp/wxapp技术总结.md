@@ -748,5 +748,74 @@ console.log(getApp().globalData)
   - 小程序目前不支持直接引入node_moduels，如果需要用到node_modules，那件拷贝出相关的代码到小程序的目录中。
 ```javascript
 //common.js
-
+function sayHello(name) {
+  console.log(`hello ${name}`)
+}
+function sayGoodbye(name){
+  console.log(`goodbye ${name}`)
+}
+module.exports.sayHello=sayHello
+exports.sayGoodbye=sayGoodbye
 ```
+  在需要使用这些模块的文件中，使用require(path)将公共代码引入：
+```javascript
+var common=require('common.js')//require暂时不支持绝对路径
+Page({
+  helloMINNA:function(){
+    common.sayHello('MINNA')
+  },
+  goodbyeMINNA:function(){
+    common.sayGoodbye('MINNA')
+  }
+  //很像Angular的服务啊
+})
+```
+### 6.API
+  小程序开发框架提供丰富的微信原生API，可以方便的调起微信提供的能力，如获取用户信息，本地存储，支付功能等，详细API另起文档。
+  通常，小程序API有以下几种类型：
+#### 6.1 事件监听API
+  约定，以on开头的API用来监听某个事件是否触发：
+  比如，wx.onSocketOpen,wx.onCompassChange等。
+  这类API接受一个回调函数作为参数，当事件触发时，会调用这个回调函数，并将相关数据以采纳数形式传入。
+  代码示例：
+  ```javascript
+  wx.onCompassChange(function(res){
+    console.log(res.direction)
+  })
+  ```
+#### 6.2 同步API
+  约定，以Sync结尾的API都是同步API，如wx,setStorgeSync,wx.getSystemInfoSync等，此外也有一些其它的同步API，如wx.createWorker,wx.getBackgroundAudioManager等，详见API文档。
+  同步API的执行结果，可以通过函数返回值直接获取，如果执行出错，会抛出异常。
+  代码示例：
+  ```javascript
+  try{
+    wx.setStorageSync('key','value')
+  }catch(e){
+    console.error(e)
+  }
+  ```
+#### 6.3 异步API
+  大多数API都是异步API，如wx.request，wx.login等，这类API接口通常都能接受一个Object类型的参数，这个参数都支持按需指定以下字段来接收接口调用结果：
+  **Object参数说明：**
+  参数名 | 类型 | 必填 | 说明
+  - | - | - | - 
+  success | function | 否 | 接口调用成功的回调函数
+  fail | function | 否 | 接口调用失败的回调函数
+  complete | function | 否 | 接口调用结束的回调函数（调用成功、失败都会执行）
+  其他 | Any | - | 接口定义的其他参数
+  **回调函数的参数**
+  success、fail、complete函数调用时会传入一个Object类型参数，包含以下字段：
+  属性 | 类型 | 说明
+  - | - | -
+  errMsg | string | 错误信息，如果调用成功返回${apiName}:ok
+  errCode | number | 错误码，仅部分API支持，具体含义-详细文档
+  其他 | Any | 接口返回的其他数据
+  异步API的执行结果需要通过Object类型的参数中传入的对应回调函数获取。部分API也会有返回值，可以用来实现更丰富的功能，如wx.request，wx.connentSockets等
+  代码示例：
+  ```javacript
+  wx.login({
+    success(res){
+      console.log(res.code)
+    }
+  })
+  ```
