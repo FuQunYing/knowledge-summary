@@ -8,3 +8,19 @@ wx:for='{{可循环的data}}'<br>wx:for-index<br>wx:key | \*ngFor='let xxx of xx
 bindtap = xxx事件名字 | (click) = xxx事件名字 | wxapp可用事件都是自己的，需要单独掌握
 this.data.xxx / this.setDate({xxx:xxx}) | this.xxx / this.xxx = xxx | 很明显wxapp的获取值和更新值很麻烦
 this | this | wxapp的this不一定一直指向Page，所以函数有嵌套的时候，最好用that加以保留，看看人家ng的this，多么从一而终。
+
+## wxapp-项目-的一些坑
+1.微信小程序 - 录音与播放
+  - 电脑上开发者工具可能无法播放录音完成时的音频文件，所以播放没有声音
+  - 唱吧K歌项目中，因为电脑录音在后端无法生成作品，所以后台没有返回ok之类的值，一直98%，这个百分比的数字，竟然是随机生成的！
+  - 通常音频播放的时候，在onPlay里面设置了定时器来控制音乐时长，但是明显不对--暂定
+
+
+2.比如progress进度条需要数字显示，如果用this.data.progress=xxx来改data里面的值，页面上的值并不会更改，如果类似于双向数据绑定的效果，必须要用this.setData({progress:xxx})，用这个改，值才会实时更新到页面
+
+3.小程序button的边框，是用::after来设置的，如果要去除：
+```css
+button::after{
+    border:none
+}
+```
