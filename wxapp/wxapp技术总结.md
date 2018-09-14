@@ -819,3 +819,24 @@ Page({
     }
   })
   ```
+## 三、视图层View
+  框架的视图层由wxml与wxss编写，由组件来进行展示。
+  将逻辑层的数据反应成视图，同时将视图层的事件发送给逻辑层。
+  wxml（weixin markup language）用于描述页面的结构。
+  wxs（weixin script）是小程序的一套脚本语言，结合wxml，可以构建出页面的结构。
+  wxss（weixin style sheet）用于描述页面的样式。
+  组件（component）是视图的基本组成单位。
+### 1.WXML
+  WXML是框架设计的一套标签语言，结合基础组件、事件系统，可以构建出页面的结构
+#### 1.1 数据绑定
+  ```html
+  <view>{{message}}</view>
+  ```
+  ```javascript
+  Page({
+    data: {
+      message: 'Hello minna'
+    }
+  })
+  ```
+#### 1.2 列表渲染 
