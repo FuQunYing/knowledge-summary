@@ -968,3 +968,196 @@ Page({
   {{item}}
 </view>
 ```
+#### 1.3 条件渲染
+##### 1.3.1 wx:if
+  在框架中，使用wx:if="{{condition}}"来判断是否需要渲染该代码块：
+```html
+<view wx:if="{{condition}}">True</view>
+```
+  也可以用wx:elif和wx:else来添加一个else块：
+```html
+<view wx:if="{{length > 5}}"> 1 </view>
+<view wx:elif="{{length > 2}}"> 2 </view>
+<view wx:else> 3 </view>
+```
+##### 1.3.2 block wx:if
+  因为wx:if是一个控制属性，需要将它添加到一个标签上，如果要一次性判断多个组件标签，可以使用<block/>标签将多个组件包装起来，并在上边使用wx:if控制属性：
+```html
+<block wx:if="{{true}}">
+  <view> view1 </view>
+  <view> view2 </view>
+</block>
+```
+**注意：**
+  <block/>并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性（像ng的container？）
+**wx:if VS hidden**
+  因为wx:if之中的模板也可能包含数据绑定，所以当wx:if的条件值切换时，框架有一个局部渲染的过程，因为它会确保条件块在切换时销毁或重新渲染。
+  同时，wx:if也是惰性的，如果初始渲染条件为false，框架什么也不做，在条件第一次变成真的时候能才开始局部渲染。
+  相比之下，hidden就简单的多，组件始终会被渲染，只是简单的控制显示与隐藏。
+  一般来说，wx:if有更高的切换消耗，而hidden有更高的初始渲染消耗。因此，如果需要频繁切换的场景下，用hidden更好，如果在运行时条件不大可能改变则wx:if较好
+#### 1.4 模板
+  WXML提供模板（template），可以在模板中定义代码片段，然后在不同的地方调用。
+##### 1.4.1 定义模板
+  使用name属性，作为模板的名字，然后在<template/>内定义代码片段，如，
+```html
+<!--
+  index: int
+  msg: string
+  time: string
+-->
+<template name="msgItem">
+  <view>
+    <text> {{index}}: {{msg}} </text>
+    <text> Time: {{time}} </text>
+  </view>
+</template>
+``` 
+##### 1.4.2 使用模板
+  使用is属性，生命需要的使用的模板，然后将模板所需的data传入，如：
+```html
+<template is="msgItem" data="{{...item}}"/>
+```
+```javascript
+Page({
+  data: {
+    item: {
+      index: 0,
+      msg: 'this is a template',
+      time: '2016-09-15'
+    }
+  }
+})
+```
+  is属性可以使用Mustache语法，来动态决定具体需要渲染哪个模板：
+```html
+<template name="odd">
+  <view> odd </view>
+</template>
+<template name="even">
+  <view> even </view>
+</template>
+
+<block wx:for="{{[1, 2, 3, 4, 5]}}">
+	<template is="{{item % 2 == 0 ? 'even' : 'odd'}}"/>
+</block>
+```
+##### 1.4.3 模板的作用域
+  模板拥有自己的作用域，只能使用data传入的数据以及模板定义文件重定义的<wxs/>模块。
+#### 1.5 事件
+##### 1.5.1 什么是事件？
+- 事件是视图层到逻辑层的通讯方式
+- 事件可以将用户的行为反馈到逻辑层进行处理
+- 事件可以绑定在组件，当达到触发事件，就会执行逻辑层重对应的事件处理函数
+- 事件对象可以携带额外信息，如id，dateset，touches
+##### 1.5.2 事件的使用方式
+- 在组件中绑定一个事件处理函数。
+如bindtap，当用户点击该组件的时候，会在该页面对应的Page中找到相应的事件处理函数。
+```html
+<view id="tapTest" data-hi="weChat" bindtap="tapname">click me </view>
+<!-- wechat就是点击的时候传的参数，data-xxxx就是设置事件传参的，在js里面tapname里面接受 e，就能拿到值 -->
+```
+- 在相应的Page定义中写上相应的事件处理函数，参数是event：
+```javascript
+Page({
+  tapName: function(event) {
+    console.log(event)
+  }
+})
+```
+log出来的信息如下：
+```json
+{
+  "type":"tap",
+  "timeStamp":895,
+  "target": {
+    "id": "tapTest",
+    "dataset":  {
+      "hi":"WeChat"
+    }
+  },
+  "currentTarget":  {
+    "id": "tapTest",
+    "dataset": {
+      "hi":"WeChat"
+    }
+  },
+  "detail": {
+    "x":53,
+    "y":14
+  },
+  "touches":[{//但是我点的咋就没有这个，只有changedTouches
+    "identifier":0,
+    "pageX":53,
+    "pageY":14,
+    "clientX":53,
+    "clientY":14
+  }],
+  "changedTouches":[{
+    "identifier":0,
+    "pageX":53,
+    "pageY":14,
+    "clientX":53,
+    "clientY":14
+  }]
+}
+```
+##### 1.5.3 事件详解
+###### 1.5.3.1 事件分类
+事件分为冒泡事件和非冒泡事件：
+1.冒泡事件：当一个组件上的事件被触发后，该事件会向父节点传递
+2.非冒泡事件：当一个组件上的事件被触发后，该事件不会向父节点传递
+**WXML的冒泡事件列表**
+类型 | 触发条件 
+- | -
+touchstart | 手指触摸动作开始
+touchmove | 手指触摸后移动
+touchcacel | 手指触摸动作被打断，如来电提醒，弹框等
+touchend | 手指触摸动作结束
+tap | 手指触摸后马上离开
+longpress | 手指触摸后，超过350s再离开，如果指定了事件回调函数并触发了这个事件，tap事件将不被触发（1.5.0最低版本）
+longtap | 手指触摸后，超过350s再离开（推荐longpress）
+transitionend | 会在wxss transition或wx.createAnimation动画结束后触发
+animationstart | 会在一个wxss animation动画开始时触发
+animationiteration | 会在一个wxss animation一次迭代结束时触发
+animationend | 会在一个wxss animation动画完成时触发
+touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
+
+**注意：除上表之外的其他组件，自定义事件如无特殊声明，都是非冒泡事件，如<form/>的submit事件，<input/>的input事件，<scroll-view/>的scroll事件**
+###### 1.5.3.2 事件绑定和冒泡
+  事件绑定的写法同组件的属性，以key、value的形式。
+  - key以bind或catch开头，然后跟上事件的类型，如bindtap、catchtouchstart。自基础库版本1.5.0起，在非原生组件中，bind和catch后可以紧跟一个冒号，其含义不变，如bind:tap、catch:touchstart
+  - value是一个字符串，需要在对应的Page中定义同名的函数，不然当触发事件的时候会报错。
+  bind事件绑定不会阻止冒泡事件向上冒泡，catch事件绑定可以阻止冒泡事件向上冒泡。
+  比如下面的例子，点击inner view会先后调用handleTap3和handleTap2（因为tap事件会冒泡到middle view，而middle view阻止了tap事件继续往外冒泡，不再向父节点传递），点击middle view会触发handleTap2，点击middle view会触发handleTap2，点击outer view会触发handleTap1
+```html
+<view id="outer" bindtap="handleTap1">
+  outer view
+  <view id="middle" catchtap="handleTap2">
+    middle view
+    <view id="inner" bindtap="handleTap3">
+      inner view
+    </view>
+  </view>
+</view>
+```
+###### 1.5.3.3 事件的捕获阶段
+  自基础库1.5.0起，触摸类事件支持捕获阶段，捕获阶段位于冒泡阶段之前，且在捕获阶段中，事件到达节点的顺序与冒泡阶段恰好相反。需要在捕获阶段监听事件时，可以采用capture-bind、capture-catch关键字，后者将中断捕获阶段和取消冒泡阶段。
+```html
+<!-- 点击inner view，会先后调用handleTap2、handleTap4、handleTap1 -->
+<view id="outer" bind:touchstart="handleTap1" capture-bind:touchstart="handleTap2">
+  outer view
+  <view id="inner" bind:touchstart="handleTap3" capture-bind:touchstart="handleTap4">
+    inner view
+  </view>
+</view>
+
+<!-- 如果将上面的代码中的第一个capture-bind改为capture-catch，将只触发handleTap2 -->
+<view id="outer" bind:touchstart="handleTap1" capture-catch:touchstart="handleTap2">
+  outer view
+  <view id="inner" bind:touchstart="handleTap3" capture-bind:touchstart="handleTap4">
+    inner view
+  </view>
+</view>
+```
+###### 1.5.3.4 事件对象
+  如无特殊说明，当组件触发事件时，逻辑层绑定该事件的处理函数会收到一个事件对象。
