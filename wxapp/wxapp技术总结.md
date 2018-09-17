@@ -1,8 +1,8 @@
 # 微信小程序开发
   微信小程序是啥就不必多说了，微信开发者工具下载安装坑定也都会，注册小程序账号跟注册别的账号没啥区别，但是用的邮箱必须没有在别的微信账号使用过外加一些扫码信息认证，这些都不赘述。直接开始代码。
 ## 一、小程序的文件结构
-  小程序包含一个描述整体程序的app和多个描述各自页面的page。
-  一个程序主体部分由三个文件组成，必须放在项目的根目录下：
+小程序包含一个描述整体程序的app和多个描述各自页面的page。
+一个程序主体部分由三个文件组成，必须放在项目的根目录下：
 文件 | 必填 | 作用
 - | - | -
 app.js | 是 | 小程序逻辑
@@ -200,6 +200,7 @@ downloadFile | Number | 否 | wx.downloadFile的超时时间，单位毫秒，�
   可以在开发者工具中开启 debug 模式，在开发者工具的控制台面板，调试信息以 info 的形式给出，其信息有Page的注册，页面路由，数据更新，事件触发 。 可以帮助开发者快速定位一些常见的问题。
 #### 2.2 page.json
   每一个小程序页面也可以使用.json文件来对本页面的窗口表现进行配置。 页面的配置比app.json全局配置简单得多，只是设置 app.json 中的 window 配置项的内容，页面中配置项会覆盖 app.json 的 window 中相同的配置项。
+
   页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键，如：
 属性 | 类型 | 默认值 | 描述
 - | - | - | -
@@ -223,6 +224,7 @@ iPhone6 | 1rpx=0.5px | 1px=2rpx
 iPhone6Plus | 1rpx=0.552rpx | 1px=1.81rpx
 #### 3.2 样式导入
   使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的相对路径，用 ；表示语句结束
+
   比如：
 ```css
 /*common.wxss*/
@@ -310,6 +312,7 @@ Page({
 ```
 #### 4.1 初始化数据
   初始化数据将作为页面的第一次渲染，data将会以JSON的形式由逻辑层传到渲染层，所以其数据必须是可以转成JSON的格式：字符串、数字、布尔值、对象、数组。
+
   渲染层可以通过WXML对数据进行绑定：
 ```html
 <view>{{text}}</view>
@@ -361,6 +364,7 @@ Page({
     path | 转发路径 | 当前页面path，必须是以/开头的完整路径
 #### 4.4 事件处理函数
   除了初始化数据和生命周期函数，Page 中还可以定义一些特殊的函数：事件处理函数。在渲染层可以在组件中加入事件绑定，当达到触发事件时，就会执行 Page 中定义的事件处理函数。
+
   比如：
 ```html
 <view bindtap='viewTap'>click me</view>
@@ -383,6 +387,7 @@ Page({
   callback | Function | 否 | 回调函数 | 1.5.0
 
   object 以 key，value 的形式表示将 this.data 中的 key 对应的值改变成 value。 callback 是一个回调函数，在这次setData对界面渲染完毕后调用。其中 key 可以非常灵活，以数据路径的形式给出，如 array[2].message，a.b.c.d，并且不需要在 this.data 中预先定义。
+  
   注意：
   - 直接修改this.data而不调用this.setData是无法改变页面的状态的，还会造成数据不一致
   - 单次设置的数据不能超过1024KB，尽量避免一次设置过多的数据
@@ -540,7 +545,7 @@ onError | Function | 错误监听函数 | 当小程序发生脚本错误，或�
 onPageNotFound | Function | 页面不存在监听函数 | 当小程序出现要打开的页面不存在的情况，会带上页面信息回调该函数
 其它 | Any |  | 开发者可以添加任意的函数或者数据到Object参数中，用this可以访问
 ```txt
-	前后台的定义：当用户点击左上角关闭，或者按了设备home键离开微信，小程序并没有直接销毁，而是进入了后台，当再次进入微信或再次打开小程序，又会从后台进入前台，只有当小程序进入后台一定时间，或者系统资源占用过高，才会被真正的销毁。
+  前后台的定义：当用户点击左上角关闭，或者按了设备home键离开微信，小程序并没有直接销毁，而是进入了后台，当再次进入微信或再次打开小程序，又会从后台进入前台，只有当小程序进入后台一定时间，或者系统资源占用过高，才会被真正的销毁。
 ```
 #### 1.2 onLaunch，onShow参数
 字段 | 类型 | 说明
@@ -678,7 +683,9 @@ onTabItemTap | Function | 当前是tab页时，点击tab时触发
   Object 内容在页面加载时会进行一次深拷贝，需要考虑数据大小对页面加载的开销。
 #### 3.2 初始化数据
   初始化数据将作为页面的第一次渲染，data将会以JSON形式由逻辑层传至渲染层，所以其数据必须是可以转成JSON的格式：字符串、数字、布尔值、对象、数组。
+
   渲染层可以通过WXML对数据进行绑定：
+
   实例代码，前面写过了，翻回去看。
 
   卧槽，才意识到，这一节前面都写过了mmp。
@@ -697,6 +704,7 @@ Tab切换 | 页面全部出栈，只留下新的Tab页面
 重加载 | 页面全部出栈，只留下新的页面
 #### 4.2 getCurrentPages()
   getCurrentPages()函数用于获取当前页面栈的实例，以数组形式按栈的顺序给出，第一个元素为首页，最后一个元素为当前页面。
+
   **ps：**
   不要尝试修改页面栈，会导致路由以及页面状态错误
 #### 4.3 路由方式
@@ -784,11 +792,15 @@ Page({
 
 ### 6.API
   小程序开发框架提供丰富的微信原生API，可以方便的调起微信提供的能力，如获取用户信息，本地存储，支付功能等，详细API另起文档。
+
   通常，小程序API有以下几种类型：
 #### 6.1 事件监听API
   约定，以on开头的API用来监听某个事件是否触发：
+
   比如，wx.onSocketOpen,wx.onCompassChange等。
+
   这类API接受一个回调函数作为参数，当事件触发时，会调用这个回调函数，并将相关数据以采纳数形式传入。
+
   代码示例：
   ```javascript
   wx.onCompassChange(function(res){
@@ -797,7 +809,9 @@ Page({
   ```
 #### 6.2 同步API
   约定，以Sync结尾的API都是同步API，如wx,setStorgeSync,wx.getSystemInfoSync等，此外也有一些其它的同步API，如wx.createWorker,wx.getBackgroundAudioManager等，详见API文档。
+  
   同步API的执行结果，可以通过函数返回值直接获取，如果执行出错，会抛出异常。
+
   代码示例：
   ```javascript
   try{
@@ -808,6 +822,7 @@ Page({
   ```
 #### 6.3 异步API
   大多数API都是异步API，如wx.request，wx.login等，这类API接口通常都能接受一个Object类型的参数，这个参数都支持按需指定以下字段来接收接口调用结果：
+
   **Object参数说明：**
   参数名 | 类型 | 必填 | 说明
   - | - | - | - 
@@ -815,14 +830,18 @@ Page({
   fail | function | 否 | 接口调用失败的回调函数
   complete | function | 否 | 接口调用结束的回调函数（调用成功、失败都会执行）
   其他 | Any | - | 接口定义的其他参数
+
   **回调函数的参数**
+
   success、fail、complete函数调用时会传入一个Object类型参数，包含以下字段：
   属性 | 类型 | 说明
   - | - | -
   errMsg | string | 错误信息，如果调用成功返回${apiName}:ok
   errCode | number | 错误码，仅部分API支持，具体含义-详细文档
   其他 | Any | 接口返回的其他数据
+
   异步API的执行结果需要通过Object类型的参数中传入的对应回调函数获取。部分API也会有返回值，可以用来实现更丰富的功能，如wx.request，wx.connentSockets等
+  
   代码示例：
   ```javacript
   wx.login({
@@ -834,11 +853,17 @@ Page({
 
 ## 三、视图层View
   框架的视图层由wxml与wxss编写，由组件来进行展示。
+
   将逻辑层的数据反应成视图，同时将视图层的事件发送给逻辑层。
+
   wxml（weixin markup language）用于描述页面的结构。
+
   wxs（weixin script）是小程序的一套脚本语言，结合wxml，可以构建出页面的结构。
+
   wxss（weixin style sheet）用于描述页面的样式。
+
   组件（component）是视图的基本组成单位。
+
 ### 1.WXML
   WXML是框架设计的一套标签语言，结合基础组件、事件系统，可以构建出页面的结构
 #### 1.1 数据绑定
@@ -855,6 +880,7 @@ Page({
 #### 1.2 列表渲染
 ##### 1.2.1 wx:for
   在组件上使用wx:for控制属性绑定一个数组，即可使用数组中各项的数据重复渲染该组件。
+
   默认数组的当前项的下标变量名默认为index，数组当前项的变量名默认为item。
 ```html
   <view wx:for="{{array}}">{{index}}:{{item.message}}</view>
@@ -873,6 +899,7 @@ Page({
   })
 ```
   使用wx:for-item可以指定数组当前元素的变量名。
+
   使用wx:for-index可以指定数组当前下标的变量名。
 ```html
 <view wx:for="{{array}}" wx:for-index="idx" wx:for-item="itemName">
@@ -890,7 +917,7 @@ Page({
   </view>
 ```
 ##### 1.2.2 block wx:for
-  类似于block wx:if，也可以将wx:for用在<block/>标签上，以渲染一个包含多个节点的结构块。例如：
+  类似于block wx:if，也可以将wx:for用在\<block/>标签上，以渲染一个包含多个节点的结构块。例如：
 ```html
   <block wx:for="{{[1, 2, 3]}}">
     <view> {{index}}: </view>
@@ -898,13 +925,19 @@ Page({
   </block>
 ```
 ##### 1.2.3 wx:key
-  如果列表中项目的位置会动态改变或者有新的项目添加到列表中，并且希望列表中的项目保持自己的特征和状态（如<input/>中的输入内容，<switch/>的选中状态），需要使用wx:key来制定列表中的项目的唯一的标识符。
+  如果列表中项目的位置会动态改变或者有新的项目添加到列表中，并且希望列表中的项目保持自己的特征和状态（如\<input/>中的输入内容，\<switch/>的选中状态），需要使用wx:key来制定列表中的项目的唯一的标识符。
+
   wx:key的值以两种形式提供：
+
   1.字符串：代表在for循环的array中的item的某个property，该property的值需要是列表中唯一的字符串或数字，且不能动态改变。
+
   2.保留关键字 \*this代表在for循环中的item本身，这种表示需要item本身是一个唯一的字符串或者数字，如：
+
     当数据改变触发渲染层重新渲染的时候，会校正带有key的组件，框架会确保他们被重新排序，而不是重新创建，以确保使组件保持自身的状态，并且提高列表渲染时的效率。
-    **如不提供wx:key，会报一个warning，如果明确知道该列表是静态的，或者不必关注其顺序，可以选择忽略**
-    **示例代码**
+
+  **如不提供wx:key，会报一个warning，如果明确知道该列表是静态的，或者不必关注其顺序，可以选择忽略**
+
+   **示例代码**
 ```html
 <switch   wx:for="{{objectArray}}" wx:key="unique" style="display:block">
 {{item.id}}
@@ -956,8 +989,10 @@ Page({
   }
 })
 ```
-**注意**
+**注意：**
+
 当wx:for的值为字符串时，会将字符串解析成字符串数组：
+
 ```html
 <view wx:for="array">{{item}}</view>
 ```
@@ -968,6 +1003,7 @@ Page({
 </view
 ```
 **注意**
+
 如果花括号和引号之间有空格，将最终被解析成为字符串：
 ```html
 <!-- 那不如干脆所有的都不写空格 -->
@@ -994,7 +1030,7 @@ Page({
 <view wx:else> 3 </view>
 ```
 ##### 1.3.2 block wx:if
-  因为wx:if是一个控制属性，需要将它添加到一个标签上，如果要一次性判断多个组件标签，可以使用<block/>标签将多个组件包装起来，并在上边使用wx:if控制属性：
+  因为wx:if是一个控制属性，需要将它添加到一个标签上，如果要一次性判断多个组件标签，可以使用\<block/>标签将多个组件包装起来，并在上边使用wx:if控制属性：
 ```html
 <block wx:if="{{true}}">
   <view> view1 </view>
@@ -1002,16 +1038,23 @@ Page({
 </block>
 ```
 **注意：**
-  <block/>并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性（像ng的container？）
+
+\<block/>并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性（像ng的container？）
+
 **wx:if VS hidden**
+
   因为wx:if之中的模板也可能包含数据绑定，所以当wx:if的条件值切换时，框架有一个局部渲染的过程，因为它会确保条件块在切换时销毁或重新渲染。
+
   同时，wx:if也是惰性的，如果初始渲染条件为false，框架什么也不做，在条件第一次变成真的时候能才开始局部渲染。
+
   相比之下，hidden就简单的多，组件始终会被渲染，只是简单的控制显示与隐藏。
+
   一般来说，wx:if有更高的切换消耗，而hidden有更高的初始渲染消耗。因此，如果需要频繁切换的场景下，用hidden更好，如果在运行时条件不大可能改变则wx:if较好
+
 #### 1.4 模板
   WXML提供模板（template），可以在模板中定义代码片段，然后在不同的地方调用。
 ##### 1.4.1 定义模板
-  使用name属性，作为模板的名字，然后在<template/>内定义代码片段，如，
+  使用name属性，作为模板的名字，然后在\<template/>内定义代码片段，如，
 ```html
 <!--
   index: int
@@ -1055,7 +1098,7 @@ Page({
 </block>
 ```
 ##### 1.4.3 模板的作用域
-  模板拥有自己的作用域，只能使用data传入的数据以及模板定义文件重定义的<wxs/>模块。
+  模板拥有自己的作用域，只能使用data传入的数据以及模板定义文件重定义的\<wxs/>模块。
 #### 1.5 事件
 ##### 1.5.1 什么是事件？
 - 事件是视图层到逻辑层的通讯方式
@@ -1117,8 +1160,11 @@ log出来的信息如下：
 ##### 1.5.3 事件详解
 ###### 1.5.3.1 事件分类
 事件分为冒泡事件和非冒泡事件：
+
 1.冒泡事件：当一个组件上的事件被触发后，该事件会向父节点传递
+
 2.非冒泡事件：当一个组件上的事件被触发后，该事件不会向父节点传递
+
 **WXML的冒泡事件列表**
 类型 | 触发条件 
 - | -
@@ -1135,7 +1181,8 @@ animationiteration | 会在一个wxss animation一次迭代结束时触发
 animationend | 会在一个wxss animation动画完成时触发
 touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 
-**注意：除上表之外的其他组件，自定义事件如无特殊声明，都是非冒泡事件，如<form/>的submit事件，<input/>的input事件，<scroll-view/>的scroll事件**
+**注意：除上表之外的其他组件，自定义事件如无特殊声明，都是非冒泡事件，如\<form/>的submit事件，\<input/>的input事件，\<scroll-view/>的scroll事件**
+
 ###### 1.5.3.2 事件绑定和冒泡
   事件绑定的写法同组件的属性，以key、value的形式。
   - key以bind或catch开头，然后跟上事件的类型，如bindtap、catchtouchstart。自基础库版本1.5.0起，在非原生组件中，bind和catch后可以紧跟一个冒号，其含义不变，如bind:tap、catch:touchstart
@@ -1173,8 +1220,9 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 </view>
 ```
 ###### 1.5.3.4 事件对象
-  如无特殊说明，当组件触发事件时，逻辑层绑定该事件的处理函数会收到一个事件对象。
-  **BaseEvent基础事件对象属性列表**
+如无特殊说明，当组件触发事件时，逻辑层绑定该事件的处理函数会收到一个事件对象。<br>
+
+ **BaseEvent基础事件对象属性列表**
 属性 | 类型 | 说明
  - | - | -
  type | String | 事件类型
@@ -1183,27 +1231,37 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
  currentTarget | Object | 当前组件的一些属性值集合
  **CustomEvent自定义事件对象属性列表（继承BaseEvent）**
  属性 | 类型 | 说明
+ - | - | -
  detail | Object | 额外的信息
  **TouchEvent触摸事件对象属性列表（继承BaseEvent）**
  属性 | 类型 | 说明
+ - | - | -
  touches | Array | 触摸事件，当前停留在屏幕中的触摸点信息的数组
  changedTouches | Array | 触摸事件，当前变化的触摸点信息的数组
- **特殊事件：<canvas/>中的触摸事件不可冒泡，所以没有currentTarget**
- **type：**代表事件的类型
- **timeStamp：**页面打开 到触发事件所经过的毫秒数
- **target：**触发事件的源组件
+ **特殊事件：\<canvas/>中的触摸事件不可冒泡，所以没有currentTarget。**<br>
+
+ **type：**
+ 代表事件的类型
+
+ **timeStamp：**
+ 页面打开 到触发事件所经过的毫秒数
+
+ **target：**
+ 触发事件的源组件
  属性 | 类型 | 说明
  - | - | -
  id | String | 事件源组件的id
  tagName | String | 当前组件的类型
  dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
- **currentTarget：**事件绑定的当前组件
+ **currentTarget：**
+ 事件绑定的当前组件
 属性 | 类型 | 说明
  - | - | -
  id | String | 事件源组件的id
  tagName | String | 当前组件的类型
  dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
  **说明：target和currentTarget可以参考上例中，点击inner view时，handleTap3收到的事件对象target和currentTarget都是inner，而handleTap2收到的事件对象target就是inner，currentTarget就是middle**
+
 **dataset**
   在组件中可以定义数据，这些数据将会通过事件传递给SERVICE，书写方式：以data-开头，多个单词由连字符 - 连接，不能有大写（大写会自动转成小写）如data-element-type，最终在event.currentTarget.dataset中会将连字符转成驼峰elementType。
   比如：
@@ -1218,17 +1276,26 @@ Page({
   }
 }
 ```
-**touches：**touches是一个数组，每个元素为一个Touch对象（canvas触摸事件中携带的touches是CanvasTouch数组），表示当前停留在屏幕上的触摸点（所以我那个点击touches为空，因为没有停留的触摸点，点击之后就没了）
+**touches：**
+touches是一个数组，每个元素为一个Touch对象（canvas触摸事件中携带的touches是CanvasTouch数组），表示当前停留在屏幕上的触摸点（所以我那个点击touches为空，因为没有停留的触摸点，点击之后就没了）
+
 **Touche对象**
 属性 | 类型 | 说明
 - | - | -
 identifier | Number | 触摸点的标识符
 pageX，pageY | Number | 距离文档左上角的距离，文档的左上角为原点，横向为X轴，纵向为Y轴
 clientX，clientY | Number | 距离页面可显示区域（屏幕出去导航条）左上角距离，横向为X轴，纵向为Y轴
+
 **CanvasTouch对象**
+
 属性 | 类型 | 说明
+- | - |-
 identifier | Number | 触摸点的标识符
 x，y | Number | 距离Canvas左上角的距离，Canvas的左上角为原点，横向为X轴，纵向为Y轴
-**changedTouches：**changedTouches 数据格式同 touches。 表示有变化的触摸点，如从无变有（touchstart），位置变化（touchmove），从有变无（touchend、touchcancel）。
-**detail：**自定义事件所携带的数据，如表单组件的提交事件会携带用户的输入，媒体的错误事件会携带错误信息。点击事件的detail带有的x，y同pageX，pageY代表距离文档左上角的距离。
+
+**changedTouches：**
+changedTouches 数据格式同 touches。 表示有变化的触摸点，如从无变有（touchstart），位置变化（touchmove），从有变无（touchend、touchcancel）。
+
+**detail：**
+自定义事件所携带的数据，如表单组件的提交事件会携带用户的输入，媒体的错误事件会携带错误信息。点击事件的detail带有的x，y同pageX，pageY代表距离文档左上角的距离。
 
