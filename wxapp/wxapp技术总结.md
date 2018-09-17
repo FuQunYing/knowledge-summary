@@ -595,6 +595,7 @@ console.log(appInstance.globalData) // I am global data
   - 不要在定义于App()内的函数中调用getApp()，使用this就可以拿到app实例
   - 不要在onLaunch的时候调用getCurrentPages(),此时page还没有生成
   - 通用getApp()获取实例之后，不要私自调用生命周期函数
+
 ### 2.场景值
   当前支持的场景值
 场景值ID | 说明
@@ -655,6 +656,7 @@ console.log(appInstance.globalData) // I am global data
   可以在App的onLaunch和onShow中获取上述场景值，前面也已经写了一些场景值可以获取来源应用、公众号或小程序的appid。
   **ps:**
   由于Android系统限制，目前还无法获取到按Home键退出到桌面，然后再从桌面再次进入小程序的场景值，对于这种情况，或保留上一次的场景值。
+
 ### 3.注册页面
 #### 3.1 Page
   page()函数用来注册一个页面，接受一个object参数，其指定页面的初始数据、生命周期函数、事件处理函数等
@@ -680,6 +682,7 @@ onTabItemTap | Function | 当前是tab页时，点击tab时触发
   实例代码，前面写过了，翻回去看。
 
   卧槽，才意识到，这一节前面都写过了mmp。
+
 ### 4.页面路由
   在小程序中所有的路由全部由框架进行管理。
 #### 4.1 页面栈
@@ -723,6 +726,7 @@ D（从转发进入） | B | D.onUnload(), B.onLoad(), B.onShow()
   - reLaunch 可以打开任意页面。
   - 页面底部的 tabBar 由页面决定，即只要是定义为 tabBar 的页面，底部都有 tabBar。
   - 调用页面路由带的参数可以在目标页面的onLoad中获取
+
 ### 5.模块化
 #### 5.1 文件作用域
   在JavaScript文件中声明的变量和函数只在该文件中有效；不同的文件中可以声明相同名字的变量和函数，不会互相影响。
@@ -777,6 +781,7 @@ Page({
   //很像Angular的服务啊
 })
 ```
+
 ### 6.API
   小程序开发框架提供丰富的微信原生API，可以方便的调起微信提供的能力，如获取用户信息，本地存储，支付功能等，详细API另起文档。
   通常，小程序API有以下几种类型：
