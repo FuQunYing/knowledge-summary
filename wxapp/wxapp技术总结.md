@@ -1161,3 +1161,61 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 ```
 ###### 1.5.3.4 事件对象
   如无特殊说明，当组件触发事件时，逻辑层绑定该事件的处理函数会收到一个事件对象。
+  **BaseEvent基础事件对象属性列表**
+属性 | 类型 | 说明
+ - | - | -
+ type | String | 事件类型
+ timeStamp | Integer | 事件生成时的时间戳
+ target | Object | 触发事件的组件的一些属性值集合
+ currentTarget | Object | 当前组件的一些属性值集合
+ **CustomEvent自定义事件对象属性列表（继承BaseEvent）**
+ 属性 | 类型 | 说明
+ detail | Object | 额外的信息
+ **TouchEvent触摸事件对象属性列表（继承BaseEvent）**
+ 属性 | 类型 | 说明
+ touches | Array | 触摸事件，当前停留在屏幕中的触摸点信息的数组
+ changedTouches | Array | 触摸事件，当前变化的触摸点信息的数组
+ **特殊事件：<canvas/>中的触摸事件不可冒泡，所以没有currentTarget**
+ **type：**代表事件的类型
+ **timeStamp：**页面打开 到触发事件所经过的毫秒数
+ **target：**触发事件的源组件
+ 属性 | 类型 | 说明
+ - | - | -
+ id | String | 事件源组件的id
+ tagName | String | 当前组件的类型
+ dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
+ **currentTarget：**事件绑定的当前组件
+属性 | 类型 | 说明
+ - | - | -
+ id | String | 事件源组件的id
+ tagName | String | 当前组件的类型
+ dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
+ **说明：target和currentTarget可以参考上例中，点击inner view时，handleTap3收到的事件对象target和currentTarget都是inner，而handleTap2收到的事件对象target就是inner，currentTarget就是middle**
+**dataset**
+  在组件中可以定义数据，这些数据将会通过事件传递给SERVICE，书写方式：以data-开头，多个单词由连字符 - 连接，不能有大写（大写会自动转成小写）如data-element-type，最终在event.currentTarget.dataset中会将连字符转成驼峰elementType。
+  比如：
+```html
+<view data-alpha-beta="1" data-alphaBeta="2" bindtap="bindViewTap">DataSet Test</view>
+```
+```javascript
+Page({
+  bindViewTap:function(event){
+    event.currentTarget.dataset.alphaBeta === 1 // - 会转为驼峰写法
+    event.currentTarget.dataset.alphabeta === 2 // 大写会转为小写
+  }
+}
+```
+**touches：**touches是一个数组，每个元素为一个Touch对象（canvas触摸事件中携带的touches是CanvasTouch数组），表示当前停留在屏幕上的触摸点（所以我那个点击touches为空，因为没有停留的触摸点，点击之后就没了）
+**Touche对象**
+属性 | 类型 | 说明
+- | - | -
+identifier | Number | 触摸点的标识符
+pageX，pageY | Number | 距离文档左上角的距离，文档的左上角为原点，横向为X轴，纵向为Y轴
+clientX，clientY | Number | 距离页面可显示区域（屏幕出去导航条）左上角距离，横向为X轴，纵向为Y轴
+**CanvasTouch对象**
+属性 | 类型 | 说明
+identifier | Number | 触摸点的标识符
+x，y | Number | 距离Canvas左上角的距离，Canvas的左上角为原点，横向为X轴，纵向为Y轴
+**changedTouches：**changedTouches 数据格式同 touches。 表示有变化的触摸点，如从无变有（touchstart），位置变化（touchmove），从有变无（touchend、touchcancel）。
+**detail：**自定义事件所携带的数据，如表单组件的提交事件会携带用户的输入，媒体的错误事件会携带错误信息。点击事件的detail带有的x，y同pageX，pageY代表距离文档左上角的距离。
+
