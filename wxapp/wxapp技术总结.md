@@ -1,4 +1,4 @@
-#微信小程序开发
+# 微信小程序开发
   微信小程序是啥就不必多说了，微信开发者工具下载安装坑定也都会，注册小程序账号跟注册别的账号没啥区别，但是用的邮箱必须没有在别的微信账号使用过外加一些扫码信息认证，这些都不赘述。直接开始代码。
 ## 一、小程序的文件结构
   小程序包含一个描述整体程序的app和多个描述各自页面的page。
@@ -98,6 +98,7 @@ App()必须在aoo.js中注册，且不能注册多个
 通过getApp()获取实例之后，不要私自调用声明周期函数
 */
 ```
+
 ### 2.app.json
   app.json文件用来对微信小程序进行全局配置，决定页面文件的路径、窗口表现，设置网络超时时间，设置多tab等，下面是一个包含所有配置选项的app.json:
 ```json
@@ -136,7 +137,7 @@ debug | Boolean | 否 | 设置是否开启debug模式
 ##### 2.1.1 pages
   接受一个数组，每一项都是字符串，来指定小程序由哪些页面组成，每一项代表对应页面的[路径+文件名]信息，数组的第一项代表小程序的初始页面，小程序中新增或者减少页面，都需要对pages数组进行修改，文件名不需要写文件后缀，框架会自动去寻找路径下.json .js .wxml .wxss四个文件进行整合。
 ##### 2.1.2 window
-  用于设置小程序的状态栏、导航条、标题、窗口背景颜色：
+用于设置小程序的状态栏、导航条、标题、窗口背景颜色：
 属性 | 类型 | 默认值 | 描述 | 最低版本
 - | - | - | - | - 
 navigationBarBackgroundColor | HexColor | #000000 | 导航栏背景颜色，比如"#000" | 
@@ -164,11 +165,12 @@ onReachBottomDistance | Number | 50 | 页面上拉触底事件触发时距页面
   然后，页面就长这样：
   ![图片](config.jpg)
 ##### 2.1.3 tabBar
-  如果小程序是一个多tab的应用，可以通过tabBar配置项来指定tab栏的表现，以及tab切换时显示的对应页面。
-  注意：
-  - 当设置position为top时，将不会显示icon
-  - tabBar中的list是一个数组，只能配置最少2个，最多5个tab，tab按数组的顺序排列
-    **属性说明**
+如果小程序是一个多tab的应用，可以通过tabBar配置项来指定tab栏的表现，以及tab切换时显示的对应页面。
+注意：
+- 当设置position为top时，将不会显示icon
+ - tabBar中的list是一个数组，只能配置最少2个，最多5个tab，tab按数组的顺序排列。
+
+**属性说明**
 属性 | 类型 | 必填 | 默认值 | 描述
 - | - | - | - | - 
 color | HexColor | 是 | | tab上的文字默认颜色
@@ -177,7 +179,8 @@ backgroundColor | HexColor | 是 |  | tab的背景色
 borderStyle | String | 否 | black | tabbar上边框的颜色，仅支持black/white
 list | Array | 是 |  | tab的列表
 position | String | 否 | bottom | 可选值不bottom top
-  **其中list接受一个数组，数组中的每个项都是一个对象，属性值如下：**
+
+**其中list接受一个数组，数组中的每个项都是一个对象，属性值如下：**
 属性 | 类型 | 必填 | 说明
 - | - | - | -
 pagePath | String | 是 | 页面路径， 必须在pages数组中先定义
@@ -208,6 +211,7 @@ backgroundTextStyle | String | dark | 下拉loading的样式，仅支持dark/lig
 enablePullDownRefresh | Boolean | false | 是否开启下拉刷新
 disableScroll | Boolean | false | 设置为true则页面整体不能上下滚动，只在page.json中有效，无法在app.json中设置该项
 onReachBottomDistance | Number | 50 | 页面上拉触底时间触发时距页面底部距离，单位为px
+
 ### 3.app.wxss
   就是普通网页的css样式一样，wxss和css的特性大部分都一样，也大部分都能用，但是wxss扩展了尺寸单位和样式导入
 #### 3.1 尺寸单位
@@ -250,6 +254,7 @@ element, element | view, checkbox | 选择所有文档的 view 组件和所有�
 ::before | view::before | 在 view 组件前边插入内容
 #### 3.5 全局样式与局部样式
   定义在 app.wxss 中的样式为全局样式，作用于每一个页面。在 page 的 wxss 文件中定义的样式为局部样式，只作用在对应的页面，并会覆盖 app.wxss 中相同的选择器。
+
 
 ### 4.JS - Page
   Page()函数用来注册一个页面，接受一个Object参数，指定页面的初始数据，生命周期函数，事件处理函数等
@@ -437,6 +442,7 @@ Page({
 ```
 #### 4.7 生命周期
 ![图片](mina-lifecycle.png)
+
 ### 5.WXML
   WXML是框架设计的一套标签语言，结合基础组件、事件系统，可以构建出页面的结构。
 #### 5.1 数据绑定
@@ -510,6 +516,7 @@ Page({
     }
 })
 ```
+
 ## 二、逻辑层（App Service）
   小程序开发框架的逻辑层由JavaScript编写。
   逻辑层将数据进行处理后发送给视图层，同时接受视图层的事件反馈。
@@ -819,6 +826,7 @@ Page({
     }
   })
   ```
+
 ## 三、视图层View
   框架的视图层由wxml与wxss编写，由组件来进行展示。
   将逻辑层的数据反应成视图，同时将视图层的事件发送给逻辑层。
