@@ -877,6 +877,7 @@ Page({
     }
   })
   ```
+
 #### 1.2 列表渲染
 ##### 1.2.1 wx:for
   在组件上使用wx:for控制属性绑定一个数组，即可使用数组中各项的数据重复渲染该组件。
@@ -1017,6 +1018,7 @@ Page({
   {{item}}
 </view>
 ```
+
 #### 1.3 条件渲染
 ##### 1.3.1 wx:if
   在框架中，使用wx:if="{{condition}}"来判断是否需要渲染该代码块：
@@ -1099,6 +1101,7 @@ Page({
 ```
 ##### 1.4.3 模板的作用域
   模板拥有自己的作用域，只能使用data传入的数据以及模板定义文件重定义的\<wxs/>模块。
+
 #### 1.5 事件
 ##### 1.5.1 什么是事件？
 - 事件是视图层到逻辑层的通讯方式
@@ -1298,4 +1301,761 @@ changedTouches 数据格式同 touches。 表示有变化的触摸点，如从�
 
 **detail：**
 自定义事件所携带的数据，如表单组件的提交事件会携带用户的输入，媒体的错误事件会携带错误信息。点击事件的detail带有的x，y同pageX，pageY代表距离文档左上角的距离。
+
+
+#### 1.6 引用
+  WXML提供两种文件引用方式import和include
+##### 1.6.1 import
+  import可以在该文件中使用目标文件定义的template。如：
+
+  在item.wxml中定义了一个叫item的template：
+```html
+  <!-- index.wxml -->
+  <template name="item">
+    <text>{{text}}</text>
+  </template>
+```
+  在index.wxml中引入了item.wxml，就可以使用item模板：
+```html
+<import src="item.wxml">
+<template is="item" data="{{text:'forbar'}}"></template>
+```
+##### 1.6.2 import 的作用域
+  import有作用域概念，即只会import目标文件中定义的template，而不会import目标文件import的template。
+
+  **比如：C import B，B import A，在C中可以使用B定义的template，在B中可以使用A定义的template，但是C不能使用A定义的template**
+
+  ```html
+  <!-- A.wxml -->
+<template name="A">
+  <text> A template </text>
+</template>
+<!-- B.wxml -->
+<import src="a.wxml"/>
+<template name="B">
+  <text> B template </text>
+</template>
+<!-- C.wxml -->
+<import src="b.wxml"/>
+<template is="A"/>  <!-- Error! Can not use tempalte when not import A. -->
+<template is="B"/>
+  ```
+
+##### 1.6.3 include
+  include可以将目标文件除了\<template/> \<wxs/> 外的整个代码引入，相当于是拷贝到include位置，如：
+```html
+<!-- index.wxml -->
+<include src="header.wxml"/>
+<view> body </view>
+<include src="footer.wxml"/>
+<!-- header.wxml -->
+<view> header </view>
+<!-- footer.wxml -->
+<view> footer </view>
+```
+
+### 2.WXSS
+  WXSS（weixin style sheet）是一套样式语言，用于描述WXML的组件样式。
+
+  WXSS用来决定WXML的组件应该怎么显示。
+
+  与CSS相比，WXSS扩展的特性有：
+  - 尺寸单位
+  - 样式导入
+#### 2.1 尺寸单位
+  - rpx（responsive pixel）: 可以根据屏幕宽度进行自适应。规定屏幕宽为750rpx。如在 iPhone6 上，屏幕宽度为375px，共有750个物理像素，则750rpx = 375px = 750物理像素，1rpx = 0.5px = 1物理像素。
+  设备 | rpx换算成pc（屏幕宽度/750） | px换算成rpx（750/屏幕宽度）
+  - | - | -
+  iPhone5 | 1rpx=0.42px | 1px=2.34rpx
+  iPhone6 | 1rpx=0.5px | 1px=2rpx
+  iPhone6 Plus | 1rpx=0.552px | 1px=1.81rpx
+
+  **建议：**
+  开发微信小程序时设计师可以用iPhone6作为视觉稿的标准
+
+  **注意：**
+  在较小的屏幕上不可避免会有一些毛刺，开发时要尽量避免。
+##### 2.2 样式导入
+  使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的路径，用；表示语句的结束。
+  **示例代码**
+```css
+/** common.wxss **/
+.small-p {
+  padding:5px;
+}
+/** app.wxss **/
+@import "common.wxss";
+.middle-p {
+  padding:15px;
+}
+```
+
+##### 2.3 内联样式
+  框架组件上支持使用style、class属性来控制组件的样式
+  - style：静态的样式统一写到class中，style接收动态的样式，在运行时会进行解析，尽量避免将静态的样式写进style中，以免影响渲染速度。
+```html
+<view style="color: {{color}}">
+```
+  - class：用于指定样式规则，其属性值是样式规则中类选择器名（样式类名）的集合，样式类名不需要带上 . ，样式类名之间用空格分离。
+```html
+<view class="normal_view">
+```
+##### 2.4 选择器
+  目前支持的选择器有：
+  选择器 | 样例 | 样例描述
+  - | - | -
+  .class | .intro | 选择所有拥有class="intro"的组件
+  \#id | #firstname | 选择拥有 id="firstname" 的组件
+  element | view | 选择所有view组件
+  element, element |	view, checkbox |	选择所有文档的 view 组件和所有的 checkbox 组件
+  ::after | 	view::after |	在 view 组件后边插入内容
+  ::before |	view::before |	在 view 组件前边插入内容
+
+##### 2.5 全局样式与局部样式
+  定义在 app.wxss 中的样式为全局样式，作用于每一个页面。在 page 的 wxss 文件中定义的样式为局部样式，只作用在对应的页面，并会覆盖 app.wxss 中相同的选择器。
+
+### 3.基础组件（详细文档--再说）
+  组件：
+  - 组件是视图层的基本组成单元
+  - 组件自带一些功能与微信风格一致的样式
+  - 一个组件通常包括 开始标签 和 结束标签，属性用来修饰这个组件，内容在两个标签之内
+```html
+<tagname property="value">内容内容内容</tagname>
+```
+**注意：所有组件与属性都是小写，以连字符-连接**
+
+#### 3.1 属性类型
+类型 | 描述 | 注解
+- | - | -
+Boolean | 布尔值 | 组件上写该属性，不管是什么值都被当做true，只有组件上没有该属性时，属性值才为false。如果属性值为变量，变量的值会被转换为Boolean类型
+Number | 数字 | 1，2.5
+String | 字符串 | "string"
+Array | 数组 | [1,"string"]
+Object | 对象 | {key: value}
+EventHandler |	事件处理函数名 |	"handlerName" 是 Page 中定义的事件处理函数名
+Any | 任意属性
+
+#### 3.2 公共属性
+  所有组件都有以下属性：
+属性名 | 类型 | 描述 | 注解
+- | - | - | -
+id | String | 组价的唯一标识 | 保持整个页面唯一
+class | String | 组件的样式类 | 在对应的WXSS中定义的样式类
+style | String | 组件的内联样式 | 可以动态设置的内联样式
+hidden |	Boolean |	组件是否显示 |	所有组件默认显示
+data-* |	Any |	自定义属性 |	组件上触发的事件时，会发送给事件处理函数
+bind* / catch* |	EventHandler |	组件的事件 |	详见事件
+
+#### 3.3 特殊属性
+  几乎所有组件都有各自定义的属性，可以对该组件的功能或样式进行修饰。
+
+### 4.WXS
+  WXS（weixin script）是小程序的一套脚本语言，结合WXML，可以构建出页面的结构。
+**注意：**
+- wxs不依赖于运行时的基础库版本，可以在所有版本的小程序中运行
+- wxs与JavaScript是不同的语言，有自己的语法，和JavaScript不一致！！！
+- wxs的运行环境和其它JavaScript代码是隔离的，wxs中不能调用其它JavaScript文件中定义的函数，也不能调用小程序提供的API
+- wxs函数不能作为组件的事件回调
+- 由于运行环境的差异，在IOS设备上小程序内的wxs会比JavaScript代码快2-20倍，在Android设备上二者运行效率无差异。
+
+一些的简单的wxs示例：
+**页面渲染**
+```html
+<!--wxml-->
+<wxs module="m1">
+var msg = "hello world";
+
+module.exports.message = msg;
+</wxs>
+
+<view> {{m1.message}} </view>
+<!-- 输出hello world -->
+```
+**数据处理**
+```javascript
+// page.js
+Page({
+  data: {
+    array: [1, 2, 3, 4, 5, 1, 2, 3, 4]
+  }
+})
+```
+```html
+<!-- wxml -->
+<!-- 下面的getMax函数，接受一个数组，且返回数组中最大的元素的值 -->
+<wxs module="m1">
+var getMax=function(array) {
+  var max = undefined;
+  for (var i = 0; i < array.length; ++i) {
+    max = max === undefined ? array[i] : (max >= array[i] ? max : array[i])
+  }
+  return max
+}
+module.exports.getMax=getMax;
+</wxs>
+<!-- 调用wxs里面的getMax函数，参数为page.js里面的array -->
+<view> {{m1.getMax(array)}}</view>
+<!-- 页面最终显示 5-->
+```
+#### 4.1 模块
+  WXS代码可以编写在wxml文件中的<wxs>标签内，或以.wxs为后缀名的文件内。
+##### 4.1.1 模块
+  每一个.wxs文件和\<wxs>标签都是一个单独的模块。每个模块都有自己独立的作用域。即在一个模块里面定义的变量与函数，默认为私有的，对其它模块不可见。
+
+  一个模块要想对外暴露其内部的私有变量与函数，只能通过module.exports实现。
+##### 4.1.2 .wxs文件
+  在微信开发者工具里面，右键可以直接创建.wxs文件，在其中直接编写WXS脚本。
+
+  **示例代码：**
+```javascript
+// /pages/comm.wxs
+var foo="'hello world' from comm.wxs";
+var bar=function(d){
+  return d;
+}
+module.exports={
+  foo: foo,
+  bar: bar
+}
+//在 /pages/comm.wxs 的文件里面编写了 WXS 代码。该 .wxs 文件可以被其他的 .wxs 文件 或 WXML 中的 <wxs> 标签引用。
+```
+##### 4.1.3 module对象
+  每个wxs模块均有一个内置的module对象。
+
+**属性：**
+exports：通过该属性，可以对外共享本模块的私有变量与函数。
+```javascript
+// /pages/tools.wxs
+var foo = "'hello world' from tools.wxs";
+var bar = function (d) {
+  return d;
+}
+module.exports = {
+  FOO: foo,
+  bar: bar,
+};
+module.exports.msg = "some msg";
+```
+```html
+<!-- page/index/index.wxml -->
+<wxs src="./../tools.wxs" module="tools" />
+<view> {{tools.msg}} </view>
+<view> {{tools.bar(tools.FOO)}} </view>
+<!-- 页面输出 some msg 和 'hello world' from tools.wxs -->
+```
+
+**require函数：**
+  在.wxs模块中引用其他 wxs 文件模块，可以使用 require 函数。
+
+  引用的时候，要注意如下几点：
+  - 只能引用.wxs文件模块，且必须使用相对路径
+  - wxs模块均为单例，wxs模块在第一次被引用时，会自动初始化为单例对象，多个页面、多个地方，多次引用，使用的都是同一个wxs模块对象。
+  - 如果一个wxs模块在定义之后，一直没有被引用，则该模块不会被解析与运行。
+```javascript
+// /pages/tools.wxs
+var foo = "'hello world' from tools.wxs";
+var bar = function (d) {
+  return d;
+}
+module.exports = {
+  FOO: foo,
+  bar: bar,
+};
+module.exports.msg = "some msg";
+
+// /pages/logic.wxs
+var tools = require("./tools.wxs");
+
+console.log(tools.FOO);
+console.log(tools.bar("logic.wxs"));
+console.log(tools.msg);
+```
+```html
+<!-- /page/index/index.wxml -->
+<wxs src="./../logic.wxs" module="logic" />
+<!-- 控制台输出：
+'hello world' from tools.wxs
+logic.wxs
+some msg -->
+```
+##### 4.1.4 \<wxs>标签
+属性名 | 类型 | 默认值 | 说明
+- | - | - | -
+module | String |  | 当前\<wxs>标签的模块名，必填字段
+src | String | | 引用.wxs文件的相对路径，仅当本标签为单闭合标签或标签的内容为空时有效
+
+##### 4.1.5 module属性
+  module属性是当前\<wxs>标签的模块名，在单个wxml文件内，建议其值唯一，有重复模块名则按照先后顺序覆盖（后者覆盖前者）。不同文件之间的wxs模块名不会相互覆盖。
+
+  module属性值的命名必须符合下面两个规则：
+  - 首字符必须是：字母（a-zA-Z），下划线（_）
+  - 剩余字符可以是：字母（a-zA-Z），下划线（_）， 数字（0-9）
+```html
+<!-- wxml -->
+<wxs module="foo">
+  var some_msg="hello world"
+  module.exports={msg:some_msg}
+</wxs>
+<view>{{foo.msg}}</view>
+<!-- 声明了一个名字为 foo 的模块，将 some_msg 变量暴露出来，供当前页面使用。 -->
+<!-- 页面输出 hello world -->
+```
+##### 4.1.6 src属性
+  src属性可以用来引用其它的wxs文件模块。
+  引用的时候，要注意：
+  - 只能引用.wxs文件模块，且必须使用相对路径
+  - wxs模块均为单例，wxs模块在第一次被引用时，会自动初始化为单例对象，多个页面、多个地方，多次引用，使用的都是同一个wxs模块对象。
+  - 如果一个wxs模块在定义之后，一直没有被引用，则该模块不会被解析与运行。
+```javascript
+// /pages/index/index.js
+Page({
+  data: {
+    msg: "'hello wrold' from js",
+  }
+})
+```
+```html
+<!-- /pages/index/index.wxml -->
+
+<wxs src="./../comm.wxs" module="some_comms"></wxs>
+<!-- 也可以直接使用单标签闭合的写法
+<wxs src="./../comm.wxs" module="some_comms" />
+-->
+
+<!-- 调用 some_comms 模块里面的 bar 函数，且参数为 some_comms 模块里面的 foo -->
+<view> {{some_comms.bar(some_comms.foo)}} </view>
+<!-- 调用 some_comms 模块里面的 bar 函数，且参数为 page/index/index.js 里面的 msg -->
+<view> {{some_comms.bar(msg)}} </view>
+
+<!-- 页面输出：
+'hello world' from comm.wxs
+'hello wrold' from js -->
+
+<!-- 在文件 /page/index/index.wxml 中通过 <wxs> 标签引用了 /page/comm.wxs 模块。 -->
+```
+
+**注意：**
+- \<wxs> 模块只能在定义模块的 WXML 文件中被访问到。使用 \<include> 或 \<import> 时，\<wxs> 模块不会被引入到对应的 WXML 文件中。
+- \<template> 标签中，只能使用定义该 \<template> 的 WXML 文件中定义的 \<wxs> 模块
+#### 4.2 变量
+##### 4.2.1 概念
+  - WXS中的变量均为值的引用
+  - 没有声明的变量直接赋值使用，会被定义为全局变量
+  - 如果只声明变量而不赋值，则默认值为undefined
+  - var 表现与JavaScript一致，会有变量提升
+```javascript
+var foo = 1;
+var bar = "hello world";
+var i; // i === undefined
+//这里，分别声明了 foo、 bar、 i 三个变量。然后，foo 赋值为数值 1 ，bar 赋值为字符串 "hello world"
+```
+##### 4.2.2 变量名
+  变量名必须符合下面两个规则：
+  - 首字符必须是：字母（a-zA-Z），下划线（_）
+  - 剩余字符可以是：字母（a-zA-Z），下划线（_）， 数字（0-9）
+##### 4.2.3 保留标识符
+  以下标识符不能作为变量名：
+```txt
+delete 、void 、typeof
+
+null 、undefined 、NaN 、Infinity 、var
+
+if 、else 
+
+true 、false
+
+require
+
+this 、function 、arguments、return
+
+for、while、do、break、continue、switch、case、default
+```
+#### 4.3 注释
+  WXS主要有3种注释方法：
+```html
+<!-- wxml -->
+<wxs module="sample">
+// 方法一：单行注释
+/*
+方法二：多行注释
+*/
+/*
+方法三：结尾注释。即从 /* 开始往后的所有 WXS 代码均被注释
+var a = 1;
+var b = 2;
+var c = "fake";
+</wxs>
+<!-- 上述例子中，所有 WXS 代码均被注释掉了。
+方法三 和 方法二 的唯一区别是，没有 */ 结束符。 -->
+```
+#### 4.4 运算符
+##### 4.4.1 基本运算符
+  加减乘除和取余，和JS的没区别
+##### 4.4.2 一元运算符：
+```javascript
+var a = 10, b = 20;
+// 自增运算
+console.log(10 === a++);
+console.log(12 === ++a);
+// 自减运算
+console.log(12 === a--);
+console.log(10 === --a);
+// 正值运算
+console.log(10 === +a);
+// 负值运算
+console.log(0-10 === -a);
+// 否运算
+console.log(-11 === ~a);
+// 取反运算
+console.log(false === !a);
+// delete 运算
+console.log(true === delete a.fake);
+// void 运算
+console.log(undefined === void a);
+// typeof 运算
+console.log("number" === typeof a);
+```
+##### 4.4.3 位运算符
+```javascript
+var a = 10, b = 20;
+// 左移运算
+console.log(80 === (a << 3));
+// 无符号右移运算
+console.log(2 === (a >> 2));
+// 带符号右移运算
+console.log(2 === (a >>> 2));
+// 与运算
+console.log(2 === (a & 3));
+// 异或运算
+console.log(9 === (a ^ 3));
+// 或运算
+console.log(11 === (a | 3));
+```
+##### 4.4.4 比较运算符
+  大于、小于、大于等于、小于等于
+##### 4.4.5 等值运算符
+ ==和！=和===和！==
+##### 4.4.6 赋值运算符
+*=、/=、+=、-=、%=、<<=、>>=、>>>=、&=、^=、|=
+##### 4.4.7 二元逻辑运算符
+或 || 、与 &&
+##### 4.4.8 其它运算符
+```javascript
+var a = 10, b = 20;
+
+//条件运算符-三目
+console.log(20 === (a >= 10 ? a + 10 : b + 10));
+//逗号运算符？？？？
+console.log(20 === (a, b));
+```
+##### 4.4.9 运算符优先级
+优先级 | 运算符 | 说明 | 结合性
+- | - | - | -
+20 | （xxxx） | 括号 | n/a
+19 | xx . xx  | 成员访问 | 从左到右
+  | xx [xx]  | 成员访问 | 从左到右
+  | xx ( xx ) | 函数调用 | 从左到右
+17 |	... ++	/  ... --| 后置递增/递减	| n/a
+16 |	! .../~ .../+ .../- .../++ .../-- .../typeof .../void ...	/delete ... |	逻辑非/按位非/一元加法/一元减法/前置递增/前置递减/typeof/void/delete |	从右到左
+14	| ... * ... /... / ... /... % ...		|	乘法/除法/取模	 | 从左到右
+13	|.. + ... /... - ...|	加法 /减法|	从左到右
+12	|... << .../... >> .../... >>> ...	|按位左移/按位右移/无符号右移	|从左到右
+11 |	... < .../... <= .../... > ... /... >= ...|	小于/小于等于/大于/大于等于	|从左到右
+10	| ... == .../... != ...	/... === .../... !== ...		 |等号/非等号/全等号/非全等号	| 从左到右
+9	|... & ... |	按位与	|从左到右
+8	|... ^ ... |	按位异或 |	从左到右
+7	|... ｜ ...	|按位或	|从左到右
+6	|... && ...	|逻辑与	|从左到右
+5	|... ｜｜ ...|	逻辑或	|从左到右
+4	|... ? ... : ...	|条件运算符	|从右到左
+3	 |... = ...	不列出了，看上面 |赋值	|从 右到左
+0 |	... , ... |	逗号|	从左到右
+#### 4.5 语句
+##### 4.5.1 if语句
+  在wxs中，可以使用以下格式的if语句
+  - if (expression) statement ： 当 expression 为 truthy 时，执行 statement。
+  - if (expression) statement1 else statement2 : 当 expression 为 truthy 时，执行 statement1。 否则，执行 statement2
+  - if ... else if ... else statementN 通过该句型，可以在 statement1 ~ statementN 之间选其中一个执行。
+```javascript
+// if ...
+
+// if ... else 
+
+// if ... else if ... else ...
+
+//和JS都一样啦
+```
+##### 4.5.2 switch语句
+ 和JS一样
+ - default分支可以省略不写
+ - case 关键词后面只能使用：变量，数字，字符串
+##### 4.5.3 for 语句
+  和JS一样，普通的for循环
+##### 4.5.4 while语句
+```javascript
+while (表达式)
+  语句;
+while (表达式){
+  代码块;
+}
+do {
+  代码块;
+} while (表达式)
+//和JS一样，但是挺久没用了，复习一下
+//当表达式为true时，循环执行语句或代码块
+//支持使用break，continue关键词
+```
+#### 4.6 数据类型
+  WXS有八种数据类型：
+  - number ： 数值
+  - string ：字符串
+  - boolean：布尔值
+  - object：对象
+  - function：函数
+  - array : 数组
+  - date：日期
+  - regexp：正则
+##### 4.6.1 number
+  number包括两种数值：整数、小数
+  属性 constructor：返回字符串'number'
+  方法（使用可参考ES5标准）：
+  - toString
+  - toLocaleString
+  - valueOf
+  - toFixed
+  - toExponential
+  - toPrecision
+##### 4.6.2 string
+  两种写法：单引号或者双引号
+
+  属性：constructor返回字符串'String'；length
+
+  方法：ES5的方法随便用啊
+##### 4.6.3 boolean
+  只有true和false
+
+  constructor返回字符串'Boolean'
+  
+  方法：toString、valueOf
+##### 4.6.4 Object
+  参考JavaScript
+  
+  constructor返回字符串'Object'
+
+  toString返回'[object Object]'
+
+##### 4.6.5 function
+  参考JavaScript
+
+  arguments关键词支持的属性：
+  - length，参数个数
+  - [index] 通过index下标可以遍历传递给函数的每个参数
+  constructor返回‘'Function';length返回形参个数
+  toString返回'[object Object]'
+##### 4.6.6 array
+  参考JS
+##### 4.6.7 date
+  生成date对象需要使用getDate函数，返回一个当前时间的对象。
+```javascript
+getDate()
+getDate(milliseconds)
+getDate(datestring)
+getDate(year, month[, date[, hours[, minutes[, seconds[, milliseconds]]]]])
+//不能new Date了
+```
+  参数
+  - milliseconds: 从1970年1月1日00:00:00 UTC开始计算的毫秒数
+  - datestring: 日期字符串，其格式为："month day, year hours:minutes:seconds"
+```javascript
+var date = getDate(); //返回当前时间对象
+
+date = getDate(1500000000000);
+// Fri Jul 14 2017 10:40:00 GMT+0800 (中国标准时间)
+date = getDate('2017-7-14');
+// Fri Jul 14 2017 00:00:00 GMT+0800 (中国标准时间)
+date = getDate(2017, 6, 14, 10, 40, 0, 0);
+// Fri Jul 14 2017 10:40:00 GMT+0800 (中国标准时间)
+```
+##### 4.6.8 regexp
+  生成regexp对象需要使用getRegExp函数。
+```javascript
+getRegExp(pattern[, flags])
+```
+  参数：
+  - pattern: 正则表达式的内容。
+  - flags：修饰符。该字段只能包含以下字符:
+    - g: global
+    - i: ignoreCase
+    - m: multiline。
+```javascript
+var a = getRegExp("x", "img");
+console.log("x" === a.source);
+console.log(true === a.global);
+console.log(true === a.ignoreCase);
+console.log(true === a.multiline);
+```
+  方法：exec、test、toString
+##### 4.6.9 数据类型判断
+  constructor属性用来判断数据类型
+```javascript
+var number = 10;
+console.log( "Number" === number.constructor );
+var string = "str";
+console.log( "String" === string.constructor );
+var boolean = true;
+console.log( "Boolean" === boolean.constructor );
+var object = {};
+console.log( "Object" === object.constructor );
+var func = function(){};
+console.log( "Function" === func.constructor );
+var array = [];
+console.log( "Array" === array.constructor );
+var date = getDate();
+console.log( "Date" === date.constructor );
+var regexp = getRegExp();
+console.log( "RegExp" === regexp.constructor );
+```
+  typeof也可以区分部分数据类型：
+```javascript
+var number = 10;
+var boolean = true;
+var object = {};
+var func = function(){};
+var array = [];
+var date = getDate();
+var regexp = getRegExp();
+console.log( 'number' === typeof number );
+console.log( 'boolean' === typeof boolean );
+console.log( 'object' === typeof object );
+console.log( 'function' === typeof func );
+console.log( 'object' === typeof array );
+console.log( 'object' === typeof date );
+console.log( 'object' === typeof regexp );
+console.log( 'undefined' === typeof undefined );
+console.log( 'object' === typeof null );
+```
+#### 4.7 基础类库
+##### 4.7.1 console
+  console只有console.log
+##### 4.7.2 Math
+  **属性：**
+  E、LN10、LN2、LOG2E、LOG10E、PI、SQRT1_2、SQRT2？？？？
+  **方法：**
+  参考JS
+##### 4.7.3 JSON
+  **方法：**
+  - stringify(object): 将 object 对象转换为 JSON 字符串，并返回该字符串。
+  - parse(string): 将 JSON 字符串转化成对象，并返回该对象。
+##### 4.7.4 Number
+  **属性：**
+- MAX_VALUE
+- MIN_VALUE
+- NEGATIVE_INFINITY
+- POSITIVE_INFINITY
+##### 4.7.5 Date
+  **属性：**
+  - parse
+  - UTC
+  - now
+##### 4.7.6 Global
+  **属性：**
+  - NaN
+  - Infinity
+  - undefined
+  
+  **方法：**
+  - parseInt
+  - parseFloat
+  - isNaN
+  - isFinite
+  - decodeURI
+  - decodeURIComponent
+  - encodeURI
+  - encodeURIComponent
+### 5.WXML节点布局相交状态
+  节点布局相交状态API可用于监听两个或者多个组件节点在布局位置上的相交状态。这一组API常常可以用于推断某些节点是否可以被用户看见、有多大比例可以被用户看见。
+
+  这一组API设计的主要概念如下：
+  - 参照节点：监听的参照节点，取它的布局区域作为参照区域。如果有多个参照节点，则会取它们布局区域的交集作为参照区域。页面显示区域也可作为参照区域之一。
+  - 目标节点：监听的目标，默认只能是一个节点（使用selectAll选择时，可以同时监听多个节点
+  - 相交区域：目标节点的布局区域与参照区域的相交区域
+  - 相交比例：相交区域占参照区域的比例
+  - 阈值（临界值）：相交比例如果达到阈值，则会触发监听器的回调函数。阈值可以有多个。
+  以下示例代码可以在目标节点（用选择器.target-class指定）每次进入或离开页面显示区域时，触发回调函数：
+```javascript
+Page({
+  onLoad: function() {
+    wx.createIntersectionObserver().relativeToViewport().observe('.target-class',(res)=>{
+      res.id//目标节点id
+      res.dataset // 目标节点 dataset
+      res.intersectionRatio // 相交区域占目标节点的布局区域的比例
+      res.intersectionRect // 相交区域
+      res.intersectionRect.left // 相交区域的左边界坐标
+      res.intersectionRect.top // 相交区域的上边界坐标
+      res.intersectionRect.width // 相交区域的宽度
+      res.intersectionRect.height // 相交区域的高度
+    })
+  }
+})
+```
+  下面的代码可以在目标节点（用选择器.target-class指定）与参照节点（用选择器.relative-class指定）在页面显示区域内相交或相离，且相交或相离程度达到目标节点布局区域20%和50%时，触发回调函数
+```javascript
+Page({
+  onLoad: function(){
+    wx.createIntersectionObserver(this, {
+      thresholds: [0.2, 0.5]
+    }).relativeTo('.relative-class').relativeToViewport().observe('.target-class', (res) => {
+      res.intersectionRatio // 相交区域占目标节点的布局区域的比例
+      res.intersectionRect // 相交区域
+      res.intersectionRect.left // 相交区域的左边界坐标
+      res.intersectionRect.top // 相交区域的上边界坐标
+      res.intersectionRect.width // 相交区域的宽度
+      res.intersectionRect.height // 相交区域的高度
+    })
+  }
+})
+```
+### 6.响应显示区域变化
+#### 6.1 显示区域尺寸
+  显示区域指小程序界面中可以自由布局展示的区域。在默认情况下，小程序显示区域的尺寸自页面初始化起就不会发生变化。
+
+  从小程序基础库版本 2.3.0 开始，在 iPad 上运行的小程序可以支持屏幕旋转。使小程序支持 iPad 屏幕旋转的方法是：在 app.json 中添加 "resizable": true 。
+```json
+{
+  "resizeable": true
+}
+```
+  如果小程序添加了上述声明，则在屏幕旋转时，小程序将随之旋转，显示区域尺寸也会随着屏幕旋转而变化。
+#### 6.2 Media Query
+  对于不同尺寸的显示区域，页面的布局会有所差异，此时可以使用Media query来解决大多数问题
+```css
+.my-class {
+  width: 40px;
+}
+@media (min-width: 480px) {
+  /* 仅在 480px 或更宽的屏幕上生效的样式规则 */
+  .my-class {
+    width: 200px;
+  }
+}
+```
+#### 6.3 屏幕旋转事件
+  有时，仅仅使用media query无法控制一些精细的布局变化，此时可以使用js作为辅助。
+
+  在js中读取页面的显示区域尺寸，可以使用selectorQuery.selectViewport。
+
+  页面尺寸发生改变的事件，可以使用wx.onWindowResize来监听。回调函数中将返回显示区域的尺寸信息。
+```javascript
+wx.onWindowResize(function(res) {
+  res.size.windowWidth // 新的显示区域宽度
+  res.size.windowHeight // 新的显示区域高度
+
+  // 触发当前页面的 resized 方法
+  var currentPages = getCurrentPages()
+  var currentPage = currentPages[currentPages.length - 1]
+  if (currentPage != null && typeof currentPage.resized === 'function') {
+    currentPage.resized(res.size)
+  }
+})
+```
 
