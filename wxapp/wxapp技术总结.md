@@ -2059,3 +2059,838 @@ wx.onWindowResize(function(res) {
 })
 ```
 
+## 四、自定义组件
+从小程序基础库版本1.6.3开始，小程序支持简洁的组件化编程。所有自定义组件相关特性都需要基础库版本1.6.3或更高。
+
+开发者可以将页面内的功能模块抽象成自定义组件，以便在不同的页面中重复使用；也可以将复杂的页面拆分成多个低耦合的模块，有助于代码维护。自定义组件在使用时与基础组件非常相似。
+
+
+> **自定义组件的创建：**
+
+类似于页面，一个自定义组件由json wxml wxss js4个文件组成。要编写一个自定义组件，首先需要在json文件中进行自定义组件声明（将component字段设为true）：
+```json
+{
+    "component":true
+}
+```
+同时，还要在wxml文件中编写组件模板，在wxss文件中加入组件样式，它们的写法与页面写法类似。
+```html
+<!-- 这是自定义组件的内部WXML结构 -->
+<view class="inner">
+  {{innerText}}
+</view>
+<slot></slot>
+```
+```css
+/* 这里的样式只应用于这个自定义组件 */
+.inner {
+  color: red;
+}
+```
+**注意：**
+在组件wxss中不应使用ID选择器、属性选择器和签名选择器
+
+在自定义组件的js文件中，需要使用Component()来注册组件，并提供组价的属性定义、内部数据和自定义方法。
+
+组件的属性值和内部数据将被用于组件wxml的渲染，其中属性值是可由组件外部传入的。
+```javascript
+Component({
+  properties: {
+    // 这里定义了innerText属性，属性值可以在组件使用时指定
+    innerText: {
+      type: String,
+      value: 'default value',
+    }
+  },
+  data: {
+    // 这里是一些组件内部数据
+    someData: {}
+  },
+  methods: {
+    // 这里是一个自定义方法
+    customMethod: function(){}
+  }
+})
+```
+> **自定义组件的使用**
+
+使用已注册的自定义组件前，首先要在页面的json文件中进行引用声明，此时需要提供每个自定义组件的标签名和对应的自定义组件文件路径：
+```json
+{
+  "usingComponents": {
+    "component-tag-name": "path/to/the/custom/component"
+  }
+}
+```
+这样，在页面的wxml中就可以像使用基础组件一样使用自定义组件。节点名即自定义组件的标签名，节点属性即传递给组件的属性值。
+```html
+<view>
+  <!-- 以下是对一个自定义组件的引用 -->
+  <component-tag-name inner-text="Some text"></component-tag-name>
+</view>
+```
+自定义组件的wxml节点结构在与数据结合之后，将被插入到引用位置内。
+
+**注意：为页面添加usingComponents 会使得页面的逻辑发生一些细微变化（具体而言，页面会具有一些组件的特征）。如果页面比较复杂，需要测试一下页面逻辑是否有变化。**
+
+**Tips：**
+
+  - 对于基础库的1.5.x版本， 1.5.7 也有部分自定义组件支持。
+  - 因为WXML节点标签名只能是小写字母、中划线和下划线的组合，所以自定义组件的标签名也只能包含这些字符。
+  - 自定义组件也是可以引用自定义组件的，引用方法类似于页面引用自定义组件的方式（使用 usingComponents 字段）。
+  - 自定义组件和使用自定义组件的页面所在项目根目录名不能以“wx-”为前缀，否则会报错。
+  - 旧版本的基础库不支持自定义组件，此时，引用自定义组件的节点会变为默认的空节点。
+### 1.组件模板和样式
+  类似于页面，自定义组件拥有自己的wxml模板和wxss样式
+#### 1.1 组件模板
+  组件模板的写法与页面模板相同，组件模板与组件数据结合后生成的节点树，将被插入到组件的引用位置上。在组件模板中可以提供一个\<slot>节点，用于承载组件引用时提供的子节点。
+```html
+<!-- 组件模板 -->
+<view class="wrapper">
+  <view>这里是组件的内部节点</view>
+  <slot></slot>
+</view>
+
+<!-- 引用组件的页面模版 -->
+<view>
+  <component-tag-name>
+    <!-- 这部分内容将被放置在组件 <slot> 的位置上 -->
+    <view>这里是插入到组件slot中的内容</view>
+  </component-tag-name>
+</view>
+```
+  注意在模板中引用到的自定义组件及其对应的节点名需要在json文件中显式定义，否则会被当做一个无意义的节点，除此以外，节点名也可以被声明为抽象节点。
+#### 1.2 模板数据绑定
+  与普通的wxml模板类似，可以使用数据绑定，这样就可以向子组件的属性传递动态数据。
+```html
+<!-- 引用组件的页面模版 -->
+<view>
+  <component-tag-name prop-a="{{dataFieldA}}" prop-b="{{dataFieldB}}">
+    <!-- 这部分内容将被放置在组件 <slot> 的位置上 -->
+    <view>这里是插入到组件slot中的内容</view>
+  </component-tag-name>
+</view>
+<!--  组件的属性propA和propB将收到页面传递的数据。页面可以通过setData来改变绑定的数据字段。 -->
+```
+
+  **注意：**
+  这样的数据绑定只能传递JSON兼容数据。自基础库版本2.0.9开始，还可以在数据中包含函数（但这些函数不能在wxml中直接调用，只能传递给子组件）
+#### 1.3 组件wxml的slot
+  在组件的wxml中可以包含slot节点，用于承载组件使用者提供的wxml结构。
+  默认情况下，一个组件的wxml中只能有一个slot，需要使用多个slot时，可以在组件js中声明启用。
+```javascript
+Component({
+  options: {
+    multipleSlots: true // 在组件定义时的选项中启用多slot支持
+  },
+  properties: { /* ... */ },
+  methods: { /* ... */ }
+})
+```
+  此时，可以在这个组件的wxml中使用多个slot，以不同的name来区分。
+```html
+<!-- 组件模板 -->
+<!-- 组件模板 -->
+<view class="wrapper">
+  <slot name="before"></slot>
+  <view>这里是组件的内部细节</view>
+  <slot name="after"></slot>
+</view>
+
+
+<!-- 使用时，用 slot 属性来将节点插入到不同的slot上。 -->
+
+<!-- 引用组件的页面模版 -->
+<view>
+  <component-tag-name>
+    <!-- 这部分内容将被放置在组件 <slot name="before"> 的位置上 -->
+    <view slot="before">这里是插入到组件slot name="before"中的内容</view>
+    <!-- 这部分内容将被放置在组件 <slot name="after"> 的位置上 -->
+    <view slot="after">这里是插入到组件slot name="after"中的内容</view>
+  </component-tag-name>
+</view>
+```
+#### 1.4 组件样式
+  组件对应wxss文件的样式，只对组件wxml内的节点生效。编写组件样式时，需要注意：
+  - 组件和引用组件的页面不能使用id选择器（#a）、属性选择器（[a]）和标签名选择器，请改用class选择器。
+  - 组件和引用组件的页面中使用后代选择器（.a .b）在一些极端情况下会有非预期的表现，如遇，请避免使用。
+  - 子元素选择器（.a>.b）只能用于 view 组件与其子节点之间，用于其他组件可能导致非预期的情况。
+  - 继承样式，如 font 、 color ，会从组件外继承到组件内。
+  - 除继承样式外， app.wxss 中的样式、组件所在页面的的样式对自定义组件无效。
+```css
+#a{}/*在组组件中不能使用*/
+[a]{}/*在组组件中不能使用*/
+button{}/*在组组件中不能使用*/
+.a > .b {}/*除非.a是view组件节点，否则不一定会生效*/
+/*除此以外，组件可以指定它所在节点的默认样式，使用:host选择器*/
+/*组件custom-component.wxss*/
+:host{
+  color:yellow
+}
+```
+```html
+<!-- 页面的WXML -->
+<custom-component>这段文本是黄色的</custom-component>
+```
+#### 1.5 外部样式类
+  有时，组件希望接受外部传入的样式类（类似于view组件的hover-class属性）。此时可以在Component中用externalClasses定义段 定义若干个外部样式类。这个特性从小程序基础库版本1.9.90开始支持。
+  **注意：**
+  在同一个节点上使用普通样式类和外部样式类时，两个类的优先级时未定义的，因此最好避免这种情况：
+```javascript
+/* 组件 custom-component.js */
+Component({
+  externalClasses: ['my-class']
+})
+```
+```html
+<!-- 组件 custom-component.wxml -->
+<custom-component class="my-class">这段文本的颜色由组件外的 class 决定</custom-component>
+```
+#### 1.6 全局样式类
+  使用外部样式类可以让组件使用指定的组件外样式类，如果 希望组件外样式类能够完全影响组件内部，可以将组件构造器中的options.addGlobalClass字段置为true。这个特性从小程序基础库版本 2.2.3 开始支持。
+
+> 当开放了全局样式类，存在外部样式污染组件样式的风险，请谨慎选择。
+
+**代码示例：**
+```javascript
+ //组件custom-component.js
+ Component({
+   options:{
+     addGlobalClass:true
+   }
+ })
+```
+```html
+<!-- 组件custom-component.wxml -->
+<text class="red-text">这段文本由组件外的class决定</text>
+```
+```css
+/*组件外的样式定义*/
+.red-text{color:#f00}
+```
+### 2.Component构造器
+#### 2.1 定义段与示例方法
+  Component构造器可用于定义组件，调用Component构造器时可以指定组件的属性、数据、方法等
+
+定义段 | 类型 | 是否必填 | 描述
+- | - | - | - 
+properties | Object Map | 否 | 组件的对外属性，是属性名到属性设置的映射表，属性设置可包含三个字段，type表示属性类型、value表示属性初始值、observer表示属性值被更改时的响应函数。
+data | Object | 否 | 组件的内部数据，和properties一同用于组件的模板渲染
+methods | Object | 否 | 组件的方法，包括事件响应函数和任意的自定义方法
+behavior | String Array | 否 | 类似于mixins和traits的组件间代码复用机制
+created | Function | 否 | 组件生命周期函数，在组件实例进入页面节点树时执行，注意此时不能调用setData
+attached | Function | 否 | 组件生命周期函数，在组件实例进入页面节点树时执行
+ready | Function | 否 | 组件生命周期函数，在组件布局完成后执行，此时可以获取节点信息（使用SelectorQuery）
+moved | Function | 否 | 组件生命周期函数，在组件实例被移动到节点树另一位置时执行
+detached | Function | 否 | 组件生命周期函数，在组件实例被页面节点树移除时执行
+relations | Object | 否 | 组件间关系定义
+externalClasses	 | String Array | 	否	 | 组件接受的外部样式类
+options	 | Object Map |	否 |	一些选项（文档中介绍相关特性时会涉及具体的选项设置，这里暂不列举）
+lifetimes |	Object |	否	| 组件生命周期声明对象，组件的生命周期：created、attached、ready、moved、detached将收归到lifetimes字段内进行声明，原有声明方式仍旧有效，如同时存在两种声明方式，则lifetimes字段内声明方式优先级最高
+pageLifetimes |	Object |	否 |	组件所在页面的生命周期声明对象，目前仅支持页面的show和hide两个生命周期
+definitionFilter |	Function |	否	| 定义段过滤器，用于自定义组件扩展，参见 自定义组件扩展
+
+生命的组件实例可以在组件的方法、生命周期函数和属性observer中通过this访问。组件包含一些通用属性和方法：
+属性 | 类型 | 描述
+- | - | -
+is | String | 组件的文件路径
+id | String | 节点id
+dataset | String | 节点dataset
+data | String | 节点dataset
+data | Object | 组件数据，包括内部数据和属性值
+properties | Object | 组件数据，包括内部数据和属性值（与data一致）
+
+方法名 | 参数 | 描述
+- | - | -
+setData | Object newData | 设置data并执行视图层渲染
+hasBehavior | Object behavior | 检查组件是否具有behavior（检查时会递归检查被直接或间接引入的所有behavior）
+triggerEvent | String name、Object detail，Object options | 触发事件，参见组件事件
+createSelectorQuery | | 创建一个SelectorQuery对象，选择器选取范围为这个组件示例内
+selectComponent | String selector | 使用选择器选择组件实例节点，返回匹配到的第一个组件实例对象（会被wx://component-export影响）
+selectAllComponents |	String selector |	使用选择器选择组件实例节点，返回匹配到的全部组件实例对象组成的数组
+getRelationNodes | String relationKey | 获取所有这个关系对应的所有关联节点
+
+**代码示例：**
+```javascript
+Component({
+  behaviors: [],
+  properties: {
+    myProperty: { // 属性名
+      type: String, // 类型（必填），目前接受的类型包括：String, Number, Boolean, Object, Array, null（表示任意类型）
+      value: '', // 属性初始值（可选），如果未指定则会根据类型选择一个
+      observer: function(newVal, oldVal, changedPath) {
+         // 属性被改变时执行的函数（可选），也可以写成在methods段中定义的方法名字符串, 如：'_propertyChange'
+         // 通常 newVal 就是新设置的数据， oldVal 是旧数据
+      }
+    },
+    myProperty2: String // 简化的定义方式
+  },
+  data: {}, // 私有数据，可用于模版渲染
+  lifetimes: {
+    // 生命周期函数，可以为函数，或一个在methods段中定义的方法名
+    attached: function () { },
+    moved: function () { },
+    detached: function () { },
+  },
+  // 生命周期函数，可以为函数，或一个在methods段中定义的方法名
+  attached: function () { }, // 此处attached的声明会被lifetimes字段中的声明覆盖
+  ready: function() { },
+  pageLifetimes: {
+    // 组件所在页面的生命周期函数
+    show: function () { },
+  },
+  methods: {
+    onMyButtonTap: function(){
+      this.setData({
+        // 更新属性和数据的方法与更新页面数据的方法类似
+      })
+    },
+    // 内部方法建议以下划线开头
+    _myPrivateMethod: function(){
+      // 这里将 data.A[0].B 设为 'myPrivateData'
+      this.setData({
+        'A[0].B': 'myPrivateData'
+      })
+    },
+    _propertyChange: function(newVal, oldVal) {
+    }
+  }
+})
+```
+**注意：**
+在properties定义段中，属性名采用驼峰写法（propertyName）；在wxml中，指定属性值时则对应使用连字符写法（component-tag-name property-name="attr value"），应用于数据绑定时采用驼峰写法（attr = "{{propertyName}}"）
+#### 2.2 使用Component构造器构造页面
+事实上，小程序的页面也可以视为自定义组件。因而，页面也可以使用 Component 构造器构造，拥有与普通组件一样的定义段与实例方法。但此时要求对应 json 文件中包含 usingComponents 定义段。
+
+此时，组件的属性可以用于接收页面的参数，如访问页面 /pages/index/index?paramA=123&paramB=xyz ，如果声明有属性 paramA 或 paramB ，则它们会被赋值为 123 或 xyz 。
+
+**代码示例：**
+```json
+{
+    "usingComponents":{}
+}
+```
+```javascript
+Component({
+    properties: {
+        paramA: Number,
+        paramB: String
+    },
+    methods: {
+        onLoad: function() {
+            this.data.paramA // 页面参数 paramA 的值
+            this.data.paramB // 页面参数 paramB 的值
+        }
+    }
+})
+```
+**Bug & Tips：**
+- 使用this.data可以获取内部数据和属性值，但不要直接修改，应使用setData
+- 生命周期函数无法在组件方法中通过this访问到
+- 属性名应避免以data开头，即不要命名成dataXyz这样的形式，因为在wxml中，data-xyz=""会被作为节点dataset来处理，而不是组件属性
+- 在一个组件的定义和使用时，组件的属性名和data字段相互间都不能冲突（尽管它们位于不同的定义中）
+- bug：对于type为Object或Array的属性，如果通过该组件自身的this.setData来改变属性值的一个子字段，则依旧会触发属性observer，且observer接收到的newVal是变化的那个子字段的值，oldVal为空，changedPath包含子字段的字段名相关信息。
+### 3.组件间通信与事件
+#### 3.1 组件间通信
+组件间的基本通信方式有以下几种：
+- WXML数据绑定：用于父组件向子组件的指定属性设置数据，仅能设置JSON兼容数据
+- 事件：用于子组件向父组件传递数据，可以传递任何数据
+- 如果以上两种方式不足以满足需求，父组件还可以通过this.selectComponent方法获取子组件实例对象，这样就可以直接访问组件的任意数据和方法
+#### 3.2 监听事件
+事件系统是组件间通信的主要方式之一。自定义组件可以触发任意的事件，引用组件的页面可以监听这些事件
+监听自定义组件事件的方法与监听基础组件事件的方法完全一致
+**代码示例：**
+```html
+<!-- 当自定义组件触发myevent事件时，调用onMyEvent方法 -->
+<component-tag-name bindmyevent="onMyEvent"/>
+<!-- 或者可以写成 -->
+<component-tag-name bind:myevent="onMyEvent"/>
+```
+```javascript
+Page({
+  onMyEvent: function(e) {
+    e.detail;//自定义组件触发事件时提供的detail对象
+  }
+})
+```
+#### 3.3 触发事件
+自定义组件触发事件时，需要使用triggerEvent方法，指定事件名、detail对象和事件选项：
+**代码示例：**
+```html
+<!-- 在自定义组件中 -->
+<button bindtap="onTap"> 点击这个按钮触发myevent事件</button>
+```
+```javascript
+Component({
+  properties: {},
+  methods: {
+    onTap:function(){
+      var myEventDetail = {};//detail对象，提供给事件监听函数
+      var meEventOption={}//触发事件的选项
+      this.triggerEvent('myevent',myEventDetail,myEventOption)
+    }
+  }
+})
+```
+**触发事件的选项包括：**
+选项名 | 类型 | 是否必填 | 默认值 | 描述
+- | - | - | -| -
+bubbles | Boolean | 否 | false | 事件是否冒泡
+composed | Boolean | 否 | false | 事件是否可以穿越组件边界，为false时，事件将只能在引用组件的节点树上触发，不进入其它任何组件内部
+capturePhase | Boolean | 否 | false | 事件是否拥有捕获阶段
+
+**代码示例：**
+```html
+<!-- 页面page.wxml -->
+<another-component bindcustomevent="pageEventListener1">
+  <my-component bindcustomevent="pageEventListener2"></my-component>
+</another-component>
+
+<!-- 组件 another-component.wxml -->
+<view bindcustomevent="anotherEventListener">
+  <slot/>>
+</view>
+
+<!--组件 my-component.wxml-->
+<view bindcustomevent="myEventListener">
+  <slot/>>
+</view>
+```
+```javascript
+//组件my-component.js
+Component({
+  methods:{
+    onTap:function() {
+      this.triggerEvent('customevent',{})//只会触发pageEventListener2
+      this.triggerEvent('customevent',{},{bubbles: true})//会依次触发pageEventListener2、pageEventListener1
+      this.triggerEvent('customevent', {}, { bubbles: true, composed: true }) // 会依次触发 pageEventListener2 、 anotherEventListener 、 pageEventListener1
+    }
+  }
+})
+```
+### 4.behaviors
+#### 4.1 定义和使用behaviors
+  behaviors是用于组件间代码共享的特性，类似于一些编程语言中的mixins或者traits。
+
+  每个behavior可以包含一组属性、数据、生命周期函数和方法，组件引用它时，它的属性、数据和方法会被合并到组件中，生命周期函数也会在对应时机被调用。每个组件可以引用多个behavior。behavior也可以引用其它behavior。
+
+  behavior需要使用Behavior()构造器定义。
+
+  **代码示例：**
+  ```javascript
+  //my-behavior.js
+  module.exports=Behavior({
+    behaviors:[],
+    properties:{
+      meBehaviorProperty:{
+        type: String
+      }
+    },
+    data: {
+      meBehaviorData:{}
+    }
+    attached:function() {},
+    methods:{
+      myBehaviorMethod:function(){}
+    }
+  })
+  ```
+组件引用时，在behaviors定义段中将它们逐个列出即可。
+
+**代码示例：**
+```javascript
+//my-component.js
+var myBehavior=require("my-behavior")
+Component({
+  behaviors:[myBehavior],
+  properties:{
+    myProperty:{
+      type:String
+    }
+  },
+  data:{
+    myData:{}
+  },
+  attached:function() {},
+  methods；{
+    myMethods:function() {}
+  }
+})
+//在这里，my-component组件定义中加入了my-behavior，而my-behavior中包含有myBehaviorProperty属性，myBehaviorData 数据字段、 myBehaviorMethod 方法和一个 attached 生命周期函数。这将使得 my-component 中最终包含 myBehaviorProperty 、 myProperty 两个属性， myBehaviorData 、 myData 两个数据字段，和 myBehaviorMethod 、 myMethod 两个方法。当组件触发 attached 生命周期时，会依次触发 my-behavior 中的 attached 生命周期函数和 my-component 中的 attached 生命周期函数。
+```
+
+#### 4.2 字段的覆盖和组合规则
+  组件和它引用的behavior中可以包含同名的字段，对这些字段的处理方法如下：
+  - 如果有同名的属性或方法，组件本身的属性或方法会覆盖 behavior 中的属性或方法，如果引用了多个 behavior ，在定义段中靠后 behavior 中的属性或方法会覆盖靠前的属性或方法；
+  - 如果有同名的数据字段，如果数据是对象类型，会进行对象合并，如果是非对象类型则会进行相互覆盖；
+  - 生命周期函数不会相互覆盖，而是在对应触发时机被逐个调用。如果同一个 behavior 被一个组件多次引用，它定义的生命周期函数只会被执行一次。
+#### 4.3 内置behaviors
+  自定义组件可以通过引用内置的behavior来获得内置组件的一些行为。
+
+  **代码示例：**
+```javascript
+Component({
+  behaviors:['wx://form-field']
+})
+```
+  在上例中，wx://form-field代表一个内置behavior，它使得这个自定义组件有类似于表单控件的行为。内置behavior往往会为组件添加一些属性，在没有特殊说明时，组件可以覆盖这些属性来改变它的type或添加observer。
+##### 4.3.1 wx://form-field
+  使自定义组件有类似于表单控件的行为，form组件可以识别这些自定义组件，并在submit事件中返回组件的字段名及其对应字段值。这将为它添加一下两个属性：
+  属性名 | 类型 | 描述 
+  - | - | -
+  name | String | 在表单中的字段名
+  value | 任意 | 在表单中的字段值
+
+##### 4.3.2 wx://component-export
+  使自定义组件支持export定义段。这个定义段可以用于指定组件被selectComponent调用时的返回值。
+
+  未使用这个定义段，selectComponent将返回自定义组件的this（插件的自定义组件将返回null）。使用这个定义段，将以这个定义段的函数返回值代替。
+```javascript
+//自定义组件ny-component的内部
+  Component({
+    behaviors:['wx://component-export'],
+    export() {
+      return {
+        myField: 'myValue'
+      }
+    }
+  })
+```
+```html
+<!-- 使用自定义组件时 -->
+<my-component id="the-id"/>
+```
+```javascript
+this.selectComponent('#the-id')//等于 {myField: 'myValue'}
+```
+### 5.组件间关系
+#### 5.1 定义和使用组件间关系
+有时需要实现这样的组件：
+```html
+<custom-ul>
+  <custom-li> item 1 </custom-li>
+  <custom-li> item 2 </custom-li>
+</custom-ul>
+```
+  这个例子中，custom-ul和custom-li都是自定义组件，它们有相互间的关系，相互间的通信往往比较复杂，此时在组件定义时加入relations定义段，可以解决这样的问题。示例：
+```javascript
+//path/to/custom-ul.js
+Component({
+  relations:{
+    './custom-li': {
+      type: 'child', // 关联的目标节点应为子节点
+      linked: function(target) {
+        // 每次有custom-li被插入时执行，target是该节点实例对象，触发在该节点attached生命周期之后
+      },
+      linkChanged: function(target) {
+        // 每次有custom-li被移动后执行，target是该节点实例对象，触发在该节点moved生命周期之后
+      },
+      unlinked: function(target) {
+        // 每次有custom-li被移除时执行，target是该节点实例对象，触发在该节点detached生命周期之后
+      }
+    }
+  },
+  methods:{
+    _getAllLi:function() {
+       // 使用getRelationNodes可以获得nodes数组，包含所有已关联的custom-li，且是有序的
+      var nodes = this.getRelationNodes('path/to/custom-li')
+    }
+  },
+  ready: function() {
+    this._getAllLi();
+  }
+})
+
+// path/to/custom-li.js
+Component({
+  relations: {
+    './custom-ul': {
+      type: 'parent', // 关联的目标节点应为父节点
+      linked: function(target) {
+        // 每次被插入到custom-ul时执行，target是custom-ul节点实例对象，触发在attached生命周期之后
+      },
+      linkChanged: function(target) {
+        // 每次被移动后执行，target是custom-ul节点实例对象，触发在moved生命周期之后
+      },
+      unlinked: function(target) {
+        // 每次被移除时执行，target是custom-ul节点实例对象，触发在detached生命周期之后
+      }
+    }
+  }
+})
+//注意，必须在两个组件定义中都加入relations定义，否则不会生效
+```
+#### 5.2 关联一类组件
+  有时，需要关联的是一类组件，如：
+```html
+<custom-form>
+  <view>
+    input
+    <custom-input></custom-input>
+  </view>
+  <custom-submit> submit </custom-submit>
+</custom-form>
+```
+custom-form 组件想要关联custom-input和custom-submit两个组件，此时，如果这两个组件都有一个behavior：
+```javascript
+// path/to/custom-form-controls.js
+module.exports = Behavior({
+  // ...
+})
+
+// path/to/custom-input.js
+var customFormControls = require('./custom-form-controls')
+Component({
+  behaviors: [customFormControls],
+  relations: {
+    './custom-form': {
+      type: 'ancestor', // 关联的目标节点应为祖先节点
+    }
+  }
+})
+
+// path/to/custom-submit.js
+var customFormControls = require('./custom-form-controls')
+Component({
+  behaviors: [customFormControls],
+  relations: {
+    './custom-form': {
+      type: 'ancestor', // 关联的目标节点应为祖先节点
+    }
+  }
+})
+
+//则在 relations 关系定义中，可使用这个behavior来代替组件路径作为关联的目标节点：
+// path/to/custom-form.js
+var customFormControls = require('./custom-form-controls')
+Component({
+  relations: {
+    'customFormControls': {
+      type: 'descendant', // 关联的目标节点应为子孙节点
+      target: customFormControls
+    }
+  }
+})
+```
+
+#### 5.3 relations 定义段
+  relations定义段包含目标组件路径及其对应选项，可包含的选项见下表
+选项 | 类型 | 是否必填 | 描述
+- | - | - | - 
+type | String | 是 | 目标组件的相对关系，可选的值为parent、child、ancestor、descendant
+linked | Function | 否 | 关系生命周期函数，当关系被建立在页面节点树中时触发，触发时机在组件attached生命周期之后
+linkChanged | Function | 否 | 关系生命周期函数，当关系在页面节点树中发生改变时触发，触发时机在组件moved生命周期之后
+unlinked | Function | 否 | 关系生命周期函数，当关系脱离页面节点树时触发，触发时机在组件detached生命周期之后
+target | String | 否 | 如果这一项被设置，则它表示关联的目标节点所应具有的behavior，所有拥有这一behavior的组件节点都会被关联
+
+### 6.抽象节点
+#### 6.1 在组件中使用抽象节点
+  有时，自定义组件模板中的一些节点，其对应的自定义组件不是由自定义组件本身确定的，而是自定义组件的调用者确定的。这时可以把这个节点声明为”抽象节点“
+
+  例如，现在来实现一个“选框组”（selectable-group）组件，它其中可以放置单选框（custom-radio）或者复选框（custom-checkbox）。这个组件的 wxml 可以这样编写：
+```html
+<!-- selectable-group.wxml -->
+<view wx:for="{{labels}}">
+  <label>
+    <selectable disabled="{{false}}"></selectable>
+    {{item}}
+  </label>
+</view>
+```
+其中,”selectable“不是任何在json文件的usingComponents字段中声明的组件，而是一个抽象节点，它需要在componentGenerics字段中声明：
+```json
+{
+  "ComponentGenerics":{
+    "selectable":true
+  }
+}
+```
+#### 6.2 使用包含抽象节点的组件
+  在使用selectable-group组件时，必须指定“selectable”具体是哪个组件：
+```html
+<selectable-group generic:selectable="custom-radio" />
+```
+  这样，在生成这个selectable-group组件的实例时，”selectable“节点会生成”custom-radio“组件实例。类似地，如果这样使用:
+```html
+<selectable-group generic:selectable="custom-checkbox" />
+```
+“selectable”节点则会生成“custom-checkbox”组件实例。
+
+注意：上述的 custom-radio 和 custom-checkbox 需要包含在这个 wxml 对应 json 文件的 usingComponents 定义段中。
+
+```json
+{
+  "usingComponents": {
+    "custom-radio": "path/to/custom/radio",
+    "custom-checkbox": "path/to/custom/checkbox"
+  }
+}
+```
+#### 6.3 抽象节点的默认组件
+  抽象节点可以指定一个默认组件，当具体组件未被指定时，将创建默认组件的实例，默认组件可以在componentGenerics字段中指定：
+```json
+{
+  "componentGenerics": {
+    "selectable": {
+      "default": "path/to/default/component"
+    }
+  }
+}
+```
+**Tips:**
+节点的 generic 引用 generic:xxx="yyy" 中，值 yyy 只能是静态值，不能包含数据绑定。因而抽象节点特性并不适用于动态决定节点名的场景。
+### 7.自定义组件扩展
+#### 7.1 扩展后的效果
+```javascript
+// behavior.js
+module.exports = Behavior({
+  definitionFilter(defFields) {
+    defFields.data.from = 'behavior'
+  },
+})
+
+// component.js
+Component({
+  data: {
+    from: 'component'
+  },
+  behaviors: [require('behavior.js')],
+  ready() {
+    console.log(this.data.from) // 此处会发现输出 behavior 而不是 component
+  }
+})
+//通过例子可以发现，自定义组件的扩展其实就是提供了修改自定义组件定义段的能力，上述例子就是修改了自定义组件中的data定义段里的内容
+```
+#### 7.2 使用扩展
+  Behavior()构造器提供了新的定义段definitionFilter，用于支持自定义组件扩展，definitionFilter是一个函数，在被调用时会注入两个参数，第一个参数是使用该behavior的component/behavior的定义对象，第二个参数是该behavior所使用的behavior的definitionFilter函数列表。比如：
+```javascript
+// behavior3.js
+module.exports = Behavior({
+    definitionFilter(defFields, definitionFilterArr) {},
+})
+
+// behavior2.js
+module.exports = Behavior({
+  behaviors: [require('behavior3.js')],
+  definitionFilter(defFields, definitionFilterArr) {
+    // definitionFilterArr[0](defFields)
+  },
+})
+
+// behavior1.js
+module.exports = Behavior({
+  behaviors: [require('behavior2.js')],
+  definitionFilter(defFields, definitionFilterArr) {},
+})
+
+// component.js
+Component({
+  behaviors: [require('behavior1.js')],
+}
+
+
+```
+  这里的代码中，声明了1个自定义组件和3个behavior，每个behavior都使用了definitionFilter 定义段。那么按照声明的顺序会有如下事情发生：
+
+  1.当进行 behavior2 的声明时就会调用 behavior3 的 definitionFilter 函数，其中 defFields 参数是 behavior2 的定义段， definitionFilterArr 参数即为空数组，因为 behavior3 没有使用其他的 behavior 。
+
+  2.当进行 behavior1 的声明时就会调用 behavior2 的 definitionFilter 函数，其中 defFields 参数是 behavior1 的定义段， definitionFilterArr 参数是一个长度为1的数组，definitionFilterArr[0] 即为 behavior3 的 definitionFilter 函数，因为 behavior2 使用了 behavior3。用户在此处可以自行决定在进行 behavior1 的声明时要不要调用 behavior3 的 definitionFilter 函数，如果需要调用，在此处补充代码 definitionFilterArr[0](defFields) 即可，definitionFilterArr 参数会由基础库补充传入。
+  
+  3.同理，在进行 component 的声明时就会调用 behavior1 的 definitionFilter 函数。
+  
+  简单概括，definitionFilter 函数可以理解为当 A 使用了 B 时，A 声明就会调用 B 的 definitionFilter 函数并传入 A 的定义对象让 B 去过滤。此时如果 B 还使用了 C 和 D ，那么 B 可以自行决定要不要调用 C 和 D 的 definitionFilter 函数去过滤 A 的定义对象
+
+#### 7.2 真实案例
+  利用扩展简单实现自定义组件的计算属性功能：
+```javascript
+//behavior.js
+module.exports=Behavior({
+  lifetimes: {
+    created() {
+      this._originalSetData = this.setData//原始setData
+      this.setData = this._setData//封装后的setData
+    }
+  },
+  definitionFilter(defFields) {
+    const computed = defField.computed || {}
+    const computedKeys = Object.keys(computed);
+    const computedCache = {}
+    //计算computed
+    const calcCoputed = (scope,insertToData) => {
+      const needUpdate = {}
+      const data = defFields.data = defFields.data || {}
+      for (let key of computedKeys) {
+        const value =computed[key].call(scope)//计算新值
+        if(computedCache[key]!==value) needUpdate[key] = computedCache[key] = value;
+        if (insertToData) data[key] = needUpdate[key]//直接插入到data中，初始化时才需要的操作
+      }
+      return needUpdate;
+    }
+    //重写setData 方法
+    defFields.methods = defFields.methods || {}
+    defFields.methods._setData = function(data, callback) {
+      const originalSetData = this._originalSetData // 原始 setData
+      originalSetData.call(this, data, callback) // 做 data 的 setData
+      const needUpdate = calcComputed(this) // 计算 computed
+      originalSetData.call(this, needUpdate) // 做 computed 的 setData
+    }
+    //初始化computed
+    calcComputed(defFields,true)//计算computed
+  }
+})
+```
+在组件中使用：
+```javascript
+const beh = require('./behavior.js')
+Component({
+  behaviors: [beh],
+  data: {
+    a: 0,
+  },
+  computed: {
+    b() {
+      return this.data.a + 100
+    },
+  },
+  methods: {
+    onTap() {
+      this.setData({
+        a: ++this.data.a,
+      })
+    }
+  }
+})
+```
+```html
+<view>data: {{a}}</view>
+<view>computed: {{b}}</view>
+<button bindtap="onTap">click</button>
+<!-- 实现原理很简单，对已有的setData进行二次封装，在每次setData的时候计算出computed里各字段的值，然后设到data中，已经达到计算属性的效果 -->
+```
+### 8.开发第三方自定义组件
+#### 8.1 准备
+开发一个开源的自定义组件包给他人使用，首先需要明确他人是要如何使用这个包的，如果只是拷贝小程序目录下直接使用的话，可以跳过此文档。此文档中后续内容是以 npm 管理自定义组件包的前提下进行说明的。
+
+在开发之前，要求开发者具有基础的 node.js 和 npm 相关的知识，同时需要准备好支持 npm 功能的开发者工具。
+#### 8.2 下载模板
+为了方便开发者能够快速搭建好一个可用于开发、调试、测试的自定义组件包项目，官方提供了一个项目模板，下载使用模板的方式有三种：
+
+- 直接从 github 上下载 zip 文件并解压。
+- 直接将 github 上的仓库 clone 下来。
+- 使用官方提供的命令行工具初始化项目，下面会进行介绍。
+
+项目模板中的构建是基于 gulp + webpack 来执行的，支持开发、构建、测试等命令，详情可参阅项目模板的 README.md 文件。
+
+#### 8.3 命令行工具
+官方提供了命令行工具，用于快速初始化一个项目。执行如下命令安装命令行工具：
+```
+npm install -g @wechat-miniprogram/miniprogram-cli
+```
+然后新建一个空目录作为项目根目录，在此根目录下执行：
+```
+miniprogram init --type custom-component
+```
+命令执行完毕后会发现项目根目录下生成了许多文件，这是根据官方的项目模板生成的完整项目，之后开发者可直接在此之上进行开发修改。
+
+命令行工具的更多用法可以查看 github 仓库上的 README.md 文件。
+
