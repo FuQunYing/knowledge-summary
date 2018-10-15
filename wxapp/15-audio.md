@@ -159,3 +159,42 @@ Page({
   }
 })
 ```
+
+### 3.video
+
+> 视频，该组件是原生组件，使用时要注意相关限制
+
+属性名 | 类型 | 默认值 | 说明
+- | - | - | -
+src | String | | 要播放的视频的资源地址，支持云文件ID
+initial-time | Number | 」| 指定视频初始播放位置
+duration | Number | | 指定视频时长
+controls | Boolean | true | 是否显示默认播放控件（播放/暂停按钮、播放进度、时间）
+danmu-list | Object Array | | 弹幕列表
+danmu-btn | Boolean | false | 是否显示弹幕按钮，只在初始化时有效，不能动态变更
+enable-danmu | Boolean | false | 是否展示弹幕，只在初始化时有效，不能动态变更
+autoplay | Boolean | false | 是否自动播放
+loop | Boolean | false | 是否循环播放
+muted | Boolean | false | 是否静音播放
+page-gesture | Boolean | false | 在非全屏模式下，是否开启亮度与音量调节手势
+direction | Number | | 设置全平时视频的方向，不指定则根据宽高比自动判断，有效值为0（正常竖向），90（屏幕逆时针90度），-90（屏幕顺时针90度）
+show-progress | Boolean | true | 若不设置，宽度大于240时才会显示
+show-fullscreen-btn | Boolean | true | 是否显示全屏按钮
+show-play-btn | Boolean | true | 是否显示视频底部控制栏的播放按钮
+show-center-play-btn | Boolean | true | 是否显示视频中间的播放按钮
+enable-progress-gesture | Boolean | true | 是否开启控制进度的手势
+objectFit | String | contain | 当视频大小与video容器大小不一致时，视频的表现形式。contain：包含，fill：填充，cover：覆盖
+poster | String | | 视频封面的图片网络资源地址或云文件ID，如果controls 属性值为false，则设置poster无效
+bindplay | EventHandle | | 当开始/继续播放时触发play事件
+bindpause | EventHandle | | 当暂停播放时触发pause事件
+bindended | EventHandle | | 当播放到末尾时触发ended事件
+bindtimeupdate | EventHandle | | 当播放进度变化时触发，event.detail={currentTime,duration}，触发频率250ms一次
+bindfullscreenchange | EventHandle | | 视频进入和退出全屏时触发，event.detail={fullscreen,direction}，direction取为vertical或horizontal
+bindwaiting | EventHandle | | 视频出现缓冲时触发
+binderror | EventHandle | | 视频播放出错时触发
+
+> \<video/> 默认宽度300px，高度225px，可以通过wxss设置宽高
+
+```html
+
+```
