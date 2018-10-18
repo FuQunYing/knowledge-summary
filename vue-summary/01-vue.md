@@ -36,3 +36,50 @@ compouted: {
 }
 ```
 - 有个watch，监听某个变量，如果被监听的变量改变了，就触发某个方法，比如input里的值改变了，拿到值要坐什么什么，感觉用的不多
+
+## 7.Class与Style绑定相关
+- 这里真的真的不能以ng的方法来用了
+    - 写法一：v-bind:class="{xxxclass: Boolean}"，根据真假来切换这个class，需要控制多个class的话，可以写在一个对象里面,然后用的时候直接:class="classObject"，不加{}，不需要Boolean判断的class，都不加{}！！！！
+```javascript
+data: {
+    classObject: {
+        active: true,
+        'text-danger': false
+    }
+}
+//或者写在computed里面
+data: {
+    isActive: true,
+    error: null
+},
+computed: {
+    classObject: function() {
+        return {
+            active: this.isActive && !this.error,
+            'text-danger': this.error && this.error.type === 'fatal'
+        }
+    }
+}
+```
+- 可以给:class传一个数组，来应用一个class列表 ，比如 :class="[activeclass, errorClass]"，如果想根据条件切换列表中的class，可以用三元表达式:class="[isActive ? activeClass: '', errorClass]"，这样写将始终添加errorClass，isActive为true的时候才会添加isActive，但是看着不好看，所以可以这样写 :class="[{active: isActive}, errorClass]"
+
+```javascript
+data:{
+    activeClass : 'active',
+    errorClass: 'text-danger'
+}
+```
+- 如果在自定义组件上使用class属性时，这些类将被添加到这个组价的根元素上，不会覆盖原来的class。
+- v-bind:style是对象语法，CSS属性名可以用驼峰或者串串,比如 :style="{color: activeColor, fontSize: fontSize + 'px'}",或者直接绑定到一个样式对象，:style="styleObject"，数组语法可以将锁哥样式对象应用到同一个元素上，侦测浏览器添加对应的前缀
+- 2.3.0起，可以为style绑定中的属性提供一个包含多个值得数组，比如:style="{display: ['-webkit-box', '-ms-flexbox', 'flex'}"，这样就只渲染浏览器支持的值
+
+```javascript
+data: {
+    activeColor: 'red',
+    fontSize: 30,
+    styleObject: {
+        activeColor: 'red',
+        fontSize: 30,
+    }
+}
+```
