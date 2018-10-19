@@ -83,3 +83,35 @@ data: {
     }
 }
 ```
+
+## 8.v-if
+- 这个跟ng没啥差别
+
+## 9.v-for
+- 这里与ng语法有些不同ng是 *ngFor="ley xx of xxx;let i = index"，这里是v-for="xx in xxx"，需要index，则是v-for="(xx, index) in xxx"，用of替换in也行
+- 如果循环的是对象，v-for="(value,key,index) in xxx"，就拿到了索引，值，属性名
+- 除非循环的东西很简单，不然最好绑定key，:key="xx.id"，这是Vue识别节点的一个通用机制
+
+## 10.事件绑定
+- @eventname='xxx'，xxx是methods里的方法，还有一些事件修饰符
+    - \<a v-on:click.stop="doThis">，阻止单击事件继续传播
+    - \<form v-on:submit.prevent="onSubmit"><，提交事件不再重载页面
+    - \<a v-on:click.stop.prevent="doThat">，修饰符可以串联
+    - \<form v-on:submit.prevent>，只有修饰符
+    - \<div v-on:click.capture="doThis">，添加事件监听器时使用事件捕获模式，即元素自身触发的事件先在此处理，然后才交由内部元素进行处理
+    - \<div v-on:click.self="doThat">，只当在event.target是当前元素自身时触发处理函数，即事件不是从内部元素触发的
+    - 用 v-on:click.prevent.self 会阻止所有的点击，而 v-on:click.self.prevent 只会阻止对元素自身的点击。
+    - 2.1.4新增，\<a v-on:click.once="doThis">，点击事件只会触发一次
+    - 2.3.0新增，\<div v-on:scroll.passive="onScroll">，滚动事件的默认行为（即滚动行为）将会立即触发，而不会等待 onScroll完成，这其中包含event.preventDefault()的情况，这个修饰符可以提高移动端的性能。
+    - .passive和.prevent不要一起使用，因为prevent会被忽略，同时浏览器可能会展示一个警告，passive会告诉浏览器我不想阻止事件的默认行为
+- 还要按键的修饰符
+    - 好多，看文档吧
+
+## 11.表单问题
+- v-model 呵呵呵呵呵呵，いろいろ 面倒くせい
+
+## 12.组件问题
+- 呵呵呵呵呵呵呵呵呵哒
+
+## 13.响应式原理问题
+- 看不懂啊呵呵呵呵呵呵呵呵呵
