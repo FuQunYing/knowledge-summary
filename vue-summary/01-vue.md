@@ -104,8 +104,33 @@ data: {
     - 2.1.4新增，\<a v-on:click.once="doThis">，点击事件只会触发一次
     - 2.3.0新增，\<div v-on:scroll.passive="onScroll">，滚动事件的默认行为（即滚动行为）将会立即触发，而不会等待 onScroll完成，这其中包含event.preventDefault()的情况，这个修饰符可以提高移动端的性能。
     - .passive和.prevent不要一起使用，因为prevent会被忽略，同时浏览器可能会展示一个警告，passive会告诉浏览器我不想阻止事件的默认行为
-- 还要按键的修饰符
-    - 好多，看文档吧
+- 还有按键的修饰符
+    - 在监听键盘事件时，经常需要检查常见的键值，Vue允许为v-on在监听键盘事件时添加按键修饰符，比如：
+```html
+<!-- 只有在 keyCode 是13时调用 vm.submit() -->
+<input keyup.13="submit">
+<!-- 记住所有的keyCode比较困难，所以Vue为最常用的按键提供了别名： -->
+<!-- 同上： -->
+<input v-on:keyup.enter="submit">
+<!-- 缩写语法： -->
+<input @keyup.enter="submit">
+``` 
+- 全部的按键别名
+    - .enter
+    - .tab
+    - .delete(捕获“删除”和“退格”键)
+    - .esc
+    - .space
+    - .up
+    - .down
+    - .left
+    - .right
+```javascript
+//可以通过全局config.keyCodes对象自定义按键修饰符别名
+//可以使用v-on:keyup.f1，比如
+Vue.config.keyCodes.f1 = 112
+```
+
 
 ## 11.表单问题
 - v-model 呵呵呵呵呵呵，いろいろ 面倒くせい
