@@ -130,7 +130,39 @@ data: {
 //可以使用v-on:keyup.f1，比如
 Vue.config.keyCodes.f1 = 112
 ```
-
+- 自动匹配按键修饰符
+    - 可以直接将KeyboardEvent.key暴露的任意有效按键名转换为kebab-case来作为修饰符：
+```html
+<input @keyup.page-down="onPageDown">
+<!-- 在这里，处理函数仅在$event.key === 'PageDown' 时被调用
+     有一些按键(.esc以及所有的方向键)在IE9中有不同的key值，如果想支持IE9，它们的内置别名应该是首选
+-->
+```
+- 系统修饰键，可以用如下修饰符来实现仅在按下相应按键时才触发鼠标或键盘事件的监听器
+    - .ctrl
+    - .alt
+    - .shift
+    - .meta
+    - 注意修饰键与常规按键不同，在和keyup事件一起用时，事件触发时修饰键必须处于按下状态，换句话说，只有在按住ctrl的情况下释放其它按键，才能触发keyup.ctrl，而单单释放ctrl也不会触发事件，如果想要这样的行为，要把ctrl换用为keyCode:keyup.17
+    - .exact修饰符
+        - .exact修饰符允许控制由精确的系统修饰符组合触发的事件
+    - 鼠标按钮修饰符，这些修饰符会限制处理函数仅响应特定的鼠标按钮
+        - .left
+        - .right
+        - .middle
+```html
+<!-- 关于.exact修饰符 -->
+<!-- 即使Alt或shift被一同按下时也会触发 -->
+<button @click.ctrl="onClick"></button>
+<!-- 有且只有Ctrl被按下时才触发 -->
+<button @click.ctrl.exact="onCtrlClick"></button>
+<!--  没有任何系统修饰符被按下的时候才触发 -->
+<button @click.exact="onClick"></button>
+```
+- Question:在HTML中监听事件的优点
+    - 看一眼HTML模板就能定位JS代码里对应的方法
+    - 无需在JS里手动绑定事件，ViewModel代码可以是非常纯粹的逻辑，和DOM完全解耦，更易于测试
+    - 当一个ViewModel被销毁时，所有的事件处理器都会自动被删除，不需要再想着如何去清理它们
 
 ## 11.表单问题
 - v-model 呵呵呵呵呵呵，いろいろ 面倒くせい
