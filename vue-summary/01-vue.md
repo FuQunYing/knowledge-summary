@@ -164,12 +164,96 @@ Vue.config.keyCodes.f1 = 112
     - 无需在JS里手动绑定事件，ViewModel代码可以是非常纯粹的逻辑，和DOM完全解耦，更易于测试
     - 当一个ViewModel被销毁时，所有的事件处理器都会自动被删除，不需要再想着如何去清理它们
 
-## 11.表单问题
-- v-model 呵呵呵呵呵呵，いろいろ 面倒くせい
+## 11.表单输入绑定
+### 11.1 基础用法
+  可以用v-model指令在表单\<input>、\<textarea>及\<select>元素上创建双向数据绑定。它会根据控件类型自动选取正确的方法来更新元素，v-model本质上就是语法糖，它负责监听用户的输入事件以更新数据，并对一些极端场景进行一些特殊处理。
+  v-model会忽略所有表单元素的value、checked、selected特性的初始值而总是将Vue实例的数据作为数据来源。应该通过JS在组件的data选项中声明初始值。对于需要使用输入法的语言，v-model不会在输入法组合文字过程中得到更新，如果想要处理这个过程，使用input事件。
+- 文本
+```html
+<input v-model="message" placeholder="edit here">
+```
+- 多行文本
+```html
+<span> Multiline message is：</span>
+<p style="whit-space:pre-line">{{message}}</p>
+<br>
+<textarea v-model="message" placeholder="add multiple lines"></textarea>
+<!-- 在文本区域插值（<textarea></textarea>）并不会生效，应用v-model来代替 -->
+```
+- 复选框
+```html
+<!-- 单个复选框绑定到布尔值 -->
+<input type="checkbox" id="checkbox" v-model="checked">
+<label for="checkbox">{{checked}}</label>
 
+<!-- 多个复选框，绑定到同一个数组 -->
+<div id='example-3'>
+  <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+  <label for="jack">Sherlock</label>
+  <input type="checkbox" id="john" value="John" v-model="checkedNames">
+  <label for="john">John</label>
+  <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+  <label for="mike">Mike</label>
+  <br>
+  <span>Checked names: {{ checkedNames }}</span>
+</div>
+```
+- 单选按钮
+```html
+<div id="example-4">
+  <input type="radio" id="one" value="One" v-model="picked">
+  <label for="one">One</label>
+  <br>
+  <input type="radio" id="two" value="Two" v-model="picked">
+  <label for="two">Two</label>
+  <br>
+  <span>Picked: {{ picked }}</span>
+</div>
+```
+- 选择框
+```html
+<!-- 单选时： -->
+<div id="example-5">
+  <select v-model="selected">
+    <option disabled value="">请选择</option>
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+  </select>
+  <span>Selected: {{ selected }}</span>
+</div>
+<!-- 如果v-model表达式的初始值未能匹配任何选项，<select>元素将被渲染为 未选中 状态，在ios中，这会使用户无法选择第一个选项。因为这样的情况下，ios不会触发change事件，因此，提供一个值为空的禁用选项比较好 -->
+<!-- 多选时（绑定到一个数组）： -->
+<div id="example-6">
+  <select v-model="selected" multiple style="width: 50px;">
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+  </select>
+  <br>
+  <span>Selected: {{ selected }}</span>
+</div>
+<!-- 一般情况下，option都是循环出来的 -->
+```
+### 11.2 值绑定
+  对于单选按钮，复选框及选择框的选项，v-model绑定的值通常是静态字符串（对于复选框也可以是布尔值）：
+```html
+<!-- 当选中时，picked为字符串a -->
+<input type="radio" v-model="picked" value="a">
+<!-- `toggle` 为 true 或 false -->
+<input type="checkbox" v-model="toggle">
+<!-- 当选中第一个选项时，`selected` 为字符串 "abc" -->
+<select v-model="selected">
+  <option value="abc">ABC</option>
+</select>
+<!-- I don't eat when I'm working. Digesting slows me down -->
+```
+- 复选框
+```html
+
+```
 ## 12.组件问题
-- 呵呵呵呵呵呵呵呵呵哒
+- 
 
 ## 13.响应式原理问题
-- 看不懂啊呵呵呵呵呵呵呵呵呵
-- jbgnguerigjoifj
+- 
