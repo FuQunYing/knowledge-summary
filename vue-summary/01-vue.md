@@ -250,10 +250,126 @@ Vue.config.keyCodes.f1 = 112
 ```
 - 复选框
 ```html
-
+<input typ="checkbox" v-model="toggle" true-value="yes" false-value="no">
+<!-- 当选中时，vm.toggle==='yes'， 没有选中时，vm.toggel===='no'
+这里的true-value和false-value特性并不会影响非输入控件的value特性，因为浏览器在提交表单时并不会包含未被选中的复选框。如果要确保表单中这两个值中的一个能够被提交（比如yes或no），可以换用单选按钮
+ -->
 ```
+- 单选按钮
+```html
+<input type="radio" v-model="pick" v-bind:value="a">
+<!-- 当选中时，vm.pick====vm.a -->
+```
+- 选择框的选项
+```html
+<select v-model="selected">
+    <!-- 内联对象字面量 -->
+    <option v-bind:value="{number: 123}">123</option>
+</select>
+<!-- 当选中时：typeof vm.selected=>'object',vm.selected.number => 123 -->
+```
+### 11.3 修饰符
+- .lazy
+```html
+<!-- 
+在默认情况下，v-model在每次input事件触发后将输入框的值与数据进行同步，可以添加lazy修饰符，从而转变为使用change事件进行同步
+ -->
+ <!-- 在change 时而非 input时更新 -->
+ <input v-model.lazy="msg"/>
+```
+- .number
+```html
+<!-- 
+    如果想自动将用户的输入值转为数值类型，可以给v-model添加number修饰符，因为即使type='number'，HTML输入元素的值也总会返回字符串，如果这个值无法被parseFloat()解析，则会返回原始的值
+ -->
+ <input v-model.number="age" type="number"/>
+```
+- .trim
+```html
+<!-- 
+    如果要自动过滤用户输入的首位空白字符，可以给v-model添加trim修饰符
+ -->
+ <input v-model.trim="msg">
+```
+### 11.4 在组价上使用 v-model
+HTML原生的输入元素类型并不总能满足需求，Vue的组件系统允许创建具有完全自定义行为且可复用的输入组件。这些输入组件甚至可以和v-model一起使用。
 ## 12.组件问题
-- 
+### 12.1 组件定义
+组件是可复用的Vue实例
+
+之前老师给的定义是啥来着？？
+
+一个Vue组件示例：
+```javascript
+// 定义一个名为button-counter的新组建
+Vue.component('button-counter', {
+    data: function() {
+        return{
+            count: 0
+        }
+    },
+    template: '<button @click="count++">我被点了{{count}}次</button>'
+})
+```
+```html
+<!-- 使用上面的组件 -->
+<div>
+    <button-counter></button-counter>
+</div>
+<!-- 
+    因为组件是可复用的Vue实例，所以它们与new Vue接收相同的选项，例如data、computed、watch、methods以及生命周期钩子等，仅有的例外是像el这样的根据实例特有的选项。
+ -->
+```
+### 12.2 组件的复用
+组件可以被无数次的复用：
+```html
+<div>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+</div>
+<!-- 点击按钮的时候，每个组件都会维护各自的count，因为每用一次组件，就会有一个新的实例被创建 -->
+```
+- 注意，data必须是一个函数
+```javascript
+// 当定义这个<button-counter>组件的时候，data并不是像这样提供一个对象出来：
+data: {
+    count:0//以前好像这样写过
+}
+//取而代之的是，一个组件的data选项必须是一个函数，因此每个实例可以维护一份被返回对象的独立的拷贝
+data() {
+    return {
+        count:0
+    }
+}
+//如果没有这条规则，那点击这个按钮，别的按钮的count也会被影响
+```
+### 12.3 组件的组织
+如图，一个Vue应用可以用这个组件树的形式来组织：
+![图片](components.png)
+比如，我可能有页头、页尾、侧边栏,每个组件又包含了其它的像导航链接、博文之类的组件。为了能在模板中使用，这些组件必须先注册以便Vue能够识别，这里有两种组件的注册类型：全局注册和局部注册，到目前看到的，组价都是通过Vue.component全局注册的：
+```javascript
+Vue.component('my-component',{
+    //....options
+})
+```
+全局注册组件可以用在其被注册之后的任何新建的Vue根实例，也包括其组件树中的所有子组件的模板中。
+### 12.4 父组件向子组件传值
+如果说要做一个博文组件，问题是如果不能向这个组件传递某一篇博文的标题或者内容之类的想要展示的数据的话，它是没办法使用的。所以有了prop，prop是我可以在组件上注册的一些自定义特性。当一个值传递给一个prop特性的时候，它就变成了那个组件实例的一个属性，为了给博文组件传递一个标题，可以用props选项将其包含在该组件可接受的prop列表中：
+```javascript
+Vue.component('blog-post',{
+    props: ['title'],
+    template: '<h3>{{title}}</h3>'
+})
+```
+一个组件默认可以拥有任意数量的prop，任何值都可以传递给任何prop，在上述模板中，可以看到能在组件中访问这个值，就像访问data中的值一样。一个prop被注册之后，可以像下面这样把数据作为一个自定义特性传递进来：
+```html
+<blog-post title="随便写一个标题"></blog-post>
+```
+在典型应用中，可能在data里有一个博文的数组：
+```javascript
+```
+
 
 ## 13.响应式原理问题
 - 
