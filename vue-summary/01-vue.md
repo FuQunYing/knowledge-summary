@@ -368,6 +368,129 @@ Vue.component('blog-post',{
 ```
 在典型应用中，可能在data里有一个博文的数组：
 ```javascript
+new Vue({
+    el: '#blog-post-demo',
+    data: {
+        posts:[
+            {id:1,title: 'bulabulabula'},
+            {id:2,title: 'labulabulabu'},
+            {id:3,title: 'bulabulabula'},
+        ]
+    }
+})
+```
+然后想要为每一篇博文渲染一个组件：
+```html
+<blog-post v-for="post in posts" :key="post.id" :title="post.title"></blog-post>
+<!-- 这里使用v-bind来动态传递prop，这在一开始不清楚要渲染的具体内容的时候是非常有用的 -->
+```
+### 12.5 单个根元素
+当构建一个\<blog-post>组件时，模板最终包含的，不会仅仅是一个标题，最起码得有个文章内容啊：
+```html
+<h3>{{title}}</h3>
+<div v-html="content"></div>
+<!-- 但是模板中这样写会报错，因为这些内容必须被包裹在一个父元素内 -->
+```
+当组件变得越来越复杂的时候，博文不只需要标题和内容，还需要发布日期、评论等，为每个相关的信息定义一个prop会非常麻烦，所以可以重构blog-post组件，让它接受一个单独的post prop
+```html
+<blog-post v-for="post in posts" :key="post.id" :post="post"></blog-post>
+```
+```javascript
+Vue.component('blog-post', {
+    prop: ['post'],
+    template:`
+        <div class="blog-post">
+            <h3>{{title}}</h3>
+            <div v-html="post.content"></div>
+        </div>
+    `
+})
+//上述的这个和一些接下来的示例使用了JavaScript的模板字符串来让多行模板更易读。他们在IE下并没有被支持没所以如果需要在不编译的情况下支持IE，要使用字符串拼接
+//现在，不论何时为post对象添加一个新的属性，他都会自动地在<blog-post>内可用
+```
+### 12.6 子组件向父组件发送消息
+在开发\<blog-post>组件时，它的一些功能可能要和父组件沟通。比如，可能会想要引入一个可访问性的功能来放大博文的字号，同时让页面的其它部分保持默认的字号。在其父组件中，可以通过添加一个postFontSize数据属性来支持这个功能：
+```javascript
+new Vue({
+    el: '#blog-posts-events-demo',
+    data: {
+        posts: [....],
+        postFontSize: 1
+    }
+})
+```
+它可以在模板中用来控制所有博文的字号：
+```html
+<div id='blog-posts-events-demo'>
+    <div :style="{fontSize: postFontSize+'em'}">
+        <blog-post v-for="post in posts" :key="post.id" :post="post"></blog-post>
+    </div>
+</div>
+```
+现在在每篇博文之前添加一个按钮来放大字号：
+```javascript
+Vue.component('blog-post', {
+    props: ['post'],
+    template: `
+        <div class="blog-post">
+            <h3>{{post.title}}</h3>
+            <button>增大字体</button>
+            <div v-html="post.content"></div>
+        </div>
+    `
+})
+```
+但是现在这个按钮不会做任何事情，当点击这个按钮的时候，我需要告诉父组件放大所有的博文的文本。Vue实例提供了一个自定义事件的系统来解决这个问题。我可以调用内建的$emit方法并传入事件的名字，来向父级组件触发一个事件：
+```html
+<button @click="$emit('enlarge-text')">增大字体</button>
+<!-- 然后可以用v-on在博文组件上监听这个事件，就像监听一个原生DOM事件一样： -->
+<blog-post  v-on:enlarge-text="postFontSize += 0.1"></blog-post>
+```
+- **使用事件抛出一个值**
+  
+有的时候用一个事件来抛出一个特定的值是非常有用的。比如可能想让\<blog-post>组件决定它的文本要放大多少，这时可以使用$emit的第二个参数来提供这个值：
+```html
+<button @click="$emit('enlarge-text',0.1)"> 增大字体</button>
+<!-- 然后当父组件监听这个事件的时候，可以通过$event访问到被抛出的这个值： -->
+<blog-post v-on:enlarge-text="postFontSize += $event"></blog-post>
+<!-- 或者，如果这个事件处理函数是一个方法 -->
+<blog-post v-on:enlarge-text="onEnlargeText"></blog-post>
+```
+那么这个值将会作为第一个参数传入这个方法：
+```javascript
+methods: {
+    onEnlargeText: function(enlargeAmount) {
+        this.postFontSize += enlargeAmount
+    }
+}
+```
+- **在组件上使用v-model**
+  
+自定义事件也可以用于创建支持v-model的自定义输入组件。
+```html
+<input v-model="searchText"/>
+<!-- 等价于 -->
+<input :value="searchText" v-on:input="searchText=$event.target.value"/>
+<!-- 当用在组件上时，v-model则会这样： -->
+<custom-input
+  v-bind:value="searchText"
+  v-on:input="searchText = $event"
+></custom-input>
+```
+为了让它正常工作，这个组件内的\<input>必须：
+- 将其value特性绑定到一个叫value的prop上
+- 在其input事件被触发时，将新的值通过自定义的input事件抛出
+```javascript
+Vue.component('custom-input',{
+    props: ['value'],
+    template:`
+        <input v-bind:value="value" v-on:input="$emit('input', $event.target.value)">
+    `
+})
+```
+现在v-model就可以在这个自定义组件上工作了：
+```html
+<coustom-input v-model="searchText"></coustom-input>
 ```
 
 
