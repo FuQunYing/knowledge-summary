@@ -492,6 +492,23 @@ Vue.component('custom-input',{
 ```html
 <coustom-input v-model="searchText"></coustom-input>
 ```
+### 12.7 通过插槽分发内容
+和HTML元素一样，经常需要向一个组件传递内容，像这样：
+```html
+<alert-box>会渲染出红色背景的对话框</alert-box>
+```
+Vue自定义的slot元素可以简单的实现这个：
+```javascript
+Vue.component('alert-box', {
+    template:`
+    <div class="demo-alert-box">
+      <strong>Error!</strong>
+      <slot></slot>
+    </div>
+    `
+})
+//在需要的地方加上插槽就行了
+```
 
 
 ## 13.响应式原理问题
