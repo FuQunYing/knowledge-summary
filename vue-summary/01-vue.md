@@ -509,7 +509,32 @@ Vue.component('alert-box', {
 })
 //在需要的地方加上插槽就行了
 ```
+### 12.8 动态组件
+有的时候不同组件之间需要动态切换，比如多标签界面里，点击tab切换相应的页面，可以通过Vue的\<component> 元素加一个特殊的is特性来实现：
+```html
+<!-- 组件会在`currentTabComponent`改变时改变 -->
+<component v-bind:is="currentTabComponent"></component>
+```
+在上述示例中，currentTabComponent可以包括：
+- 已注册组件的名字，或
+- 一个组件的选项对象
 
 
-## 13.响应式原理问题
-- 
+### 12.9 解析DOM模板时的注意事项
+
+有些HTML元素，诸如ul、ol、table和select，对于哪些元素可以出现在其内部是有严格限制的。而有些元素比如li、tr和option，只能出现在其它某些特定的元素内部。
+
+这会导致使用这些有约束条件的元素时遇到一些问题，例如：
+```html
+<table>
+    <blog-post-row></blog-post-row>
+</table>
+<!-- 这个blog-post-row 会被作为无效的内容提升到外部，并导致最终渲染结果出错，用is来变通这种写法 -->
+<table>
+    <tr is="blog-post-row"></tr>
+</table>
+```
+需要注意的是如果从以下来源使用模板的话，这条限制是不存在的：
+- 字符串（例如：template:'....'）
+- 单文件组件（.vue）
+- \<script type="text/x-template">
