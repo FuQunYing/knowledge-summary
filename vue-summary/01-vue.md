@@ -580,4 +580,35 @@ new Vue({ el: '#app' })
 <!-- 在所有子组件中也是如此，也就是说着三个组件在各自内部也都可以相互使用 -->
 ```
 #### 13.1.3 局部注册
-全局注册往往是不够理想的，比如，如果使用一个像webpack这样的构建系统，全局注册所有的组件意味着即便我不用这个组件了，它仍然会被包含在最终的构建结果之中，这会造成用户下载的JavaScript的无谓的增加
+全局注册往往是不够理想的，比如，如果使用一个像webpack这样的构建系统，全局注册所有的组件意味着即便我不用这个组件了，它仍然会被包含在最终的构建结果之中，这会造成用户下载的JavaScript的无谓的增加，在这些情况下，可以通过一个普通的JavaScript对象来定义组件：
+```javascript
+var ComponentA = { /* ... */ }
+var ComponentB = { /* ... */ }
+var ComponentC = { /* ... */ }
+//然后在components选项中定义想要使用的组件：
+new Vue({
+    el: "#app",
+    components: {
+        'component-a': ComponentA,
+        'component-b': ComponentB
+    }
+})
+//对于components对象中的每个属性来说，其属性名就是自定义元素的名字，其属性值就是这个组件的选项对象，注意局部注册的组件在其子组件中不可用，例如，如果希望ComponentA在ComponentB中可用，则需要这样写：
+var Componenta= {/**/}
+var componentB = {
+    components: {
+        'componnet-a': ComponentA
+    }
+}
+//或者如果通过Babel和webpack使用ES2015模块，那么代码看起来更像：
+import ComponentA from './ComponentA.vue';
+export default{
+    components:{ComponentA},
+    //....
+}
+```
+注意在ES2015+中，在对象中放一个类似ComponentA的变量名其实是ComponentA:ComponentA的缩写，即这个变量名同时是：
+- 用在模板中的自定义元素的名称
+- 包含了这个组件选项的变量名
+#### 13.1.4 模块系统
+
