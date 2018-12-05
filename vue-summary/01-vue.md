@@ -538,3 +538,32 @@ Vue.component('alert-box', {
 - 字符串（例如：template:'....'）
 - 单文件组件（.vue）
 - \<script type="text/x-template">
+
+## 13 组件深入
+### 13.1 组件注册
+#### 13.1.1 组件名
+在注册一个组件的时候，始终需要给它一个名字，比如在全局注册的时候，可以看到：
+```javascript
+Vue.component('my-component-name', {/*...*/})
+```
+该组件名就是Vue.component的第一个参数。我给予组件的名字依赖于我打算拿它做什么，当直接在DOM中使用一个组件（而不是在字符串模板或单文件组件）的时候，推荐使用w3c规范中的定义组件名（字母全小写且必须包含一个连字符）,这会避免和当前以及未来的HTML元素相冲突。
+- 组件名大小写
+
+定义组件名有两种方式，一个是kebab-case，就是烤串模式：
+```javascript
+Vue.component('my-component-name', {/*....*/})
+//使用这个方法也必须在引用这个自定义元素时使用kebab-case，比如<my-component-name>
+```
+还有一种是使用PascalCase（大驼峰）：
+```javascript
+Vue.component('MyComponentName',{/*...*/})
+//当使用PascalCase定义一个组件时，在引用这个自定义元素时两种命名法都可以使用，也就是说<my-component-name> 和 <MyComponentName> 都是可接受的。注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。所以还是直接统一用烤串式吧
+```
+#### 13.1.2 全局注册
+到目前为止，只用过Vue.component来创建组件：
+```javascript
+Vue.component('my-component-name',{
+    //选项
+})
+//这些组件是全局注册的，也就是说它们在注册之后可以用在任何新创建的Vue根实例{new Vue} 的模板中
+```
