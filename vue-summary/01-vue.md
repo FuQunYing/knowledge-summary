@@ -565,5 +565,19 @@ Vue.component('MyComponentName',{/*...*/})
 Vue.component('my-component-name',{
     //选项
 })
-//这些组件是全局注册的，也就是说它们在注册之后可以用在任何新创建的Vue根实例{new Vue} 的模板中
+//这些组件是全局注册的，也就是说它们在注册之后可以用在任何新创建的Vue根实例{new Vue} 的模板中，比如：
+Vue.component('component-a', { /* ... */ })
+Vue.component('component-b', { /* ... */ })
+Vue.component('component-c', { /* ... */ })
+new Vue({ el: '#app' })
 ```
+```html
+<div id="app">
+    <component-a></component-a>
+    <component-b></component-b>
+    <component-c></component-c>
+</div>
+<!-- 在所有子组件中也是如此，也就是说着三个组件在各自内部也都可以相互使用 -->
+```
+#### 13.1.3 局部注册
+全局注册往往是不够理想的，比如，如果使用一个像webpack这样的构建系统，全局注册所有的组件意味着即便我不用这个组件了，它仍然会被包含在最终的构建结果之中，这会造成用户下载的JavaScript的无谓的增加
