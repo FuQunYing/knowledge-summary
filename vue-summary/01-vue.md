@@ -611,4 +611,40 @@ export default{
 - 用在模板中的自定义元素的名称
 - 包含了这个组件选项的变量名
 #### 13.1.4 模块系统
+- 在模块系统中局部注册
+
+模块系统中，推荐创建一个components目录，并将每个组件放置在其各自的文件中。然后需要在局部注册之前导入每个想要使用的组件，比如在一个假设的ComponentB.js或ComponentB.vue文件中：
+```javascript
+import ComponentA from "./ComponentA"
+import ComponentC from "./ComponentC"
+export default {
+    components: {
+        ComponentA,
+        ComponentC
+    }
+}
+//这样ComponentA和ComponentC就都可以在ComponentB的模板中使用了
+```
+- 基础组件的自动化全局注册
+
+可能许多组件只是包裹了一个输入框或按钮之类的元素，是相对通用的，被称为基础组件，他们会在各个组件中被频繁的用到，所以会导致很多组件里都会有一个包含基础组件的长列表：
+```javascript
+import BaseButton from "./BaseButton.vue"
+import BaseIcon from "./BaseIcon.vue"
+import BaseInput from "./BaseInput.vue"
+export default {
+    components: {
+        BaseButton,
+        BaseIcon,
+        BaseInput
+    }
+}
+```
+而最终用于模板中的一小部分：
+```html
+<BaseInput v-model="searchText" @keydown.enter="search"/>
+<BaseButton @click="search">
+    <BaseIcon name="search"/>
+</BaseButton>
+```
 
