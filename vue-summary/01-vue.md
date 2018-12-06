@@ -647,4 +647,76 @@ export default {
     <BaseIcon name="search"/>
 </BaseButton>
 ```
+如果使用了webpack，那么就可以使用require.context只全局注册这些非常通用的基础组件，下面是一份main.js的示例代码：
+```javascript
+import Vue from 'vue'
+import upperFirst from 'lodash/upperFirst'
+import camelCase from 'lodash/camelCase'
 
+const requireComponent = require.context(
+    // 其组件目录的相对路径
+    './components',
+    //是否查询其子目录
+    false,
+    // 匹配基础组件文件名的正则表达式
+    /Base[A-Z]\w+\.(vue|js)$/
+)
+requireComponent.keys().forEach(fileName => {
+    // 获取组件配置
+    const componentConfig = requireComponent(fileName)
+    // 获取组件的PascalCase命名
+    const componentName = upperFirst(
+        camelCase(
+            // 剥去文件名开头的`./`和结尾的扩展名
+            fileName.replace(/^\.\/(.*)\.\w+$/,'$1')
+        )
+    )
+    // 全局组件注册
+    Vue.component(
+        componentName,
+        //如果这个组件选项是通过`export default` 导出的，那么就会优先使用`.default`，否则回退到使用模块的根
+        componentConfig.default || componentConfig
+    )
+})
+```
+### 13.2 Prop
+#### 13.2.1 Prop 的 大小写（烤串VS驼峰）
+HTML中的特姓名是大小写不敏感的，所以浏览器会把所有大小写字符解释为小写字符，这意味着当使用DOM中的模板时，camelCase的prop名需要使用其等价的kebab-case命名：
+```javascript
+Vue.component('blog-post',{
+    //在JavaScript中是camelCase的
+    prop:['postTitle'],
+    template: '<h3>{{postTitle}}</h3>'
+})
+```
+在HTML中是kebab-case的：
+```html
+<blog-post post-title="hello world"></blog-post>
+<!-- 如果使用字符串模板，那么这个限制就不存在了 -->
+```
+#### 13.2.2 Prop类型
+目前，只看到了以字符串数组形式列出的prop:
+```javascript
+prop: ['title', 'like', 'isPublished','commentIds', 'author']
+//不过通常想要每个prop都有指定的值类型，可以以对象的形式列出prop，这些属性的名称和值分别是prop各自的名称和类型：
+props:{
+    title: String,
+    likes: Number,
+    isPublished: Boolean,
+    commentIds: Array,
+    author: Object
+}
+//这样就为组件提供了文档，还会在它们遇到错误的类型时，从浏览器的JavaScript控制台提示用户
+```
+#### 13.2.3 传递静态或动态Prop
+目前已知，给prop传值可以静态也可以动态：
+```html
+<!-- 静态传值 -->
+<blog-post title="hello world"></blog-post> 
+<!-- 动态赋予一个变量的值 -->
+<blog-post v-bind:title="post.title"></blog-post>
+<!-- 动态赋予一个复杂的表达式的值 -->
+<blog-post v-bind:title="post.title + 'by' + post.author.name"></blog-post>
+
+<!-- 但是=这些都是字符串类型的，任何类型的值都可以传给一个prop -->
+```
