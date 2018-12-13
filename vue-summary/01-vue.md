@@ -720,3 +720,58 @@ props:{
 
 <!-- 但是=这些都是字符串类型的，任何类型的值都可以传给一个prop -->
 ```
+- 传入一个数字
+```html
+<!-- 即使42是静态的，也需要用bind来告诉vue，这是一个JS表达式而不是一个字符串 -->
+<blog-post v-bind:likes="42"></blog-post>
+
+<!-- 用一个变量进行动态赋值 -->
+<blog-post v-bind:likes="post.likes"></blog-post>
+```
+- 传入一个布尔值
+```html
+<!-- 包含该prop没有值的情况在内，都意味着true -->
+<blog-post is-published></blog-post>
+<!-- 同上，false即使是静态也要用bind -->
+<blog-post v-bind:is-published="false"></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:is-published="post.isPublished"></blog-post>
+```
+- 传入一个数组
+```html
+<!-- 静态同用bind -->
+<blog-post v-bind:comment-ids="[23,24,25]"></blog-post>
+<!-- 用一个变量进行动态赋值 -->
+<blog-post v-bind:comment-ids="post.commentIds"></blog-post>
+```
+- 传入一个对象
+```html
+<!-- 同bind -->
+<blog-post v-bind:author="{ name: 'Dan Brown', company: 'don't know' }"></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:author="post.author"></blog-post>
+```
+- 传入一个对象的所有属性
+如果想要将一个对象的所有属性都作为prop传入，可以使用不带参数的v-bind（取代v-bind:prop-name）,例如，对于一个给定的对象post：
+```javascript
+post: {
+    id: 1,
+    title: 'Hello world'
+}
+```
+
+```html
+<!-- 下面的模板： -->
+<blog-post v-bind="post"></blog-post>
+<!-- 等价于 -->
+<blog-post v-bind="post.id" v-bind="post.title"></blog-post>
+```
+#### 13.2.4 单向数据流
+所有的prop都使得其父子prop之间形成了一个单向下行绑定：父级prop的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外改变父级组件的状态，从而导致应用的数据流向难以理解。额外的，每次父级组件发生更新时，子组件中所有的prop都将会刷新为最新的值。所以不应该在一个子组件内部改变prop，如果这样做了，Vue会在浏览器的控制台中发出警告。
+
+这里有两种常见的试图改变一个prop的情形：
+- 这个prop用来传递一个初始值；这个子组件接下来希望将其作为一个本地的prop数据来使用。在这种情况下，最好定义一个本地的data属性并将这个prop用作其初始值：
+```javascript
+```

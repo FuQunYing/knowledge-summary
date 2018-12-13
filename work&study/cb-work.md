@@ -64,4 +64,9 @@
 > 
 > 只要需要userid的，token也要一起！！！！！！
 > 
-> 
+> 获取token http://wwwdev.changbaops.com/wanghaijuan/yunying/tiger.php?userid=244221667
+> 
+> 拼接参数不要加空格！
+
+## 一些需要长进的技术
+> CSS3的动画、2D、3D变形等
