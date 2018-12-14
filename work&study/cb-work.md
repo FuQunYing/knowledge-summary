@@ -67,6 +67,16 @@
 > 获取token http://wwwdev.changbaops.com/wanghaijuan/yunying/tiger.php?userid=244221667
 > 
 > 拼接参数不要加空格！
+> 
+> margin-top或者margin-bottom定位在一些机型上会有问题，但是用position的absolute定位的时候，如果是整体top设定，那么在webview里面，这个整体都不会计算高度。
 
 ## 一些需要长进的技术
 > CSS3的动画、2D、3D变形等
+> 
+> 以前很少用但现在常用的css属性总结
+
+```css
+/*文字类*/
+letter-spacing：文字间距
+text-indent：首字缩进
+```
