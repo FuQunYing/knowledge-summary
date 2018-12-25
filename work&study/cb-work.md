@@ -25,6 +25,7 @@
 ## 项目内知识点
 > 分享：https://wiki.changba.com/pages/viewpage.action?pageId=23613169
 > 
+> 我的ip地址：http://192.168.63.155:8080
 
 ## 站点统计
 > 友盟 - 三叔账号
@@ -80,3 +81,9 @@
 letter-spacing：文字间距
 text-indent：首字缩进
 ```
+
+## Mac 相关
+> 查看端口占用 sudo lsof -i tcp:port
+> 
+> sudo kill pid
+> 
