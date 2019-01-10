@@ -1,5 +1,5 @@
 ## 账号 & 密码
- > waterlady ----------- changba\*2018\*ddd
+ > waterlady ----------- changba*2018*ddd
  > 
  > fuqunying ----------- Changba@2018
 
@@ -28,9 +28,11 @@
 > 我的ip地址：http://192.168.63.155:8080
 
 ## 站点统计
-> 友盟 - 三叔账号
+> 友盟 - 三叔账号 
 > 
-> 添加站点 - changba.com-url
+> hanhongshu@changba.com   kulv0215
+> 
+> 添加站点 - changba.com-url（然后会给出web_id，把web_id加到JS的初始上和HTML的引入上）
 > 
 > js添加代码 - load为uv，click为事件
 
@@ -70,6 +72,10 @@
 > 拼接参数不要加空格！
 > 
 > margin-top或者margin-bottom定位在一些机型上会有问题，但是用position的absolute定位的时候，如果是整体top设定，那么在webview里面，这个整体都不会计算高度。
+> 
+> 请求统一为post
+>  
+> safari浏览器不能识别 - new的时间，要用 /
 
 ## 一些需要长进的技术
 > CSS3的动画、2D、3D变形等
