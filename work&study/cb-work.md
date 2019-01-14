@@ -34,7 +34,7 @@
 > 
 > 添加站点 - changba.com-url（然后会给出web_id，把web_id加到JS的初始上和HTML的引入上）
 > 
-> js添加代码 - load为uv，click为事件
+> js添加代码 - load为uv，click为事件，事件名字可以自定义
 
 
 ## svn 相关
@@ -92,4 +92,10 @@ text-indent：首字缩进
 > 查看端口占用 sudo lsof -i tcp:port
 > 
 > sudo kill pid
+>
+## 关于vsCode
+> 想要修改侧边栏的字体与颜色的时候，在安装包的out的vs里面css文件查找
 > 
+> monaco-workbench>.part>.content
+> 
+> 在里面加上font-family和color即可
