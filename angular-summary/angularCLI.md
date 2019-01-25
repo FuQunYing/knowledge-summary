@@ -1,10 +1,10 @@
-#angularCLI
+# angularCLI
   功能：创建新的angular项目，运行开发服务器，给目前的angular的项目添加新的功能，运行单元测试，运行e2e，构建应用程序。
 ![图片](angularCLI.png)
 
-##一、新建
+## 一、新建
 
-###1）new 发生了什么？
+### 1）new 发生了什么？
 
  - 1.创建了新的my-app目录
 
@@ -20,7 +20,7 @@
 
  - 7.创建environment相关的文件，初始化默认设置
 
-###2）创建项目时，命令后的可跟选项
+### 2）创建项目时，命令后的可跟选项
 
  - --dry-run，为true则不创建任何文件
 
@@ -30,7 +30,7 @@
 
  - --skip-install，是否跳过安装依赖，默认false
 
- - --skip-git，不降目录初始化为git仓库，默认false
+ - --skip-git，不将目录初始化为git仓库，默认false
 
  - --skip-tests，不创建tests相关文件，默认false
 
@@ -48,13 +48,13 @@
 
  - --routing，是否新增带有路由信息的模块，并添加到根模块中，默认false
 
- - ----inline-style，是否使用内联样式，默认false
+ - --inline-style，是否使用内联样式，默认false
 
  - --inline-template，是否使用内联模板，默认false
 
 ## 二、运行
 
-###1）ng serve发生了什么？
+### 1）ng serve发生了什么？
 
  - 1.去.angualr-cli.json中加载配置信息
 
@@ -62,15 +62,15 @@
 
  - 3.启动本地开发服务器
 
-##三、添加新功能
+## 三、添加新功能
 
-###1）运行新建类命令，发生了什么？
+### 1）运行新建类命令，发生了什么？
 
  - 在src/app目录下，创建new-class.ts文件，并导出NewClass类
 
  - 选项--spec，是否生成spec的单元测试文件，默认false
 
-###2）运行新建组件命令，发生了什么？
+### 2）运行新建组件命令，发生了什么？
 
  - 1.在src/app下，new-component目录被创建
 
@@ -94,7 +94,7 @@ ps：相关选项（前五个完全不用动啊~）
 
  - --change-detection， 设置组件的变化检测策略？？
 
-###3）运行新建指令命令，发生了什么？
+### 3）运行新建指令命令，发生了什么？
 
  - 1.在src/app目录下创建new.directive.ts文件导出appNew的指令
 
@@ -110,11 +110,11 @@ ps：可用选项
 
 - --spec，默认为true，解释的话不说两遍，那为啥这句话我说了两遍
 
-###4）运行新建枚举命令，发生了什么？
+### 4）运行新建枚举命令，发生了什么？
 
  -  在src下，创建了app.new.enum.ts，并导出名为New的枚举，src下的根目录呢，话说枚举是啥？？？？
 
-###5）运行创建模块命令，发生了什么？
+### 5）运行创建模块命令，发生了什么？
 
  - 1.在src/app下，创建newmodule文件夹
 
@@ -128,7 +128,7 @@ ps：可用选项
 
  - --spec，默认false
 
-###6）运行创建管道命令，发生了什么？何が起こったか？what happens?
+### 6）运行创建管道命令，发生了什么？何が起こったか？what happens?
 
  - 1.在src/app下，创建newpipe.pipe.ts文件，导出NewPipePipe的管道类
 
@@ -138,7 +138,7 @@ ps：可用选项
 
 ps：可用选项有--flat，默认true，--spec，默认true
 
-###7）运行服务命令，发生了什么？教えてよ、何が
+### 7）运行服务命令，发生了什么？教えてよ、何が
 
  - 1.在src/app下创建new-service.service.ts，导出NewServiceService的服务类，
 
@@ -148,9 +148,9 @@ ps：服务肃然创建好了，但是没有进行配置啊，根据需求在某
 
 再次ps：相关选项：--flat，默认true，--spec，默认为true
 
-##四、
+## 四、
 
-###1）ng test 的时候，发生了什么？
+### 1）ng test 的时候，发生了什么？
 
  - 1.angular CLI首先从.angualr-cli.json文件加载配置信息
 
@@ -168,13 +168,13 @@ ps：服务肃然创建好了，但是没有进行配置啊，根据需求在某
 
   --是不是又想知道karma究竟又是怎么一回事了
 
-##五、
+## 五、
 
-###1）运行e2e发生了什么？？？？？
+### 1）运行e2e发生了什么？？？？？
 
-##六、
+## 六、
 
-###1）运行ng build ，发生了什么？
+### 1）运行ng build ，发生了什么？
 
  - 1.ACLI从.angular-cli.json文件中加载配置信息
 
@@ -202,9 +202,9 @@ ps：相关选项
 
 在src/main.ts文件中看到的，通过导入environment.ts文件，可以访问environment相关的配置信息
 
-##七、
+## 七、
 
-###1）运行ng eject发生了什么？
+### 1）运行ng eject发生了什么？
 
  - 1.在.angualr-cli.json文件中加入ejected属性，并设置为true。
 
