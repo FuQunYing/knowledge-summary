@@ -43,7 +43,7 @@ function insertSort(arr) {
     }
 }
 // insertSort(arr2);
-// console.log(arr2);
+// console.log();
 
 // 3. 快速排序
 // 快速排序是对冒泡排序的一种改进，它的基本思想是通过一趟排序将要排序的的数据分割成独立的两部分，其中一部分所有的数据都比另外一部分所有数据都要小，然后按此方法对这两部分数据分别进行快速排序，整个排序可以递归进行，以此达到整个数据都变成有序数列。
@@ -66,4 +66,15 @@ function quickSort(arr) {
             return quickSort(left).concat(centerNum,quickSort(right));//多次调用
     }
 }
-console.log(quickSort(arr3))
+// console.log(quickSort(arr3))
+
+// 4. 数组去重
+var arr4 = [2,4,6,4,8,2];
+var r = [];
+var hash = {};
+for( var i = 0; i < arr4.length; i++) {
+    // 方式1 如果r中没有arr[i]
+    /*if(r.indexOf(arr4[i]==-1)){// 本质上还是循环
+        r.push(arr4[i]) // 将arr[i]push进r
+    }*/
+}
