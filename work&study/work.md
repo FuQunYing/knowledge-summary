@@ -1,3 +1,5 @@
+# 唱吧
+
 ## 账号 & 密码
  > waterlady ----------- changba*2018*ddd
  > 
@@ -99,3 +101,8 @@ text-indent：首字缩进
 > monaco-workbench>.part>.content
 > 
 > 在里面加上font-family和color即可
+
+# 东岸未来
+## 东本官网维护
+- 后台可直接增删改查----直接发对应前端地址，更新CDN
+- 需要更改代码，从ftp下载需要被更改的文件，更改之后上传ftp，在host查看效果，ok以后把更改的文件打包发给XXXX，再让他们更新CDN

@@ -79,3 +79,13 @@ const sameTitle = [], sameTitleList = [], resultList = [];
        }
     }
 ```
+
+## H5中的一些坑
+```txt
+  唱吧APP内，嵌入H5页面，在使用margin-top或者margin-bottom的负值来控制元素的上下定位时，在浏览器上不会有问题，但是嵌入进app内，在移动设备上，上下滑动时的卡顿非常明显。
+  使用position的absolute定位时，如果是内部子元素定位，问题不大，但是整体的定位会使父元素高度不准确，ご注意。
+```
+
+## web中的坑
+
+- 监听滚动，锚点自动定位
