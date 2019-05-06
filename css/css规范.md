@@ -14,35 +14,58 @@
 6.不随意使用ID
 7.可以通过is-****来表示状态，更加明了
 ##3.css命名规范
-头：header内容：content/container尾：footer导航：nav侧栏：sidebar
-栏目：column页面外围控制整体佈局宽度：wrapper左右中：left right center
-登录条：loginbar标志：logo广告：banner页面主体：main热点：hot新闻：news
-下载：download子导航：subnav菜单：menu子菜单：submenu搜索：search
-友情链接：friendlink页脚：footer版权：copyright滚动：scroll内容：content
-标签：tags文章列表：list提示信息：msg小技巧：tips栏目标题：title加入：joinus
-指南：guide服务：service注册：register状态：status投票：vote合作伙伴：partner
+- 头：header
+- 内容：content/container
+- 尾：footer
+- 导航：nav
+- 侧栏：sidebar
+- 栏目：column 
+- 页面外围控制整体佈局宽度：wrapper
+- 左右中：left right center
+- 登录条：loginbar
+- 标志：logo
+- 广告：banner
+- 页面主体：main
+- 热点：hot
+- 新闻：news
+- 下载：download
+- 子导航：subnav
+- 菜单：menu
+- 子菜单：submenu
+- 搜索：search
+- 友情链接：friendlink
+- 页脚：footer
+- 版权：copyright
+- 滚动：scroll
+- 标签：tags
+- 文章列表：list
+- 提示信息：msg
+- 小技巧：tips
+- 栏目标题：title
+- 加入：joinus
+- 指南：guide
+- 服务：service
+- 注册：register
+- 状态：status
+- 投票：vote
+- 合作伙伴：partner
 ##4.注释
 /*Header*/
 content
 /*End Header*/
 ##5.ID/class的命名
-1.页面结构
-容器: container页头：header内容：content/container页面主体：main
-页尾：footer导航：nav侧栏：sidebar栏目：column
-页面外围控制整体佈局宽度：wrapper左右中：left right center
-2.导航
-导航：nav主导航：mainnav子导航：subnav顶导航：topnav边导航：sidebar
-左导航：leftsidebar右导航：rightsidebar菜单：menu子菜单：submenu
-标题: title摘要: summary
-3.功能
-标志：logo广告：banner登陆：login登录条：loginbar注册：register
-搜索：search功能区：shop标题：title加入：joinus状态：status按钮：btn
-滚动：scroll标籤页：tab文章列表：list提示信息：msg当前的: current
-小技巧：tips图标: icon注释：note指南：guild服务：service热点：hot新闻：news
-下载：download投票：vote合作伙伴：partner友情链接：link版权：copyright
+    同上 css命名规范
 ##6.css样式表文件命名
-主要的 master.css模块 module.css基本共用 base.css布局、版面 layout.css
-主题 themes.css专栏 columns.css文字 font.css表单 forms.css补丁 mend.css打印 print.css
+- 主要的 master.css
+- 模块 module.css
+- 基本共用 base.css
+- 布局、版面 layout.css
+- 主题 themes.css
+- 专栏 columns.css
+- 文字 font.css
+- 表单 forms.css
+- 补丁 mend.css
+- 打印 print.css
 ps：一律小写，尽量英文，不加中横线和下划线，除了一眼就明白的单词，其他的尽量不缩写 
 #css规范 
 ##1.css文件分类方法
