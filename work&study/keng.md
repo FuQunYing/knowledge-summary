@@ -89,3 +89,21 @@ const sameTitle = [], sameTitleList = [], resultList = [];
 ## web中的坑
 
 - 监听滚动，锚点自动定位
+
+## npm的坑
+
+- 项目中安装依赖时报 tar ENOENT的问题
+
+```text
+大概是npm的版本问题，依次执行下面的命令（全局执行）：
+ - sudo npm cache clean -f
+ - sudo npm install -g n
+ - sudo n stable
+```
+
+- 提示没有权限的问题（项目内执行，可能全局执行也可以）
+
+```text
+ - sudo chown -R $USER:$GROUP ~/.npm
+ - sudo chown -R $USER:$GROUP ~/.config
+```
