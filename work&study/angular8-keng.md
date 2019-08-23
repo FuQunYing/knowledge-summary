@@ -40,3 +40,19 @@ this.service.fun({}).subscribe(res => {
 	//如果请求出错，error就是一个httpErrorResponse对象，可以判断status状态码
 })
 ```
+
+### 4.angularJS 使用datepicker时，想要每个周末不可选
+
+```js
+// 一个函数
+  function disabled(data) {
+    var date = data.date,
+      mode = data.mode;
+    return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
+  }
+	// 然后在dateOptions中使用
+	$scope.dateOptions = {
+		dateDisabled: disabled
+	}
+	// 然后在HTML的标签上，把dateOptions使用一下即可，disabled函数的原理？？
+```

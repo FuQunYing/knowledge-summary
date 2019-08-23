@@ -90,6 +90,22 @@ const sameTitle = [], sameTitleList = [], resultList = [];
 
 - 监听滚动，锚点自动定位
 
+```text
+IE6/7/8
+	对于没有doctype声明的页面里可以使用document.body.scrollTop 来获取scrollTopgap高度
+	对于有doctype声明的页面则可以使用document.documentElement.scrollTop
+Safari
+  Safari有自己获取scrollTop的函数：window.pageYOffset
+Firefox/Chrome
+  标准浏览器：document.documentElement.scrollTop
+
+完整获取scrollTop值
+  var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+
+Safari的被放在中间，因为数字0和undefined进行 或 运算时，系统默认返回最后一个值。即或运算中 0 == undefined。
+当页面滚动条刚好在最顶端，即scrollTop值为0时，IE下 Safari返回undefined，此时将Safari放在或运算最后时，scrollTop返回undefined，undefined在后面的运算会报错。。。。
+```
+
 ## npm的坑
 
 - 项目中安装依赖时报 tar ENOENT的问题
