@@ -56,3 +56,22 @@ this.service.fun({}).subscribe(res => {
 	}
 	// 然后在HTML的标签上，把dateOptions使用一下即可，disabled函数的原理？？
 ```
+
+### 5.Angular8中上传图片并预览
+
+```javascript
+// 引入下面这个模块
+import { DomSanitizer } from '@angular/platform-browser'; // 这个模块到底是干嘛的呢
+// 实例化之后，在img标签上使用
+<img [src]="doms.bypassSecurityTrustUrl(files)">
+
+// 其中files的获取，首先是input上绑定的
+<input type="file"  accept="image/png,image/jpg,image/jpeg" (change)="fileChange($event)">
+
+// 然后在事件中
+fileChange(e) {
+	const file = e.srcElement.files[0];
+	this.files = window.URL.createObjectURL(file);
+}
+//window.URL.createObjectURL 创建一个DOMString，其中包含一个表示参数中给出的对象的url，这个url的生命周期和创建它的窗口中的document绑定，这个新的url对象表示指定的file对象或者blob对象
+```

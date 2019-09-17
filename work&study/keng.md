@@ -104,6 +104,8 @@ Safari的被放在中间，因为数字0和undefined进行 或 运算时，系�
 当页面滚动条刚好在最顶端，即scrollTop值为0时，IE下 Safari返回undefined，此时将Safari放在或运算最后时，scrollTop返回undefined，undefined在后面的运算会报错。。。。
 ```
 
+- 获取当前的url：window.location.href
+
 ## npm的坑
 
 - 项目中安装依赖时报 tar ENOENT的问题
@@ -123,6 +125,10 @@ Safari的被放在中间，因为数字0和undefined进行 或 运算时，系�
 ```
 
 ## Mac的坑
+
+> 关于更改了app包内容以后，提示包已损坏
+
+- 使用命令: sudo spctl --master-disable，打开允许任何来源，否则无法运行，提示文件损坏
 
 > 关于terminal中用vi编辑时
 
@@ -268,3 +274,5 @@ Safari的被放在中间，因为数字0和undefined进行 或 运算时，系�
 - ndd 剪切当前行之后的n行。利用p命令可以对剪切的内容进行粘贴
 - :1,10d 将1-10行剪切。利用p命令可将剪切后的内容进行粘贴。
 - :1, 10 m 20 将第1-10行移动到第20行之后。
+
+### 

@@ -21,3 +21,4 @@
 <!--虽然不知道为什么但是搜到的解决方法是：-->
 <select ng-model="testVariable" ng-init="testVariable=这里给个默认值就可以了"></select>
 ```
+
