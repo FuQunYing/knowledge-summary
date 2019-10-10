@@ -75,3 +75,17 @@ fileChange(e) {
 }
 //window.URL.createObjectURL 创建一个DOMString，其中包含一个表示参数中给出的对象的url，这个url的生命周期和创建它的窗口中的document绑定，这个新的url对象表示指定的file对象或者blob对象
 ```
+
+### 6.ant design table
+
+> nz-table，给th 设置nzWidth，有时候会不生效
+
+```html
+<th nzWidth="100px"></th>
+<!--原因：当前列中的td中内容宽度大于设置的100px了，需要给table设置换行，让td中的内容自动换行即可-->
+<style>
+	table{
+		word-break:break-all;
+	}
+</style>
+```
