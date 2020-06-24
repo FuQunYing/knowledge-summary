@@ -39,4 +39,25 @@ npm install webpack webpack-cli --save-dev
   - 无法立即体现，脚本的执行依赖于外部扩展库
   - 如果依赖不存在，或者引入顺序错误，应用程序将无法正常运行
   - 如果依赖被引入但是并没有使用，浏览器将被迫下载无用代码
-  
+  所以需要使用webpack来管理脚本。
+
+### 2.创建一个bubble文件
+
+  首先调整一下目录结构，将“源”代码（/src）从分发代码（/dist）中分离出来(index.html移动到dist文件夹下)。
+  源代码是用来书写和编辑的代码。分发代码是构建过程产生的代码最小化和优化后的输出目录，最终将在浏览器中加载。
+
+  要在index.js中打包lodash依赖，需要在本地安装library：npm install --save lodash
+
+> ps：在安装一个要打包到生产环境的安装包时，应该使用npm install --save，如果在安装一个用于开发环境的安装包，应该使用npm install --save-dev
+
+  现在，在脚本中import lodash：
+```javascript
+import _ from 'lodash';
+function componet() {
+    var element = document.createElement('div');
+    // Lodash(通过一个script脚本引入)，对于执行这一行是必需的
+    element.innerHTML = _.join(['hello', 'webpack'], '');
+    return element;
+}
+document.body.appendChild(componet())
+```
