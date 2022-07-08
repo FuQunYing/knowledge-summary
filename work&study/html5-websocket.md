@@ -1,15 +1,15 @@
-#WebSocket
-##API
-###1.新建WebSocket实例
+## WebSocket
+##### API
+###### 1.新建WebSocket实例
 ```javascript
 var ws = new WebSocket('.......http地址')
 ```
-###2.readyState-返回实例对象的当前状态
+##### 2.readyState-返回实例对象的当前状态
   - CONNECTING：值为0，表示正在连接
   - OPEN：值为1，表示连接成功，可以通信了
   - CLOSING：值为2，表示连接正在关闭
   - CLOSED：值为3，表示连接已经关闭，或者打开连接失败
-  例如：
+    例如：
 ```javascript
 switch (ws.readyState){
   case WebSocket.CONNECTING:
@@ -29,13 +29,13 @@ switch (ws.readyState){
   	break;
 }
 ```
-###3.webSocket.onopen-指定连接成功后的回调函数
+##### 3.webSocket.onopen-指定连接成功后的回调函数
 ```javascript
 ws.onopen = function(e) {.....}
 //或者想要指定多个回调函数的话：
 ws.addEventListener('open', function(e){.....})
 ```
-###4.webSocket.onclose-指定连接关闭后的回调函数
+##### 4.webSocket.onclose-指定连接关闭后的回调函数
 ```javascript
 ws.onclose = function(e) {....}
 ws.addEventListener('close', function(e){
@@ -45,7 +45,7 @@ ws.addEventListener('close', function(e){
   //处理关闭后的事件
 })
 ```
-###5.webSocket.onmessage-指定收到服务器数据后的回调函数
+##### 5.webSocket.onmessage-指定收到服务器数据后的回调函数
 ```javascript
 ws.onmessage = function(e){....}
 ws.addEventListener('message', function(e){
@@ -62,7 +62,7 @@ ws.addEventListener('message', function(e){
   	ws.binaryType = 'arraybuffer';
   	ws.onmessage = function (e){....}
 ```
-###6.webSocket.send-用于向服务器发送数据
+##### 6.webSocket.send-用于向服务器发送数据
 ```javascript
 //比如发送一个文本：
 ws.send('随便写写点啥');
@@ -77,7 +77,7 @@ for(var i = 0; i < img.data.length; i++){
 }
 ws.send(binary.buffer)
 ```
-###7.webSocket.bufferedAmount-还有多少字节的二进制数据没有发送出去
+##### 7.webSocket.bufferedAmount-还有多少字节的二进制数据没有发送出去
 ```javascript
 //这个可以用来判断发送是否结束
 var data = new ArrayBuffer(100000000);
@@ -88,12 +88,11 @@ if(ws.bufferedAmount === 0) {
   //还没发完
 }
 ```
-###8.webSocket.onerror-指定报错时的回调函数
+##### 8.webSocket.onerror-指定报错时的回调函数
 ```javascript
 ws.onerror = function(e) {....}
 ws.addEventListener('error', function(e){....})
 ```
-
 
 
 

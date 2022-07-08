@@ -8,14 +8,16 @@
 app.js | 是 | 小程序逻辑
 app.json | 是 | 小程序公共设置
 app.wxss | 否 | 小程序的公共样式表
-  一个小程序页面由四个文件组成，分别是：
+
+**一个小程序页面由四个文件组成，分别是：**
 文件类型 | 必填 | 作用
 - | - | -
 js | 是 | 页面逻辑
 wxml | 是 | 页面结构
 wxss | 否 | 页面样式表
 json | 否 | 页面配置
-  **ps: 为了减少配置项，描述页面的四个文件必须具有相同的路径与文件名**
+- **ps: 为了减少配置项，描述页面的四个文件必须具有相同的路径与文件名**
+
 ### 1.app.js
   App()必写，用来注册一个小程序，接受一个Object参数，其指定小程序的生命周期函数等。
 #### 1.1 Object参数说明：
@@ -387,7 +389,7 @@ Page({
   callback | Function | 否 | 回调函数 | 1.5.0
 
   object 以 key，value 的形式表示将 this.data 中的 key 对应的值改变成 value。 callback 是一个回调函数，在这次setData对界面渲染完毕后调用。其中 key 可以非常灵活，以数据路径的形式给出，如 array[2].message，a.b.c.d，并且不需要在 this.data 中预先定义。
-  
+
   注意：
   - 直接修改this.data而不调用this.setData是无法改变页面的状态的，还会造成数据不一致
   - 单次设置的数据不能超过1024KB，尽量避免一次设置过多的数据
@@ -720,14 +722,14 @@ Tab切换 | 调用 API wx.switchTab 或使用组件 <navigator open-type="switch
   Tab切换对应的生命周期（以A、B页面为Tabbar页面，C是从A页面打开的页面，D是从C页面打开的页面为例）
 当前页面 | 路由后页面 | 触发的生命周期（按顺序）
 - | - | -
-A | A | 啥也没发生
-A | B | A.onHide(),B.onLoad(),B.onShow()
-A | B （再次打开） | A.onHide(),B.onShow()
-C | A | C.onUnload(),A.onShow()
-C | B | C.onUnload(),B.onLoad(),B.onShow()
-D | B | D.onUnload(),C.onUnload(),B.onLoad(),B.onShow()
-D（从转发进入） | A | D.onUnload(),A.onLoad(),A.onShow()
-D（从转发进入） | B | D.onUnload(), B.onLoad(), B.onShow()
+  A | A | 啥也没发生
+  A | B | A.onHide(),B.onLoad(),B.onShow()
+  A | B （再次打开） | A.onHide(),B.onShow()
+  C | A | C.onUnload(),A.onShow()
+  C | B | C.onUnload(),B.onLoad(),B.onShow()
+  D | B | D.onUnload(),C.onUnload(),B.onLoad(),B.onShow()
+  D（从转发进入） | A | D.onUnload(),A.onLoad(),A.onShow()
+  D（从转发进入） | B | D.onUnload(), B.onLoad(), B.onShow()
   **PS：**
   - navigateTo, redirectTo 只能打开非 tabBar 页面。
   - switchTab 只能打开 tabBar 页面。
@@ -809,7 +811,7 @@ Page({
   ```
 #### 6.2 同步API
   约定，以Sync结尾的API都是同步API，如wx,setStorgeSync,wx.getSystemInfoSync等，此外也有一些其它的同步API，如wx.createWorker,wx.getBackgroundAudioManager等，详见API文档。
-  
+
   同步API的执行结果，可以通过函数返回值直接获取，如果执行出错，会抛出异常。
 
   代码示例：
@@ -841,7 +843,7 @@ Page({
   其他 | Any | 接口返回的其他数据
 
   异步API的执行结果需要通过Object类型的参数中传入的对应回调函数获取。部分API也会有返回值，可以用来实现更丰富的功能，如wx.request，wx.connentSockets等
-  
+
   代码示例：
   ```javacript
   wx.login({
@@ -1069,7 +1071,7 @@ Page({
     <text> Time: {{time}} </text>
   </view>
 </template>
-``` 
+```
 ##### 1.4.2 使用模板
   使用is属性，生命需要的使用的模板，然后将模板所需的data传入，如：
 ```html
@@ -1190,8 +1192,8 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
   事件绑定的写法同组件的属性，以key、value的形式。
   - key以bind或catch开头，然后跟上事件的类型，如bindtap、catchtouchstart。自基础库版本1.5.0起，在非原生组件中，bind和catch后可以紧跟一个冒号，其含义不变，如bind:tap、catch:touchstart
   - value是一个字符串，需要在对应的Page中定义同名的函数，不然当触发事件的时候会报错。
-  bind事件绑定不会阻止冒泡事件向上冒泡，catch事件绑定可以阻止冒泡事件向上冒泡。
-  比如下面的例子，点击inner view会先后调用handleTap3和handleTap2（因为tap事件会冒泡到middle view，而middle view阻止了tap事件继续往外冒泡，不再向父节点传递），点击middle view会触发handleTap2，点击middle view会触发handleTap2，点击outer view会触发handleTap1
+    bind事件绑定不会阻止冒泡事件向上冒泡，catch事件绑定可以阻止冒泡事件向上冒泡。
+    比如下面的例子，点击inner view会先后调用handleTap3和handleTap2（因为tap事件会冒泡到middle view，而middle view阻止了tap事件继续往外冒泡，不再向父节点传递），点击middle view会触发handleTap2，点击middle view会触发handleTap2，点击outer view会触发handleTap1
 ```html
 <view id="outer" bindtap="handleTap1">
   outer view
@@ -1236,7 +1238,7 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
  属性 | 类型 | 说明
  - | - | -
  detail | Object | 额外的信息
- **TouchEvent触摸事件对象属性列表（继承BaseEvent）**
+  **TouchEvent触摸事件对象属性列表（继承BaseEvent）**
  属性 | 类型 | 说明
  - | - | -
  touches | Array | 触摸事件，当前停留在屏幕中的触摸点信息的数组
@@ -1261,9 +1263,9 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 属性 | 类型 | 说明
  - | - | -
  id | String | 事件源组件的id
- tagName | String | 当前组件的类型
- dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
- **说明：target和currentTarget可以参考上例中，点击inner view时，handleTap3收到的事件对象target和currentTarget都是inner，而handleTap2收到的事件对象target就是inner，currentTarget就是middle**
+  tagName | String | 当前组件的类型
+  dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
+  **说明：target和currentTarget可以参考上例中，点击inner view时，handleTap3收到的事件对象target和currentTarget都是inner，而handleTap2收到的事件对象target就是inner，currentTarget就是middle**
 
 **dataset**
   在组件中可以定义数据，这些数据将会通过事件传递给SERVICE，书写方式：以data-开头，多个单词由连字符 - 连接，不能有大写（大写会自动转成小写）如data-element-type，最终在event.currentTarget.dataset中会将连字符转成驼峰elementType。
@@ -1835,11 +1837,11 @@ do {
   只有true和false
 
   constructor返回字符串'Boolean'
-  
+
   方法：toString、valueOf
 ##### 4.6.4 Object
   参考JavaScript
-  
+
   constructor返回字符串'Object'
 
   toString返回'[object Object]'
@@ -1850,8 +1852,8 @@ do {
   arguments关键词支持的属性：
   - length，参数个数
   - [index] 通过index下标可以遍历传递给函数的每个参数
-  constructor返回‘'Function';length返回形参个数
-  toString返回'[object Object]'
+    constructor返回‘'Function';length返回形参个数
+    toString返回'[object Object]'
 ##### 4.6.6 array
   参考JS
 ##### 4.6.7 date
@@ -1962,7 +1964,7 @@ console.log( 'object' === typeof null );
   - NaN
   - Infinity
   - undefined
-  
+
   **方法：**
   - parseInt
   - parseFloat
@@ -1981,7 +1983,7 @@ console.log( 'object' === typeof null );
   - 相交区域：目标节点的布局区域与参照区域的相交区域
   - 相交比例：相交区域占参照区域的比例
   - 阈值（临界值）：相交比例如果达到阈值，则会触发监听器的回调函数。阈值可以有多个。
-  以下示例代码可以在目标节点（用选择器.target-class指定）每次进入或离开页面显示区域时，触发回调函数：
+    以下示例代码可以在目标节点（用选择器.target-class指定）每次进入或离开页面显示区域时，触发回调函数：
 ```javascript
 Page({
   onLoad: function() {
@@ -2795,9 +2797,9 @@ Component({
   1.当进行 behavior2 的声明时就会调用 behavior3 的 definitionFilter 函数，其中 defFields 参数是 behavior2 的定义段， definitionFilterArr 参数即为空数组，因为 behavior3 没有使用其他的 behavior 。
 
   2.当进行 behavior1 的声明时就会调用 behavior2 的 definitionFilter 函数，其中 defFields 参数是 behavior1 的定义段， definitionFilterArr 参数是一个长度为1的数组，definitionFilterArr[0] 即为 behavior3 的 definitionFilter 函数，因为 behavior2 使用了 behavior3。用户在此处可以自行决定在进行 behavior1 的声明时要不要调用 behavior3 的 definitionFilter 函数，如果需要调用，在此处补充代码 definitionFilterArr[0](defFields) 即可，definitionFilterArr 参数会由基础库补充传入。
-  
+
   3.同理，在进行 component 的声明时就会调用 behavior1 的 definitionFilter 函数。
-  
+
   简单概括，definitionFilter 函数可以理解为当 A 使用了 B 时，A 声明就会调用 B 的 definitionFilter 函数并传入 A 的定义对象让 B 去过滤。此时如果 B 还使用了 C 和 D ，那么 B 可以自行决定要不要调用 C 和 D 的 definitionFilter 函数去过滤 A 的定义对象
 
 #### 7.2 真实案例
