@@ -8,7 +8,7 @@ function a() {
   console.log(this);//window
 }
 a();
-//一句一句的说，在function a() 的时候，就是在window里面声明了一个叫a的函数，在a里面有个变量name，但是this指向的是调用a的那个东东，问题来了，a()这样进行的调用，怎么知道谁调的呢，window里面有很多方法，就像用alert的时候不会特地加上window.一样，在window里面声明过的函数直接调用就可以，这样就可以理解了，其实a()就相当于window.a()，那this就是指向.前的那个东东，就是window了对不对。window里面有name吗，并没有，所以自然是undefined，打印this也只会把window打印出来，展开看看特别多的方法。
+//一句一句的说，在function a() 的时候，就是在window里面声明了一个叫a的函数，在a里面有个变量name，但是this指向的是调用a的那个东东，问题来了，a()这样进行的调用，怎么知道谁调的呢，window里面有很多方法，就像用alert的时候不会特地加上window.一样，在window里面声明过的函数直接调用就可以，这样就可以理解了，其实a()就相当于window.a()，那this就是指向.前的那个东东，就是window了对不对。window里面 有name吗，并没有，所以自然是undefined，打印this也只会把window打印出来，展开看看特别多的方法。
 ```
 ## the second example
 ```javascript

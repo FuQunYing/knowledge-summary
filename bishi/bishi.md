@@ -1,14 +1,62 @@
-#### CSS相关
+#### 0. HTML相关
+- 语义化标签
+
+#### 1.浏览器相关
+- 浏览器重绘与重排的区别
+- 如何触发重绘与重排
+- Cookie、sessionStorage、localStorage 的区别
+- 语义化标签：header nav main article section aside footer
+- 从输入URL到页面加载的全过程
+> - 浏览器中输入URL
+> - 查找缓存：浏览器先查看浏览器缓存 - 系统缓存 - 路由缓存中是否有该地址页面，如果有则显示页面内容，如果没有则进行下一步
+> 	- 浏览器缓存：浏览器会记录DNS一段时间，因此，只是第一个地方解析DNS请求
+> 	- 操作系统缓存：如果在浏览器缓存中不包含这个记录，则会使系统调用操作烯烃，获取操作系统的记录（保存最近的DNS查询缓存）
+> 	- 路由器缓存：如果上述两个步骤均不能成功获取DNS记录，继续搜索路由器缓存
+> 	- ISP缓存：若上述均失败，继续向ISP搜索
+> - DNS域名解析：浏览器向DNS服务器发起请求，解析该URL的域名对应的IP地址。DNS服务器是基于UDP的，因此会用到UDP协议
+> - 建立TCP连接：解析出IP地址后，根据IP地址和默认80端口，和服务器建立TCP连接
+> - 发起HTTP请求：浏览器发起读取文件的HTTP请求，该请求报文作为TCP三次握手的第三次数据发送给服务器
+> - 服务器响应请求并返回结果：服务器对浏览器请求做出响应，并把对应的html文件发送给浏览器
+> - 关闭TCP连接：通过四次挥手释放TCP连接
+> - 浏览器渲染：客户端（浏览器）解析html内容并渲染出来，浏览器接收到数据包后的解析流程为：
+> 	- 构建DOM树：词法分析然后解析成DOM树（dom tree），是由dom元素及属性节点组成，树的根是document对象
+> 	- 构建CSS规则树：生成CSS规则树（CSS Rule Tree）
+> 	- 构建render树：Web浏览器将DOM和CSSOM结合，并构建出渲染树（render tree）
+> 	- 布局（Layout）：计算出每个节点在屏幕中的位置
+> 	- 绘制（Painting）：即遍历render树，并使用UI后端层绘制每个节点。
+> 	
+
+#### 2. CSS相关
 - 选择器的优先级
 - 垂直居中的方法
+- CSS 盒子模型
 - flex
 	- 容器的属性（flex-xxx，justify-content，align-xxx）
 	- 项目的属性（order，flex-grow，flex-xxx，align-self，align-items）
+- BFC
+> BFC 是 Block Formatting Context 的缩写，即块级格式化上下文。BFC是CSS布局的一个概念，是一个独立的渲染区域，规定了内部box如何布局， 并且这个区域的子元素不会影响到外面的元素，其中比较重要的布局规则有内部 box 垂直放置，计算 BFC 的高度的时候，浮动元素也参与计算。
+- BFC 的原理布局规则
+	- 内部的box会在垂直方向，一个接一个的放置
+	- box垂直方向的距离由margin决定，属于同一个BFC的两个相邻box的margin会发生重叠
+	- 每个元素的margin box的左边，与包含块border box的左边相接触（对于从左往右的格式化，否则相反）
+	- BFC的区域不会与float box重叠
+	- BFC是一个独立容器，容器里面的子元素不会影响到外面的元素
+	- 计算BFC的高度时，浮动元素也参与计算高度
+	- 元素的类型和display属性，决定了这个box的类型，不同类型的box会参与不同的formatting context
+- 如何创建BFC
+	- 根元素，即html元素
+	- float的值不为none
+	- position为absolute或者fixed
+	- display的值为inline-block，table-cell，table-caption
+	- overflow的值不为visible
+- BFC的使用场景
+	- 去除边距重叠现象
+	- 清除浮动（让父元素的高度包含子浮动元素）
+	- 避免某元素被浮动元素覆盖
+	- 避免多列布局由于宽度计算四舍五入而自动换行
 
-#### 浏览器相关
-- 浏览器重绘与重排的区别
-- 如何触发重绘与重排
-#### JS相关
+
+#### 3.JS相关
 - 原型和原型链
 - Eventloop事件循环
 > JS是单线程的，为了防止一个函数执行时间过长阻塞后面的代码，所以会先将同步代码压入执行栈中，依次执行，将异步代码推入异步队列，异步队列又分为宏任务队列和微任务队列，因为宏任务队列的执行时间较长，所以微任务队列要优先于宏任务队列。微任务队列的代表就是，Promise.then，MutationObserver，宏任务的话就是setImmediate setTimeout setInterval
@@ -70,12 +118,15 @@ obj2.info.age = 4
 console.log(obj1) // { name: 'dog', info: { age: 3 }, fn: function(){} }
 console.log(obj2) // { name: 'cat', info: { age: 4 }, fn: function(){} } 
 ```
-#### Vue相关
+#### 4.Vue相关
 - 父子组件通信
 - 生命周期
+- Vue2和Vue3双向数据绑定的区别
+- vuex
 - vue.config跨域配置
 > // TODO 跨域 === 这里重写的baseUrl，请求会被转到vue.config.js中配置的代理地址，但是网络请求源的头与自己配置的host相同，此时请求网址与请求标头中的http://xxxx 是相同的，自然cookie就可以保存了
 // 问题出现的原因：requestUrl 与 Origin 不同源
+
 ##### vue中data为什么是函数
 - 官网原文：当一个组件被定义，data 必须声明为返回一个初始数据对象的函数，因为组件可能被用来创建多个实例。如果 data 仍然是一个纯粹的对象，则所有的实例将共享引用同一个数据对象！通过提供 data 函数，每次创建一个新实例后，我们能够调用 data 函数，从而返回初始数据的一个全新副本数据对象。
 	- 如果重复创建了实例，那这个数据对象会被共享，这里的修改就会影响到那里....那一个组件还敢重复使用吗
@@ -95,4 +146,10 @@ console.log(obj2) // { name: 'cat', info: { age: 4 }, fn: function(){} }
 - loader和plugin的区别
 - 常见loader
 - 常见plugin
+
+#### 其它
+- echarts
+- highcharts
+- antv
+- angular？
 
