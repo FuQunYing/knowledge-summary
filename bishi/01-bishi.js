@@ -22,3 +22,4 @@ function fun() {
 }
 var a = new fun();
 console.log(a.name);// 输出
+

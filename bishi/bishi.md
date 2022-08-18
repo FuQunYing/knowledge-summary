@@ -1,11 +1,11 @@
 #### 0. HTML相关
-- 语义化标签
+- H5有哪些新特性
+- 语义化标签：header nav main article section aside footer
 
 #### 1.浏览器相关
 - 浏览器重绘与重排的区别
-- 如何触发重绘与重排
+- 如何触发重绘与重排 ---- 
 - Cookie、sessionStorage、localStorage 的区别
-- 语义化标签：header nav main article section aside footer
 - 从输入URL到页面加载的全过程
 > - 浏览器中输入URL
 > - 查找缓存：浏览器先查看浏览器缓存 - 系统缓存 - 路由缓存中是否有该地址页面，如果有则显示页面内容，如果没有则进行下一步
@@ -33,7 +33,10 @@
 - flex
 	- 容器的属性（flex-xxx，justify-content，align-xxx）
 	- 项目的属性（order，flex-grow，flex-xxx，align-self，align-items）
+	- 用flex实现一个左侧宽度固定，右侧宽度随窗口大小变化的布局
+	
 - BFC
+> BFC 是块级格式上下文，IFC 是行内格式上下文
 > BFC 是 Block Formatting Context 的缩写，即块级格式化上下文。BFC是CSS布局的一个概念，是一个独立的渲染区域，规定了内部box如何布局， 并且这个区域的子元素不会影响到外面的元素，其中比较重要的布局规则有内部 box 垂直放置，计算 BFC 的高度的时候，浮动元素也参与计算。
 - BFC 的原理布局规则
 	- 内部的box会在垂直方向，一个接一个的放置
@@ -59,7 +62,7 @@
 #### 3.JS相关
 - 原型和原型链
 - Eventloop事件循环
-> JS是单线程的，为了防止一个函数执行时间过长阻塞后面的代码，所以会先将同步代码压入执行栈中，依次执行，将异步代码推入异步队列，异步队列又分为宏任务队列和微任务队列，因为宏任务队列的执行时间较长，所以微任务队列要优先于宏任务队列。微任务队列的代表就是，Promise.then，MutationObserver，宏任务的话就是setImmediate setTimeout setInterval
+> JS是单线程的，为了防止一个函数执行时间过长阻塞后面的代码，所以会先将同步代码压入执行栈中，依次执行，将异步代码推入异步队列，异步队列又分为宏任务队列和微任务队列，因为宏任务队列的执行时间较长，所以微任务队列要优先于宏任务队列。微任务队列的代表就是，Promise.then，MutationObserver，宏任务的话就是setImmediate setTimeout setInterval ------
 
 ##### 构造函数 & 原型链
 ```javascript
@@ -122,6 +125,8 @@ console.log(obj2) // { name: 'cat', info: { age: 4 }, fn: function(){} }
 - 父子组件通信
 - 生命周期
 - Vue2和Vue3双向数据绑定的区别
+- Vue3新特性
+- 平常v-for循环渲染的时候，为什么不建议用index作为循环项的key呢
 - vuex
 - vue.config跨域配置
 > // TODO 跨域 === 这里重写的baseUrl，请求会被转到vue.config.js中配置的代理地址，但是网络请求源的头与自己配置的host相同，此时请求网址与请求标头中的http://xxxx 是相同的，自然cookie就可以保存了
@@ -146,10 +151,19 @@ console.log(obj2) // { name: 'cat', info: { age: 4 }, fn: function(){} }
 - loader和plugin的区别
 - 常见loader
 - 常见plugin
+> loader 只用来处理文件，plugin是对功能进行了扩展 -----
 
 #### 其它
+- 前端性能优化
 - echarts
 - highcharts
 - antv
+- ts
 - angular？
+
+自动化 - 自学前端
+南站
+位置OK
+
+18 - 20k
 

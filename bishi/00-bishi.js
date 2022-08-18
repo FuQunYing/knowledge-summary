@@ -12,3 +12,4 @@ fun2.prototype.name = 'Tom';
 fun3.prototype.name = 'Tom';
 
 console.log(new fun1().name, new fun2().name, new fun3().name)
+// TOM , undefined, Jhon
