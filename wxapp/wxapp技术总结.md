@@ -3,6 +3,7 @@
 ## 一、小程序的文件结构
 小程序包含一个描述整体程序的app和多个描述各自页面的page。
 一个程序主体部分由三个文件组成，必须放在项目的根目录下：
+
 文件 | 必填 | 作用
 - | - | -
 app.js | 是 | 小程序逻辑
@@ -10,6 +11,7 @@ app.json | 是 | 小程序公共设置
 app.wxss | 否 | 小程序的公共样式表
 
 **一个小程序页面由四个文件组成，分别是：**
+
 文件类型 | 必填 | 作用
 - | - | -
 js | 是 | 页面逻辑
@@ -59,6 +61,7 @@ referrerInfo | Object | 当场景为由从一个小程序或公众号或App打�
 referrerInfo.appId | String | 来源小程序或公众号或App的appId
 referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=1037或者1038时支持
   **以下场景支持返回referrerInfo.appId：**
+
 场景值 | 场景 | appId含义
 - | - | -
 1020 | 公众号profile页相关小程序列表 | 返回来源公众号appId
@@ -69,6 +72,7 @@ referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=1037
 1043 | 公众号模板消息 | 返回来源公众号appId
 #### 1.3 onPageNotFound
   当要打开的页面不存在时，会回调这个监听器，并带上以下信息：
+
 字段 | 类型 | 说明
 - | - | -
 path | String | 不存在页面的路径
@@ -140,6 +144,7 @@ debug | Boolean | 否 | 设置是否开启debug模式
   接受一个数组，每一项都是字符串，来指定小程序由哪些页面组成，每一项代表对应页面的[路径+文件名]信息，数组的第一项代表小程序的初始页面，小程序中新增或者减少页面，都需要对pages数组进行修改，文件名不需要写文件后缀，框架会自动去寻找路径下.json .js .wxml .wxss四个文件进行整合。
 ##### 2.1.2 window
 用于设置小程序的状态栏、导航条、标题、窗口背景颜色：
+
 属性 | 类型 | 默认值 | 描述 | 最低版本
 - | - | - | - | - 
 navigationBarBackgroundColor | HexColor | #000000 | 导航栏背景颜色，比如"#000" | 
@@ -173,6 +178,7 @@ onReachBottomDistance | Number | 50 | 页面上拉触底事件触发时距页面
  - tabBar中的list是一个数组，只能配置最少2个，最多5个tab，tab按数组的顺序排列。
 
 **属性说明**
+
 属性 | 类型 | 必填 | 默认值 | 描述
 - | - | - | - | - 
 color | HexColor | 是 | | tab上的文字默认颜色
@@ -183,6 +189,7 @@ list | Array | 是 |  | tab的列表
 position | String | 否 | bottom | 可选值不bottom top
 
 **其中list接受一个数组，数组中的每个项都是一个对象，属性值如下：**
+
 属性 | 类型 | 必填 | 说明
 - | - | - | -
 pagePath | String | 是 | 页面路径， 必须在pages数组中先定义
@@ -192,6 +199,7 @@ selectedIconPath | String | 否 | 图片路径，icon大小限制为40kb，建�
   ![图片](tabbar.png)
 ##### 2.1.4 networkTimeout
   用来设置各种网络请求的超时时间：
+
 属性 | 类型 | 必填 | 说明
 - | - | - | -
 request | Number | 否 | wx.request的超时时间，单位毫秒，默认为：60000
@@ -204,6 +212,7 @@ downloadFile | Number | 否 | wx.downloadFile的超时时间，单位毫秒，�
   每一个小程序页面也可以使用.json文件来对本页面的窗口表现进行配置。 页面的配置比app.json全局配置简单得多，只是设置 app.json 中的 window 配置项的内容，页面中配置项会覆盖 app.json 的 window 中相同的配置项。
 
   页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键，如：
+
 属性 | 类型 | 默认值 | 描述
 - | - | - | -
 navigationBarBackgroundColor | HexColor | #000000 | 导航栏背景颜色
@@ -219,6 +228,7 @@ onReachBottomDistance | Number | 50 | 页面上拉触底时间触发时距页面
   就是普通网页的css样式一样，wxss和css的特性大部分都一样，也大部分都能用，但是wxss扩展了尺寸单位和样式导入
 #### 3.1 尺寸单位
   rpx（responsive pixel）: 可以根据屏幕宽度进行自适应。规定屏幕宽为750rpx。如在 iPhone6 上，屏幕宽度为375px，共有750个物理像素，则750rpx = 375px = 750物理像素，1rpx = 0.5px = 1物理像素。
+
 设备 | rpx换算px（屏幕宽度/750） | px换算rpx（750/屏幕宽度）
 - | - | -
 iPhone5 | 1rpx=0.42px | 1px=2.34rpx
@@ -263,6 +273,7 @@ element, element | view, checkbox | 选择所有文档的 view 组件和所有�
 ### 4.JS - Page
   Page()函数用来注册一个页面，接受一个Object参数，指定页面的初始数据，生命周期函数，事件处理函数等
   **object参数说明**
+
 属性 | 类型 | 描述
 - | - | -
 data | Object | 页面的初始数据
@@ -383,6 +394,7 @@ Page({
 #### 4.6 Page.prototype.setData()
   setData函数用于将数据从逻辑层发送到视图层，同时改变对应的this.data的值
   setData的参数格式
+
   字段 | 类型 | 必填 | 描述 | 最低版本
   - | - | - | - |-
   data | Object | 是 | 这次要改变的数据 | 
@@ -538,6 +550,7 @@ Page({
 #### 1.1 App()
   App()函数用来注册一个小程序，接受一个Object参数，其指定小程序的生命周期函数等
   **object参数说明**
+
 属性 | 类型 | 描述 | 触发时机
 - | - | - | -
 onLaunch | Function |生命周期函数 -- 监听小程序初始化 | 当小程序初始化完成时，会触发一次onLaunch，全局只触发一次
@@ -560,6 +573,7 @@ referrerInfo | Object | 当场景为由另一个小程序或公众号或App打�
 referrerInfo.appId | String | 来源小程序或公众号或App的appId
 referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=10337或1038时支持
   **以下场景值返回referrerInfo.appId**
+
 场景值 | 场景 | appId信息含义
 - | - | -
 1020 | 公众号profile页相关小程序列表 | 返回来源公众号appId
@@ -570,6 +584,7 @@ referrerInfo.extraData | Object | 来源小程序传过来的数据，scene=1033
 1043 | 公众号模板消息 | 返回来源公众号appId
 #### 1.3 onPageNotFound
   当要打开的页面并不存在时，会回调这个监听器，并带上以下信息：
+
 字段 | 类型 | 说明
 - | - | -
 path | String | 不存在的页面路径
@@ -605,6 +620,7 @@ console.log(appInstance.globalData) // I am global data
 
 ### 2.场景值
   当前支持的场景值
+
 场景值ID | 说明
 - | -
 1001 | 发现栏小程序主入口
@@ -668,6 +684,7 @@ console.log(appInstance.globalData) // I am global data
 #### 3.1 Page
   page()函数用来注册一个页面，接受一个object参数，其指定页面的初始数据、生命周期函数、事件处理函数等
   **object参数说明**
+
 属性 | 类型 | 描述
 - | - | -
 data | Object | 页面的初始数据
@@ -696,6 +713,7 @@ onTabItemTap | Function | 当前是tab页时，点击tab时触发
   在小程序中所有的路由全部由框架进行管理。
 #### 4.1 页面栈
   框架以栈的形式维护了当前的所有页面，当发生路由切换的时候，页面栈的表现如下：
+
 路由方式 | 页面栈表现
 - | -
 初始化 | 新页面入栈
@@ -711,6 +729,7 @@ Tab切换 | 页面全部出栈，只留下新的Tab页面
   不要尝试修改页面栈，会导致路由以及页面状态错误
 #### 4.3 路由方式
   对于路由的触发方式以及页面生命周期函数如下：
+
 路由方式 | 触发时机 | 路由前页面 | 路由后页面
 - | - | - | - 
 初始化 | 小程序打开的第一个页面 |  | onLoad，onShow
@@ -826,6 +845,7 @@ Page({
   大多数API都是异步API，如wx.request，wx.login等，这类API接口通常都能接受一个Object类型的参数，这个参数都支持按需指定以下字段来接收接口调用结果：
 
   **Object参数说明：**
+
   参数名 | 类型 | 必填 | 说明
   - | - | - | - 
   success | function | 否 | 接口调用成功的回调函数
@@ -836,6 +856,7 @@ Page({
   **回调函数的参数**
 
   success、fail、complete函数调用时会传入一个Object类型参数，包含以下字段：
+
   属性 | 类型 | 说明
   - | - | -
   errMsg | string | 错误信息，如果调用成功返回${apiName}:ok
@@ -1171,6 +1192,7 @@ log出来的信息如下：
 2.非冒泡事件：当一个组件上的事件被触发后，该事件不会向父节点传递
 
 **WXML的冒泡事件列表**
+
 类型 | 触发条件 
 - | -
 touchstart | 手指触摸动作开始
@@ -1228,6 +1250,7 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 如无特殊说明，当组件触发事件时，逻辑层绑定该事件的处理函数会收到一个事件对象。<br>
 
  **BaseEvent基础事件对象属性列表**
+
 属性 | 类型 | 说明
  - | - | -
  type | String | 事件类型
@@ -1235,10 +1258,12 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
  target | Object | 触发事件的组件的一些属性值集合
  currentTarget | Object | 当前组件的一些属性值集合
  **CustomEvent自定义事件对象属性列表（继承BaseEvent）**
+
  属性 | 类型 | 说明
  - | - | -
  detail | Object | 额外的信息
   **TouchEvent触摸事件对象属性列表（继承BaseEvent）**
+
  属性 | 类型 | 说明
  - | - | -
  touches | Array | 触摸事件，当前停留在屏幕中的触摸点信息的数组
@@ -1253,6 +1278,7 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
 
  **target：**
  触发事件的源组件
+
  属性 | 类型 | 说明
  - | - | -
  id | String | 事件源组件的id
@@ -1260,6 +1286,7 @@ touchforcechange | 在支持3DTouch的iPhone设备，重按时会触发
  dataset | Object | 事件源组件上由data-开头的自定义属性组成的集合
  **currentTarget：**
  事件绑定的当前组件
+
 属性 | 类型 | 说明
  - | - | -
  id | String | 事件源组件的id
@@ -1285,6 +1312,7 @@ Page({
 touches是一个数组，每个元素为一个Touch对象（canvas触摸事件中携带的touches是CanvasTouch数组），表示当前停留在屏幕上的触摸点（所以我那个点击touches为空，因为没有停留的触摸点，点击之后就没了）
 
 **Touche对象**
+
 属性 | 类型 | 说明
 - | - | -
 identifier | Number | 触摸点的标识符
@@ -1366,6 +1394,7 @@ changedTouches 数据格式同 touches。 表示有变化的触摸点，如从�
   - 样式导入
 #### 2.1 尺寸单位
   - rpx（responsive pixel）: 可以根据屏幕宽度进行自适应。规定屏幕宽为750rpx。如在 iPhone6 上，屏幕宽度为375px，共有750个物理像素，则750rpx = 375px = 750物理像素，1rpx = 0.5px = 1物理像素。
+
   设备 | rpx换算成pc（屏幕宽度/750） | px换算成rpx（750/屏幕宽度）
   - | - | -
   iPhone5 | 1rpx=0.42px | 1px=2.34rpx
@@ -1404,6 +1433,7 @@ changedTouches 数据格式同 touches。 表示有变化的触摸点，如从�
 ```
 ##### 2.4 选择器
   目前支持的选择器有：
+
   选择器 | 样例 | 样例描述
   - | - | -
   .class | .intro | 选择所有拥有class="intro"的组件
@@ -1439,6 +1469,7 @@ Any | 任意属性
 
 #### 3.2 公共属性
   所有组件都有以下属性：
+
 属性名 | 类型 | 描述 | 注解
 - | - | - | -
 id | String | 组价的唯一标识 | 保持整个页面唯一
@@ -2293,6 +2324,7 @@ pageLifetimes |	Object |	否 |	组件所在页面的生命周期声明对象，�
 definitionFilter |	Function |	否	| 定义段过滤器，用于自定义组件扩展，参见 自定义组件扩展
 
 生命的组件实例可以在组件的方法、生命周期函数和属性observer中通过this访问。组件包含一些通用属性和方法：
+
 属性 | 类型 | 描述
 - | - | -
 is | String | 组件的文件路径
@@ -2435,6 +2467,7 @@ Component({
 })
 ```
 **触发事件的选项包括：**
+
 选项名 | 类型 | 是否必填 | 默认值 | 描述
 - | - | - | -| -
 bubbles | Boolean | 否 | false | 事件是否冒泡
@@ -2677,6 +2710,7 @@ Component({
 
 #### 5.3 relations 定义段
   relations定义段包含目标组件路径及其对应选项，可包含的选项见下表
+
 选项 | 类型 | 是否必填 | 描述
 - | - | - | - 
 type | String | 是 | 目标组件的相对关系，可选的值为parent、child、ancestor、descendant
